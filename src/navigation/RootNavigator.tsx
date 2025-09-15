@@ -31,7 +31,7 @@ import FeedbackScreen from '../screens/FeedbackScreen';
 import CocktailDetailScreen from '../screens/CocktailDetailScreen';
 import SavedItemsScreen from '../screens/SavedItemsScreen';
 import EditProfileScreen from '../screens/EditProfileScreen';
-import VaultScreen from '../screens/VaultScreen';
+import VaultScreen from '../screens/vault/VaultScreen';
 // Vault screens
 import VaultStoreScreen from '../screens/vault/VaultStoreScreen';
 import VaultCartScreen from '../screens/vault/VaultCartScreen';
