@@ -294,6 +294,7 @@ const styles = StyleSheet.create({
     paddingVertical: spacing(0.5),
     borderRadius: radii.sm,
     gap: spacing(0.5),
+    zIndex: 5,
   },
   rarityText: {
     color: colors.white,
@@ -308,6 +309,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing(1.5),
     paddingVertical: spacing(0.5),
     borderRadius: radii.sm,
+    zIndex: 5,
   },
   partnerText: {
     color: colors.white,
@@ -319,6 +321,7 @@ const styles = StyleSheet.create({
     bottom: spacing(1),
     left: spacing(1),
     right: spacing(1),
+    zIndex: 3,
   },
   stockBar: {
     height: 4,
@@ -345,6 +348,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0,0,0,0.6)',
     alignItems: 'center',
     justifyContent: 'center',
+    zIndex: 15,
   },
   soldOutOverlay: {
     position: 'absolute',
@@ -355,6 +359,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0,0,0,0.8)',
     alignItems: 'center',
     justifyContent: 'center',
+    zIndex: 15,
   },
   soldOutText: {
     color: colors.white,
@@ -363,7 +368,7 @@ const styles = StyleSheet.create({
   },
   lowStockWarning: {
     position: 'absolute',
-    bottom: spacing(1),
+    bottom: spacing(4), // Move above stock container
     left: spacing(1),
     flexDirection: 'row',
     alignItems: 'center',
@@ -372,6 +377,7 @@ const styles = StyleSheet.create({
     paddingVertical: spacing(0.5),
     borderRadius: radii.sm,
     gap: spacing(0.5),
+    zIndex: 10, // Ensure it appears above other elements
   },
   lowStockText: {
     color: colors.white,
