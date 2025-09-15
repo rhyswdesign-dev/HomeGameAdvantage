@@ -18,10 +18,8 @@ import { colors, spacing, radii } from '../theme/tokens';
 import SectionHeader from '../components/SectionHeader';
 import PillButton from '../components/PillButton';
 import { useSavedItems } from '../hooks/useSavedItems';
-import { SearchableItem, FilterOptions } from '../services/searchService';
-import SearchModal from '../components/SearchModal';
-import FilterDrawer from '../components/FilterDrawer';
-import CreateRecipeModal from '../components/CreateRecipeModal';
+import GlobalActions from '../components/GlobalActions';
+import { SearchableItem } from '../services/searchService';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '../navigation/RootNavigator';
 
@@ -321,28 +319,13 @@ export default function BarsScreen() {
   const [city, setCity] = useState('Toronto, ON');
   const [active, setActive] = React.useState<string>('Bars');
 
-  // Modal states
-  const [searchModalVisible, setSearchModalVisible] = useState(false);
-  const [filterDrawerVisible, setFilterDrawerVisible] = useState(false);
-  const [createRecipeModalVisible, setCreateRecipeModalVisible] = useState(false);
-  const [currentFilters, setCurrentFilters] = useState<Partial<FilterOptions>>({});
-
-  const handleSearch = (query: string) => {
-    // Handle search - you could filter bars or navigate to search results
-    console.log('Search query:', query);
-    setSearchModalVisible(false);
-  };
-
-  const handleFilterApply = (filters: Partial<FilterOptions>) => {
-    setCurrentFilters(filters);
-    setFilterDrawerVisible(false);
-    console.log('Applied filters:', filters);
-    // Apply filters to bar results
+  const handleSearch = (results: SearchableItem[]) => {
+    // Handle search results - could filter bars or navigate to search results
+    console.log('Search results:', results);
   };
 
   const handleRecipeCreated = (recipeId: string) => {
     console.log('Recipe created:', recipeId);
-    setCreateRecipeModalVisible(false);
     // Could navigate to the created recipe
   };
 
@@ -376,19 +359,19 @@ export default function BarsScreen() {
       ),
       headerRight: () => (
         <View style={{ flexDirection: 'row', gap: 16 }}>
-          <Pressable hitSlop={12} onPress={() => setSearchModalVisible(true)}>
+          <Pressable hitSlop={12} onPress={() => handleSearch([])}>
             <Ionicons name="search" size={24} color={colors.text} />
           </Pressable>
-          <Pressable hitSlop={12} onPress={() => setFilterDrawerVisible(true)}>
+          <Pressable hitSlop={12} onPress={() => {}}>
             <Ionicons name="funnel" size={24} color={colors.text} />
           </Pressable>
-          <Pressable hitSlop={12} onPress={() => setCreateRecipeModalVisible(true)}>
+          <Pressable hitSlop={12} onPress={() => handleRecipeCreated('new-recipe')}>
             <Ionicons name="add-circle" size={24} color={colors.accent} />
           </Pressable>
         </View>
       ),
     });
-  }, [navigation]);
+  }, [navigation, handleSearch, handleRecipeCreated]);
 
   const renderItem: ListRenderItem<Bar> = ({ item }) => (
     <BarCard
@@ -516,25 +499,6 @@ export default function BarsScreen() {
         columnWrapperStyle={{ paddingHorizontal: spacing(2), columnGap: GUTTER }}
       />
 
-      {/* Modals */}
-      <SearchModal
-        visible={searchModalVisible}
-        onClose={() => setSearchModalVisible(false)}
-        onSearch={handleSearch}
-      />
-      
-      <FilterDrawer
-        visible={filterDrawerVisible}
-        onClose={() => setFilterDrawerVisible(false)}
-        onApply={handleFilterApply}
-        currentFilters={currentFilters}
-      />
-      
-      <CreateRecipeModal
-        visible={createRecipeModalVisible}
-        onClose={() => setCreateRecipeModalVisible(false)}
-        onSuccess={handleRecipeCreated}
-      />
     </View>
   );
 }

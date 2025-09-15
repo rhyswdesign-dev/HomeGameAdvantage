@@ -186,12 +186,26 @@ const mockProfile: UserProfile = {
   ],
 };
 
+interface TabOption {
+  key: 'posts' | 'recipes' | 'achievements' | 'about';
+  label: string;
+  icon: string;
+}
+
+const tabs: TabOption[] = [
+  { key: 'posts', label: 'Posts', icon: 'grid-outline' },
+  { key: 'recipes', label: 'Recipes', icon: 'restaurant-outline' },
+  { key: 'achievements', label: 'Awards', icon: 'trophy-outline' },
+  { key: 'about', label: 'About', icon: 'information-circle-outline' },
+];
+
 export default function ProfileScreen() {
   const nav = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const [profile, setProfile] = useState<UserProfile>(mockProfile);
   const { savedItems } = useSavedItems();
   const { user } = useUser();
   const [editModalVisible, setEditModalVisible] = useState(false);
+  const [activeTab, setActiveTab] = useState<'posts' | 'recipes' | 'achievements' | 'about'>('posts');
 
   useLayoutEffect(() => {
     nav.setOptions({
@@ -224,9 +238,164 @@ export default function ProfileScreen() {
     nav.navigate('EditProfile');
   };
 
+  const renderTabContent = () => {
+    switch (activeTab) {
+      case 'posts':
+        return (
+          <View style={styles.tabContent}>
+            <Text style={styles.emptyStateText}>Posts coming soon</Text>
+          </View>
+        );
+      case 'recipes':
+        return (
+          <View style={styles.tabContent}>
+            <Text style={styles.emptyStateText}>Recipes coming soon</Text>
+          </View>
+        );
+      case 'achievements':
+        return (
+          <View style={styles.tabContentScroll}>
+            {/* Badges Section */}
+            <View style={styles.achievementsSection}>
+              <Text style={styles.achievementsSectionTitle}>Badges</Text>
+              <ScrollView 
+                horizontal 
+                showsHorizontalScrollIndicator={false}
+                contentContainerStyle={styles.badgesScroll}
+              >
+                {currentProfile.badges.filter(badge => badge.earned).map((badge) => (
+                  <TouchableOpacity 
+                    key={badge.id} 
+                    style={styles.badgeCard}
+                    activeOpacity={0.8}
+                  >
+                    <MaterialCommunityIcons 
+                      name={badge.icon as any} 
+                      size={32} 
+                      color={colors.accent} 
+                    />
+                    <Text style={styles.badgeName}>{badge.name}</Text>
+                    <Text style={styles.badgeDescription}>{badge.fullDescription}</Text>
+                    <View style={styles.badgeCategory}>
+                      <Text style={styles.badgeCategoryText}>{badge.category.toUpperCase()}</Text>
+                    </View>
+                  </TouchableOpacity>
+                ))}
+              </ScrollView>
+            </View>
+
+            {/* Competitions */}
+            <View style={styles.achievementsSection}>
+              <Text style={styles.achievementsSectionTitle}>Competitions</Text>
+              <View style={styles.competitionsContainer}>
+                {currentProfile.competitions.map((competition) => (
+                  <TouchableOpacity key={competition.id} style={styles.competitionCard} activeOpacity={0.8}>
+                    <View style={styles.competitionHeader}>
+                      <View style={styles.competitionLeft}>
+                        <MaterialCommunityIcons 
+                          name={competition.icon as any} 
+                          size={28} 
+                          color={competition.place === 1 ? '#FFD700' : competition.place === 2 ? '#C0C0C0' : '#CD7F32'} 
+                        />
+                        <View style={styles.competitionInfo}>
+                          <Text style={styles.competitionName}>{competition.name}</Text>
+                          <Text style={styles.competitionSponsor}>Sponsored by {competition.sponsor}</Text>
+                          <Text style={styles.competitionDate}>{competition.date}</Text>
+                        </View>
+                      </View>
+                      <View style={[
+                        styles.competitionPlace,
+                        competition.place === 1 && styles.competitionPlaceGold,
+                        competition.place === 2 && styles.competitionPlaceSilver,
+                        competition.place === 3 && styles.competitionPlaceBronze,
+                      ]}>
+                        <Text style={[
+                          styles.competitionPlaceText,
+                          competition.place <= 3 && styles.competitionPlaceTextMedal
+                        ]}>
+                          {competition.place === 1 ? '1ST' : competition.place === 2 ? '2ND' : '3RD'}
+                        </Text>
+                      </View>
+                    </View>
+                    <Text style={styles.competitionDescription}>{competition.description}</Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+            </View>
+          </View>
+        );
+      case 'about':
+        return (
+          <View style={styles.tabContentScroll}>
+            {/* Bio */}
+            <View style={styles.aboutSection}>
+              <Text style={styles.aboutLabel}>Bio</Text>
+              <Text style={styles.bioText}>
+                {currentProfile.bio || 'No bio added yet.'}
+              </Text>
+            </View>
+
+            {/* Basic Info */}
+            <View style={styles.aboutSection}>
+              <Text style={styles.aboutLabel}>Account Information</Text>
+              <View style={styles.infoCard}>
+                <View style={styles.infoRow}>
+                  <Ionicons name="mail-outline" size={18} color={colors.subtext} />
+                  <Text style={styles.infoText}>{currentProfile.email}</Text>
+                </View>
+                <View style={styles.infoRow}>
+                  <Ionicons name="calendar-outline" size={18} color={colors.subtext} />
+                  <Text style={styles.infoText}>Joined {currentProfile.joinDate}</Text>
+                </View>
+              </View>
+            </View>
+
+            {/* Activity Stats */}
+            <View style={styles.aboutSection}>
+              <Text style={styles.aboutLabel}>Your Activity</Text>
+              <View style={styles.achievementsGrid}>
+                <TouchableOpacity style={styles.achievementCard} activeOpacity={0.7}
+                  onPress={() => nav.navigate('SavedItems', { category: 'bars' })}>
+                  <MaterialCommunityIcons name="heart" size={32} color={colors.accent} />
+                  <Text style={styles.achievementValue}>{savedItems.savedBars.length}</Text>
+                  <Text style={styles.achievementLabel}>Favorite Bars</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.achievementCard} activeOpacity={0.7}
+                  onPress={() => nav.navigate('SavedItems', { category: 'spirits' })}>
+                  <MaterialCommunityIcons name="glass-cocktail" size={32} color={colors.accent} />
+                  <Text style={styles.achievementValue}>{savedItems.savedSpirits.length}</Text>
+                  <Text style={styles.achievementLabel}>Favorite Spirits</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.achievementCard} activeOpacity={0.7}
+                  onPress={() => nav.navigate('SavedItems', { category: 'events' })}>
+                  <MaterialCommunityIcons name="bookmark" size={32} color={colors.accent} />
+                  <Text style={styles.achievementValue}>{savedItems.savedEvents.length}</Text>
+                  <Text style={styles.achievementLabel}>Saved Events</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.achievementCard} activeOpacity={0.7}
+                  onPress={() => nav.navigate('SavedItems', { category: 'communities' })}>
+                  <MaterialCommunityIcons name="account-group" size={32} color={colors.accent} />
+                  <Text style={styles.achievementValue}>{savedItems.followedCommunities.length}</Text>
+                  <Text style={styles.achievementLabel}>Communities</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.achievementCard} activeOpacity={0.7}
+                  onPress={() => nav.navigate('SavedItems', { category: 'cocktails' })}>
+                  <MaterialCommunityIcons name="glass-mug-variant" size={32} color={colors.accent} />
+                  <Text style={styles.achievementValue}>{savedItems.savedCocktails.length}</Text>
+                  <Text style={styles.achievementLabel}>Saved Cocktails</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </View>
+        );
+      default:
+        return null;
+    }
+  };
+
   return (
     <SafeAreaView style={styles.container} edges={['left', 'right', 'bottom']}>
-      <ScrollView contentContainerStyle={styles.scrollContent}>
+      <ScrollView showsVerticalScrollIndicator={false}>
         {/* Profile Header */}
         <View style={styles.profileHeader}>
           {/* Avatar */}
@@ -254,121 +423,36 @@ export default function ProfileScreen() {
                 <Text style={styles.socialText}>Followers {currentProfile.social.followers}</Text>
               </TouchableOpacity>
             </View>
+
+            {/* Edit Profile Button */}
+            <TouchableOpacity style={styles.editProfileButton} onPress={handleEditProfile}>
+              <Text style={styles.editProfileButtonText}>Edit Profile</Text>
+            </TouchableOpacity>
           </View>
         </View>
 
-        {/* Bio Section */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Bio</Text>
-          <Text style={styles.bioText}>
-            {currentProfile.bio || 'No bio added yet.'}
-          </Text>
+        {/* Tabs */}
+        <View style={styles.tabsContainer}>
+          {tabs.map(tab => (
+            <Pressable
+              key={tab.key}
+              style={[styles.tab, activeTab === tab.key && styles.activeTab]}
+              onPress={() => setActiveTab(tab.key)}
+            >
+              <Ionicons 
+                name={tab.icon as any} 
+                size={18} 
+                color={activeTab === tab.key ? colors.accent : colors.subtext} 
+              />
+              <Text style={[styles.tabText, activeTab === tab.key && styles.activeTabText]}>
+                {tab.label}
+              </Text>
+            </Pressable>
+          ))}
         </View>
 
-        {/* Badges Section */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Badges</Text>
-          <ScrollView 
-            horizontal 
-            showsHorizontalScrollIndicator={false}
-            contentContainerStyle={styles.badgesScroll}
-          >
-            {currentProfile.badges.filter(badge => badge.earned).map((badge) => (
-              <TouchableOpacity 
-                key={badge.id} 
-                style={styles.badgeCard}
-                activeOpacity={0.8}
-              >
-                <MaterialCommunityIcons 
-                  name={badge.icon as any} 
-                  size={32} 
-                  color={colors.accent} 
-                />
-                <Text style={styles.badgeName}>{badge.name}</Text>
-                <Text style={styles.badgeDescription}>{badge.fullDescription}</Text>
-                <View style={styles.badgeCategory}>
-                  <Text style={styles.badgeCategoryText}>{badge.category.toUpperCase()}</Text>
-                </View>
-              </TouchableOpacity>
-            ))}
-          </ScrollView>
-        </View>
-
-        {/* Competitions */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Competitions</Text>
-          <View style={styles.competitionsContainer}>
-            {currentProfile.competitions.map((competition) => (
-              <TouchableOpacity key={competition.id} style={styles.competitionCard} activeOpacity={0.8}>
-                <View style={styles.competitionHeader}>
-                  <View style={styles.competitionLeft}>
-                    <MaterialCommunityIcons 
-                      name={competition.icon as any} 
-                      size={28} 
-                      color={competition.place === 1 ? '#FFD700' : competition.place === 2 ? '#C0C0C0' : '#CD7F32'} 
-                    />
-                    <View style={styles.competitionInfo}>
-                      <Text style={styles.competitionName}>{competition.name}</Text>
-                      <Text style={styles.competitionSponsor}>Sponsored by {competition.sponsor}</Text>
-                      <Text style={styles.competitionDate}>{competition.date}</Text>
-                    </View>
-                  </View>
-                  <View style={[
-                    styles.competitionPlace,
-                    competition.place === 1 && styles.competitionPlaceGold,
-                    competition.place === 2 && styles.competitionPlaceSilver,
-                    competition.place === 3 && styles.competitionPlaceBronze,
-                  ]}>
-                    <Text style={[
-                      styles.competitionPlaceText,
-                      competition.place <= 3 && styles.competitionPlaceTextMedal
-                    ]}>
-                      {competition.place === 1 ? '1ST' : competition.place === 2 ? '2ND' : '3RD'}
-                    </Text>
-                  </View>
-                </View>
-                <Text style={styles.competitionDescription}>{competition.description}</Text>
-              </TouchableOpacity>
-            ))}
-          </View>
-        </View>
-
-        {/* Stats Grid */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Your Activity</Text>
-          <View style={styles.achievementsGrid}>
-            <TouchableOpacity style={styles.achievementCard} activeOpacity={0.7}
-              onPress={() => nav.navigate('SavedItems', { category: 'bars' })}>
-              <MaterialCommunityIcons name="heart" size={32} color={colors.accent} />
-              <Text style={styles.achievementValue}>{savedItems.savedBars.length}</Text>
-              <Text style={styles.achievementLabel}>Favorite Bars</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.achievementCard} activeOpacity={0.7}
-              onPress={() => nav.navigate('SavedItems', { category: 'spirits' })}>
-              <MaterialCommunityIcons name="glass-cocktail" size={32} color={colors.accent} />
-              <Text style={styles.achievementValue}>{savedItems.savedSpirits.length}</Text>
-              <Text style={styles.achievementLabel}>Favorite Spirits</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.achievementCard} activeOpacity={0.7}
-              onPress={() => nav.navigate('SavedItems', { category: 'events' })}>
-              <MaterialCommunityIcons name="bookmark" size={32} color={colors.accent} />
-              <Text style={styles.achievementValue}>{savedItems.savedEvents.length}</Text>
-              <Text style={styles.achievementLabel}>Saved Upcoming Events</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.achievementCard} activeOpacity={0.7}
-              onPress={() => nav.navigate('SavedItems', { category: 'communities' })}>
-              <MaterialCommunityIcons name="account-group" size={32} color={colors.accent} />
-              <Text style={styles.achievementValue}>{savedItems.followedCommunities.length}</Text>
-              <Text style={styles.achievementLabel}>Communities Joined</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.achievementCard} activeOpacity={0.7}
-              onPress={() => nav.navigate('SavedItems', { category: 'cocktails' })}>
-              <MaterialCommunityIcons name="glass-mug-variant" size={32} color={colors.accent} />
-              <Text style={styles.achievementValue}>{savedItems.savedCocktails.length}</Text>
-              <Text style={styles.achievementLabel}>Saved Cocktails</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
+        {/* Tab Content */}
+        {renderTabContent()}
 
       </ScrollView>
       
@@ -893,6 +977,80 @@ const styles = StyleSheet.create({
   xpBalanceText: {
     fontSize: 14,
     fontWeight: '700',
+    color: colors.text,
+  },
+  tabsContainer: {
+    flexDirection: 'row',
+    borderBottomWidth: 1,
+    borderBottomColor: colors.line,
+  },
+  tab: {
+    flex: 1,
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: spacing(2),
+    gap: spacing(0.5),
+  },
+  activeTab: {
+    borderBottomWidth: 2,
+    borderBottomColor: colors.accent,
+  },
+  tabText: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: colors.subtext,
+    textAlign: 'center',
+  },
+  activeTabText: {
+    color: colors.accent,
+  },
+  tabContent: {
+    padding: spacing(4),
+    alignItems: 'center',
+    justifyContent: 'center',
+    minHeight: 200,
+  },
+  tabContentScroll: {
+    paddingBottom: spacing(6),
+  },
+  emptyStateText: {
+    fontSize: 16,
+    color: colors.subtext,
+    textAlign: 'center',
+  },
+  achievementsSection: {
+    paddingHorizontal: spacing(3),
+    marginBottom: spacing(4),
+  },
+  achievementsSectionTitle: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: colors.text,
+    marginBottom: spacing(2),
+  },
+  aboutSection: {
+    paddingHorizontal: spacing(3),
+    marginBottom: spacing(4),
+  },
+  aboutLabel: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: colors.text,
+    marginBottom: spacing(2),
+  },
+  editProfileButton: {
+    backgroundColor: colors.card,
+    paddingVertical: spacing(2),
+    paddingHorizontal: spacing(4),
+    borderRadius: radii.md,
+    borderWidth: 1,
+    borderColor: colors.line,
+    marginTop: spacing(2),
+  },
+  editProfileButtonText: {
+    fontSize: 16,
+    fontWeight: '600',
     color: colors.text,
   },
 });

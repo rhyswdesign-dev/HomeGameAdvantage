@@ -210,19 +210,6 @@ export default function NonAlcoholicScreen() {
           <Ionicons name="arrow-back" size={24} color={colors.text} />
         </Pressable>
       ),
-      headerRight: () => (
-        <View style={{ flexDirection: 'row', gap: 14 }}>
-          <Pressable hitSlop={10} onPress={() => {}}>
-            <Ionicons name="search-outline" size={20} color={colors.text} />
-          </Pressable>
-          <Pressable hitSlop={10} onPress={() => {}}>
-            <Ionicons name="funnel-outline" size={20} color={colors.text} />
-          </Pressable>
-          <Pressable hitSlop={10} onPress={() => {}}>
-            <Ionicons name="ellipsis-horizontal" size={20} color={colors.text} />
-          </Pressable>
-        </View>
-      ),
     });
   }, [nav]);
 

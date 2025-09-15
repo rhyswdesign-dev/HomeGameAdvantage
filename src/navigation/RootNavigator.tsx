@@ -32,8 +32,30 @@ import CocktailDetailScreen from '../screens/CocktailDetailScreen';
 import SavedItemsScreen from '../screens/SavedItemsScreen';
 import EditProfileScreen from '../screens/EditProfileScreen';
 import VaultScreen from '../screens/VaultScreen';
+// Vault screens
+import VaultStoreScreen from '../screens/vault/VaultStoreScreen';
+import VaultCartScreen from '../screens/vault/VaultCartScreen';
+import VaultCheckoutScreen from '../screens/vault/VaultCheckoutScreen';
+import VaultPaymentMethodsScreen from '../screens/vault/VaultPaymentMethodsScreen';
+import VaultOrderConfirmationScreen from '../screens/vault/VaultOrderConfirmationScreen';
+import VaultOrderDetailsScreen from '../screens/vault/VaultOrderDetailsScreen';
+import VaultOrderHistoryScreen from '../screens/vault/VaultOrderHistoryScreen';
+import VaultBillingScreen from '../screens/vault/VaultBillingScreen';
+import VaultEarnXPScreen from '../screens/vault/VaultEarnXPScreen';
 import LeaderboardScreen from '../screens/LeaderboardScreen';
 import NotificationsScreen from '../screens/NotificationsScreen';
+import CategoriesListScreen from '../screens/CategoriesListScreen';
+import CategoryDetailScreen from '../screens/CategoryDetailScreen';
+import UserProfileScreen from '../screens/UserProfileScreen';
+import FollowersListScreen from '../screens/FollowersListScreen';
+import GroupDiscoveryScreen from '../screens/GroupDiscoveryScreen';
+import GroupProfileScreen from '../screens/GroupProfileScreen';
+// Commerce screens
+import PricingScreen from '../screens/commerce/PricingScreen';
+import CartScreen from '../screens/commerce/CartScreen';
+import CheckoutScreen from '../screens/commerce/CheckoutScreen';
+import OrderConfirmationScreen from '../screens/commerce/OrderConfirmationScreen';
+import OrderHistoryScreen from '../screens/commerce/OrderHistoryScreen';
 
 export type RootStackParamList = {
   Main: undefined;
@@ -67,8 +89,34 @@ export type RootStackParamList = {
   SavedItems: { category: 'bars' | 'spirits' | 'cocktails' | 'events' | 'communities' };
   EditProfile: undefined;
   Vault: undefined;
+  VaultStore: undefined;
+  VaultCart: undefined;
+  VaultCheckout: undefined;
+  VaultPaymentMethods: undefined;
+  VaultOrderConfirmation: { orderId: string; total: number };
+  VaultOrderDetails: { orderId: string };
+  VaultOrderHistory: undefined;
+  VaultBilling: undefined;
+  VaultEarnXP: undefined;
   Leaderboard: undefined;
   Notifications: undefined;
+  CategoriesList: undefined;
+  CategoryDetail: { categoryId: string; categoryName: string };
+  UserProfile: { userId: string; isOwnProfile?: boolean };
+  FollowersList: { userId: string; type: 'followers' | 'following' };
+  GroupDiscovery: undefined;
+  GroupProfile: { groupId: string };
+  // Commerce screens
+  Pricing: undefined;
+  Cart: undefined;
+  Checkout: undefined;
+  PaymentMethods: undefined;
+  AddPaymentMethod: undefined;
+  OrderConfirmation: { orderId: string };
+  OrderDetails: { orderId: string };
+  OrderHistory: undefined;
+  Billing: undefined;
+  AddAddress: { addressId?: string };
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -203,8 +251,30 @@ export default function RootNavigator() {
       <Stack.Screen name="SavedItems" component={SavedItemsScreen} options={{ headerShown: true, title: 'Saved Items' }} />
       <Stack.Screen name="EditProfile" component={EditProfileScreen} options={{ headerShown: true, title: 'Edit Profile' }} />
     <Stack.Screen name="Vault" component={VaultScreen} options={{ headerShown: true, title: 'Vault' }} />
+    {/* Vault Economy Screens */}
+    <Stack.Screen name="VaultStore" component={VaultStoreScreen} options={{ headerShown: true, title: 'Keys & Boosters' }} />
+    <Stack.Screen name="VaultCart" component={VaultCartScreen} options={{ headerShown: true, title: 'Cart' }} />
+    <Stack.Screen name="VaultCheckout" component={VaultCheckoutScreen} options={{ headerShown: true, title: 'Checkout' }} />
+    <Stack.Screen name="VaultPaymentMethods" component={VaultPaymentMethodsScreen} options={{ headerShown: true, title: 'Payment Methods' }} />
+    <Stack.Screen name="VaultOrderConfirmation" component={VaultOrderConfirmationScreen} options={{ headerShown: true, title: 'Order Confirmed' }} />
+    <Stack.Screen name="VaultOrderDetails" component={VaultOrderDetailsScreen} options={{ headerShown: true, title: 'Order Details' }} />
+    <Stack.Screen name="VaultOrderHistory" component={VaultOrderHistoryScreen} options={{ headerShown: true, title: 'Order History' }} />
+    <Stack.Screen name="VaultBilling" component={VaultBillingScreen} options={{ headerShown: true, title: 'Billing' }} />
+    <Stack.Screen name="VaultEarnXP" component={VaultEarnXPScreen} options={{ headerShown: true, title: 'Earn XP' }} />
     <Stack.Screen name="Leaderboard" component={LeaderboardScreen} options={{ headerShown: true, title: 'Leaderboard' }} />
     <Stack.Screen name="Notifications" component={NotificationsScreen} options={{ headerShown: true, title: 'Notifications' }} />
+    <Stack.Screen name="CategoriesList" component={CategoriesListScreen} options={{ headerShown: true, title: 'Categories' }} />
+    <Stack.Screen name="CategoryDetail" component={CategoryDetailScreen} options={{ headerShown: true, title: 'Category' }} />
+    <Stack.Screen name="UserProfile" component={UserProfileScreen} options={{ headerShown: true, title: 'Profile' }} />
+    <Stack.Screen name="FollowersList" component={FollowersListScreen} options={{ headerShown: true, title: 'Followers' }} />
+    <Stack.Screen name="GroupDiscovery" component={GroupDiscoveryScreen} options={{ headerShown: true, title: 'Discover Groups' }} />
+    <Stack.Screen name="GroupProfile" component={GroupProfileScreen} options={{ headerShown: true, title: 'Group' }} />
+    {/* Commerce screens */}
+    <Stack.Screen name="Pricing" component={PricingScreen} options={{ headerShown: true, title: 'Premium' }} />
+    <Stack.Screen name="Cart" component={CartScreen} options={{ headerShown: true, title: 'Cart' }} />
+    <Stack.Screen name="Checkout" component={CheckoutScreen} options={{ headerShown: true, title: 'Checkout' }} />
+    <Stack.Screen name="OrderConfirmation" component={OrderConfirmationScreen} options={{ headerShown: true, title: 'Order Confirmed' }} />
+    <Stack.Screen name="OrderHistory" component={OrderHistoryScreen} options={{ headerShown: true, title: 'Order History' }} />
 </Stack.Navigator>
   );
 }

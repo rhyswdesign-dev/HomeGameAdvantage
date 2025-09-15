@@ -45,19 +45,6 @@ export default function EventsScreen() {
           <Ionicons name="arrow-back" size={24} color={colors.text} />
         </Pressable>
       ),
-      headerRight: () => (
-        <View style={{ flexDirection: 'row', gap: 14 }}>
-          <Pressable hitSlop={10} onPress={() => { /* Search */ }}>
-            <Ionicons name="search-outline" size={20} color={colors.text} />
-          </Pressable>
-          <Pressable hitSlop={10} onPress={() => { /* Filter */ }}>
-            <Ionicons name="funnel-outline" size={20} color={colors.text} />
-          </Pressable>
-          <Pressable hitSlop={10} onPress={() => { /* Menu */ }}>
-            <Ionicons name="ellipsis-horizontal" size={20} color={colors.text} />
-          </Pressable>
-        </View>
-      ),
     });
   }, [nav]);
   return (

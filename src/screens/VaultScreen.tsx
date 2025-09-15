@@ -19,71 +19,82 @@ import type { RootStackParamList } from '../navigation/RootNavigator';
 import PillButton from '../components/PillButton';
 import { useSavedItems } from '../hooks/useSavedItems';
 
-interface VaultPack {
+interface Drop {
   id: string;
   title: string;
   brand: string;
   description: string;
   image: string;
   xpRequired: number;
-  price?: number; // Optional price if it can be purchased
+  price?: number;
   value: string;
   contents: string[];
-  type: 'premium' | 'exclusive' | 'limited';
+  category: 'mystery-drop' | 'cocktail-kit' | 'bar-tools' | 'mixology-book' | 'glassware' | 'premium-spirits' | 'artwork' | 'home-decor' | 'brand-merch' | 'event-access';
+  type: 'new' | 'popular' | 'limited';
   isUnlocked: boolean;
+  releaseDate: string;
 }
 
-const vaultPacks: VaultPack[] = [
+const latestDrops: Drop[] = [
   {
-    id: 'hendricks-exclusive',
-    title: 'Hendricks Master Collection',
-    brand: 'Hendricks',
-    description: 'Exclusive access to rare botanicals and distillery secrets',
-    image: 'https://images.unsplash.com/photo-1569529465841-dfecdab7503b?auto=format&fit=crop&w=800&q=60',
-    xpRequired: 2500,
-    price: 150,
-    value: '$300 Value',
-    contents: ['Limited Edition Bottle', 'Tasting Notes', 'Cocktail Recipes', 'Brand History'],
-    type: 'exclusive',
-    isUnlocked: false,
-  },
-  {
-    id: 'mixology-masterclass',
-    title: 'Advanced Mixology Course',
-    brand: 'MixMind Studios',
-    description: 'Professional bartending techniques and trade secrets',
-    image: 'https://images.unsplash.com/photo-1572297530709-bb185f063a3c?auto=format&fit=crop&w=800&q=60',
-    xpRequired: 1500,
-    value: 'XP Exclusive',
-    contents: ['4-Hour Video Course', 'PDF Techniques Guide', 'Recipe Collection', 'Certification'],
-    type: 'premium',
-    isUnlocked: false,
-  },
-  {
-    id: 'craft-tools-bundle',
-    title: 'Professional Bar Tools Kit',
-    brand: 'Legacy',
-    description: 'Premium tools used by world-class bartenders',
+    id: 'mystery-box-winter',
+    title: 'Winter Mystery Drop',
+    brand: 'HomeGameAdvantage',
+    description: 'Curated surprise collection of premium bar essentials and spirits',
     image: 'https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?auto=format&fit=crop&w=800&q=60',
-    xpRequired: 800,
-    price: 89,
-    value: '$200 Value',
-    contents: ['Japanese Jigger', 'Hawthorne Strainer', 'Bar Spoon', 'Muddler', 'Storage Case'],
-    type: 'premium',
-    isUnlocked: true, // User has enough XP for this one
+    xpRequired: 2000,
+    price: 199,
+    value: '$350+ Value',
+    contents: ['Mystery Premium Spirit', 'Artisan Cocktail Tools', 'Recipe Collection', 'Surprise Garnishes'],
+    category: 'mystery-drop',
+    type: 'new',
+    isUnlocked: false,
+    releaseDate: '2025-03-15',
   },
   {
-    id: 'cocktail-ingredients',
-    title: 'Rare Ingredients Box',
-    brand: 'Artisan Spirits',
-    description: 'Hard-to-find bitters, syrups, and garnish essentials',
-    image: 'https://images.unsplash.com/photo-1578328819058-b69f3a3b0f6b?auto=format&fit=crop&w=800&q=60',
+    id: 'negroni-kit-deluxe',
+    title: 'Deluxe Negroni Kit',
+    brand: 'Aperitivo Co.',
+    description: 'Everything you need to craft the perfect Negroni at home',
+    image: 'https://images.unsplash.com/photo-1541745537411-b8046dc6d66c?auto=format&fit=crop&w=800&q=60',
+    xpRequired: 1500,
+    price: 149,
+    value: '$200 Value',
+    contents: ['Premium Gin (50ml)', 'Artisan Vermouth', 'House Bitters', 'Crystal Glasses', 'Recipe Cards'],
+    category: 'cocktail-kit',
+    type: 'popular',
+    isUnlocked: false,
+    releaseDate: '2025-03-10',
+  },
+  {
+    id: 'japanese-bar-tools',
+    title: 'Japanese Bar Master Set',
+    brand: 'Shokunin Tools',
+    description: 'Handcrafted Japanese bar tools used by Tokyo\'s finest bartenders',
+    image: 'https://images.unsplash.com/photo-1569529465841-dfecdab7503b?auto=format&fit=crop&w=800&q=60',
     xpRequired: 1200,
-    price: 75,
-    value: '$120 Value',
-    contents: ['Cardamom Bitters', 'Lavender Syrup', 'Smoked Salt', 'Dehydrated Citrus', 'Recipe Cards'],
+    price: 289,
+    value: '$400 Value',
+    contents: ['Handforged Jigger', 'Damascus Bar Spoon', 'Precision Strainer', 'Bamboo Storage Box'],
+    category: 'bar-tools',
     type: 'limited',
     isUnlocked: false,
+    releaseDate: '2025-03-08',
+  },
+  {
+    id: 'crystal-glassware-set',
+    title: 'Crystal Glassware Collection',
+    brand: 'Bohemia Crystal',
+    description: 'Hand-blown crystal glasses for the ultimate cocktail experience',
+    image: 'https://images.unsplash.com/photo-1578662996442-48f60103fc96?auto=format&fit=crop&w=800&q=60',
+    xpRequired: 800,
+    price: 125,
+    value: '$180 Value',
+    contents: ['2x Old Fashioned Glasses', '2x Coupe Glasses', '2x Highball Glasses', 'Gift Box'],
+    category: 'glassware',
+    type: 'new',
+    isUnlocked: true, // User has enough XP
+    releaseDate: '2025-03-12',
   },
 ];
 
@@ -97,8 +108,21 @@ const chips: Array<{ key: string; label: string }> = [
   { key: 'Vault', label: 'Vault' },
 ];
 
+const categories = [
+  { id: 'mystery-drop', name: 'Mystery Drop', icon: 'gift-outline', color: '#FF6B6B' },
+  { id: 'cocktail-kit', name: 'Cocktail Kit', icon: 'wine-outline', color: '#4ECDC4' },
+  { id: 'bar-tools', name: 'Bar Tools', icon: 'hammer-outline', color: '#45B7D1' },
+  { id: 'mixology-book', name: 'Mixology Book', icon: 'book-outline', color: '#96CEB4' },
+  { id: 'glassware', name: 'Glassware', icon: 'wine-outline', color: '#FFEAA7' },
+  { id: 'premium-spirits', name: 'Premium Spirits', icon: 'bottle-outline', color: '#DDA0DD' },
+  { id: 'artwork', name: 'Artwork', icon: 'image-outline', color: '#98D8C8' },
+  { id: 'home-decor', name: 'Home Decor', icon: 'home-outline', color: '#F7DC6F' },
+  { id: 'brand-merch', name: 'Brand Merch', icon: 'shirt-outline', color: '#BB8FCE' },
+  { id: 'event-access', name: 'Event Access', icon: 'ticket-outline', color: '#85C1E9' },
+];
+
 export default function VaultScreen() {
-  const [selectedPack, setSelectedPack] = useState<VaultPack | null>(null);
+  const [selectedDrop, setSelectedDrop] = useState<Drop | null>(null);
   const [active, setActive] = useState<string>('Vault');
   const { user } = useUser();
   const userXP = user.xp;
@@ -118,7 +142,7 @@ export default function VaultScreen() {
 
   useLayoutEffect(() => {
     nav.setOptions({
-      title: 'Vault',
+      title: 'Drops',
       headerStyle: { backgroundColor: colors.bg },
       headerTintColor: colors.text,
       headerTitleStyle: { color: colors.text, fontWeight: '900' },
@@ -128,162 +152,148 @@ export default function VaultScreen() {
           <Ionicons name="arrow-back" size={24} color={colors.text} />
         </Pressable>
       ),
-      headerRight: () => (
-        <View style={{ flexDirection: 'row', gap: 14 }}>
-          <Pressable hitSlop={10} onPress={() => {}}>
-            <Ionicons name="search-outline" size={20} color={colors.text} />
-          </Pressable>
-          <Pressable hitSlop={10} onPress={() => {}}>
-            <Ionicons name="funnel-outline" size={20} color={colors.text} />
-          </Pressable>
-          <Pressable hitSlop={10} onPress={() => {}}>
-            <Ionicons name="ellipsis-horizontal" size={20} color={colors.text} />
-          </Pressable>
-        </View>
-      ),
     });
   }, [nav]);
 
   const getTypeColor = (type: string) => {
     switch (type) {
-      case 'exclusive': return colors.gold;
-      case 'premium': return colors.accent;
+      case 'new': return colors.accent;
+      case 'popular': return colors.gold;
       case 'limited': return '#9C27B0';
       default: return colors.subtext;
     }
   };
 
-  const handleUnlock = (pack: VaultPack) => {
-    if (pack.isUnlocked) {
-      Alert.alert('Already Unlocked', 'This pack is already available to you!');
+  const handleUnlock = (drop: Drop) => {
+    if (drop.isUnlocked) {
+      Alert.alert('Already Unlocked', 'This drop is already available to you!');
       return;
     }
 
-    if (userXP >= pack.xpRequired) {
+    if (userXP >= drop.xpRequired) {
       Alert.alert(
-        'Unlock Pack',
-        `Unlock ${pack.title} for ${pack.xpRequired} XP?`,
+        'Unlock Drop',
+        `Unlock ${drop.title} for ${drop.xpRequired} XP?`,
         [
           { text: 'Cancel', style: 'cancel' },
           { 
             text: 'Unlock', 
             onPress: () => {
-              // Here you would deduct XP and unlock the pack
-              Alert.alert('Success!', `${pack.title} has been unlocked!`);
+              Alert.alert('Success!', `${drop.title} has been unlocked!`);
             }
           }
         ]
       );
     } else {
-      const xpNeeded = pack.xpRequired - userXP;
+      const xpNeeded = drop.xpRequired - userXP;
       Alert.alert(
         'Insufficient XP', 
-        `You need ${xpNeeded} more XP to unlock this pack. Complete more challenges and lessons to earn XP!`
+        `You need ${xpNeeded} more XP to unlock this drop. Complete more challenges and lessons to earn XP!`
       );
     }
   };
 
-  const handlePurchase = (pack: VaultPack) => {
-    if (!pack.price) return;
+  const handlePurchase = (drop: Drop) => {
+    if (!drop.price) return;
     
     Alert.alert(
-      'Purchase Pack',
-      `Purchase ${pack.title} for $${pack.price}?`,
+      'Purchase Drop',
+      `Purchase ${drop.title} for $${drop.price}?`,
       [
         { text: 'Cancel', style: 'cancel' },
         { 
           text: 'Purchase', 
           onPress: () => {
-            Alert.alert('Success!', `${pack.title} has been purchased and unlocked!`);
+            Alert.alert('Success!', `${drop.title} has been purchased and unlocked!`);
           }
         }
       ]
     );
   };
 
-  const renderPackCard = (pack: VaultPack) => (
+  const renderDropCard = (drop: Drop) => (
     <Pressable
-      key={pack.id}
+      key={drop.id}
       style={[
         styles.packCard,
-        !pack.isUnlocked && userXP < pack.xpRequired && styles.lockedCard
+        !drop.isUnlocked && userXP < drop.xpRequired && styles.lockedCard
       ]}
-      onPress={() => setSelectedPack(pack)}
+      onPress={() => setSelectedDrop(drop)}
     >
       <View style={styles.packImageContainer}>
-        <Image source={{ uri: pack.image }} style={styles.packImage} />
-        {!pack.isUnlocked && userXP < pack.xpRequired && (
+        <Image source={{ uri: drop.image }} style={styles.packImage} />
+        {!drop.isUnlocked && userXP < drop.xpRequired && (
           <View style={styles.lockOverlay}>
             <Ionicons name="lock-closed" size={24} color={colors.white} />
           </View>
         )}
-        <View style={[styles.typeBadge, { backgroundColor: getTypeColor(pack.type) }]}>
-          <Text style={styles.typeBadgeText}>{pack.type.toUpperCase()}</Text>
+        <View style={[styles.typeBadge, { backgroundColor: getTypeColor(drop.type) }]}>
+          <Text style={styles.typeBadgeText}>{drop.type.toUpperCase()}</Text>
         </View>
         <Pressable 
           style={styles.saveButton} 
           onPress={() => toggleSavedVaultItem({
-            id: pack.id,
-            name: pack.title,
-            subtitle: pack.brand,
-            image: pack.image
+            id: drop.id,
+            name: drop.title,
+            subtitle: drop.brand,
+            image: drop.image
           })}
           hitSlop={12}
         >
           <Ionicons 
-            name={isVaultItemSaved(pack.id) ? "bookmark" : "bookmark-outline"} 
+            name={isVaultItemSaved(drop.id) ? "bookmark" : "bookmark-outline"} 
             size={20} 
-            color={isVaultItemSaved(pack.id) ? colors.accent : colors.text} 
+            color={isVaultItemSaved(drop.id) ? colors.accent : colors.text} 
           />
         </Pressable>
       </View>
       
       <View style={styles.packContent}>
-        <Text style={styles.packBrand}>{pack.brand}</Text>
-        <Text style={styles.packTitle}>{pack.title}</Text>
+        <Text style={styles.packBrand}>{drop.brand}</Text>
+        <Text style={styles.packTitle}>{drop.title}</Text>
         <Text style={styles.packDescription} numberOfLines={2}>
-          {pack.description}
+          {drop.description}
         </Text>
         
         <View style={styles.packFooter}>
           <View style={styles.xpRequirement}>
             <MaterialCommunityIcons name="star" size={16} color={colors.gold} />
-            <Text style={styles.xpText}>{pack.xpRequired} XP</Text>
+            <Text style={styles.xpText}>{drop.xpRequired} XP</Text>
           </View>
-          <Text style={styles.packValue}>{pack.value}</Text>
+          <Text style={styles.packValue}>{drop.value}</Text>
         </View>
         
         <View style={styles.buttonContainer}>
-          {pack.isUnlocked ? (
+          {drop.isUnlocked ? (
             <Pressable style={[styles.unlockButton, styles.unlockedButton]}>
               <Ionicons name="checkmark-circle" size={20} color={colors.white} />
               <Text style={styles.unlockButtonText}>Unlocked</Text>
             </Pressable>
-          ) : userXP >= pack.xpRequired ? (
+          ) : userXP >= drop.xpRequired ? (
             <Pressable 
               style={styles.unlockButton}
-              onPress={() => handleUnlock(pack)}
+              onPress={() => handleUnlock(drop)}
             >
               <MaterialCommunityIcons name="star" size={20} color={colors.white} />
-              <Text style={styles.unlockButtonText}>Unlock</Text>
+              <Text style={styles.unlockButtonText}>Purchase</Text>
             </Pressable>
           ) : (
             <View style={styles.buttonRow}>
               <Pressable 
                 style={[styles.unlockButton, styles.lockedButton]}
-                onPress={() => handleUnlock(pack)}
+                onPress={() => handleUnlock(drop)}
               >
                 <Ionicons name="lock-closed" size={16} color={colors.white} />
                 <Text style={styles.lockedButtonText}>
-                  {pack.xpRequired - userXP} XP needed
+                  {drop.xpRequired - userXP} XP needed
                 </Text>
               </Pressable>
-              {pack.price && (
+              {drop.price && (
                 <Pressable 
                   style={styles.purchaseButton}
-                  onPress={() => handlePurchase(pack)}
+                  onPress={() => handlePurchase(drop)}
                 >
-                  <Text style={styles.purchaseButtonText}>${pack.price}</Text>
+                  <Text style={styles.purchaseButtonText}>${drop.price}</Text>
                 </Pressable>
               )}
             </View>
@@ -314,45 +324,66 @@ export default function VaultScreen() {
 
         {/* XP Balance Section */}
         <View style={styles.xpBalanceSection}>
-          <Text style={styles.sectionTitle}>Vault</Text>
-          <Text style={styles.sectionSubtitle}>Exclusive brand content</Text>
-          <View style={styles.xpBalance}>
-            <MaterialCommunityIcons name="star" size={20} color={colors.gold} />
-            <Text style={styles.xpBalanceText}>{userXP} XP</Text>
+          <Text style={styles.sectionTitle}>Latest Drops</Text>
+          <Text style={styles.sectionSubtitle}>Premium curated collections</Text>
+          <View style={styles.balanceRow}>
+            <View style={styles.xpBalance}>
+              <MaterialCommunityIcons name="star" size={20} color={colors.gold} />
+              <Text style={styles.xpBalanceText}>{userXP} XP</Text>
+            </View>
+            <View style={styles.headerActions}>
+              <Pressable 
+                style={styles.browseCategoriesButton}
+                onPress={() => nav.navigate('CategoriesList' as never)}
+              >
+                <Text style={styles.browseCategoriesText}>Browse Categories</Text>
+                <Ionicons name="chevron-forward" size={16} color={colors.accent} />
+              </Pressable>
+              
+              <Pressable 
+                style={styles.premiumButton}
+                onPress={() => nav.navigate('Pricing' as never)}
+              >
+                <Ionicons name="star" size={16} color={colors.white} />
+                <Text style={styles.premiumButtonText}>Premium</Text>
+              </Pressable>
+            </View>
           </View>
         </View>
 
-        {/* Vault Packs */}
+
+        {/* Latest Drops */}
         <View style={styles.packsContainer}>
-          {vaultPacks.map(renderPackCard)}
+          <Text style={styles.dropsHeader}>Featured Drops</Text>
+          {latestDrops.map(renderDropCard)}
         </View>
       </ScrollView>
 
-      {/* Pack Detail Modal */}
+      {/* Drop Detail Modal */}
       <Modal
-        visible={!!selectedPack}
+        visible={!!selectedDrop}
         animationType="slide"
         presentationStyle="pageSheet"
-        onRequestClose={() => setSelectedPack(null)}
+        onRequestClose={() => setSelectedDrop(null)}
       >
-        {selectedPack && (
+        {selectedDrop && (
           <SafeAreaView style={styles.modalContainer}>
             <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>{selectedPack.title}</Text>
-              <Pressable onPress={() => setSelectedPack(null)}>
+              <Text style={styles.modalTitle}>{selectedDrop.title}</Text>
+              <Pressable onPress={() => setSelectedDrop(null)}>
                 <Ionicons name="close" size={24} color={colors.text} />
               </Pressable>
             </View>
             
             <ScrollView style={styles.modalContent}>
-              <Image source={{ uri: selectedPack.image }} style={styles.modalImage} />
+              <Image source={{ uri: selectedDrop.image }} style={styles.modalImage} />
               
               <View style={styles.modalInfo}>
-                <Text style={styles.modalBrand}>{selectedPack.brand}</Text>
-                <Text style={styles.modalDescription}>{selectedPack.description}</Text>
+                <Text style={styles.modalBrand}>{selectedDrop.brand}</Text>
+                <Text style={styles.modalDescription}>{selectedDrop.description}</Text>
                 
                 <Text style={styles.contentsHeader}>What's Included:</Text>
-                {selectedPack.contents.map((item, index) => (
+                {selectedDrop.contents.map((item, index) => (
                   <View key={index} style={styles.contentItem}>
                     <Ionicons name="checkmark-circle" size={16} color={colors.accent} />
                     <Text style={styles.contentText}>{item}</Text>
@@ -391,6 +422,22 @@ const styles = StyleSheet.create({
     padding: spacing(3),
     gap: spacing(3),
   },
+  dropsHeader: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: colors.text,
+    marginBottom: spacing(2),
+  },
+  balanceRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginTop: spacing(1),
+  },
+  headerActions: {
+    flexDirection: 'row',
+    gap: spacing(2),
+  },
   xpBalance: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -399,8 +446,36 @@ const styles = StyleSheet.create({
     paddingVertical: spacing(1),
     borderRadius: radii.md,
     gap: spacing(0.5),
-    alignSelf: 'flex-start',
-    marginTop: spacing(1),
+  },
+  browseCategoriesButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'transparent',
+    borderWidth: 1,
+    borderColor: colors.accent,
+    paddingHorizontal: spacing(2),
+    paddingVertical: spacing(1),
+    borderRadius: radii.md,
+    gap: spacing(0.5),
+  },
+  browseCategoriesText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: colors.accent,
+  },
+  premiumButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: colors.accent,
+    paddingHorizontal: spacing(2),
+    paddingVertical: spacing(1),
+    borderRadius: radii.md,
+    gap: spacing(0.5),
+  },
+  premiumButtonText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: colors.white,
   },
   xpBalanceText: {
     fontSize: 16,

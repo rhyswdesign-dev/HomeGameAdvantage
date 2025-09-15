@@ -45,7 +45,20 @@ export function useSavedItems() {
       if (stored) {
         const parsedItems = JSON.parse(stored);
         console.log('Loaded saved items:', parsedItems);
-        setSavedItems(parsedItems);
+        
+        // Ensure all required properties exist with default empty arrays
+        const mergedItems: SavedItemsState = {
+          savedBars: parsedItems.savedBars || [],
+          savedSpirits: parsedItems.savedSpirits || [],
+          savedCocktails: parsedItems.savedCocktails || [],
+          savedEvents: parsedItems.savedEvents || [],
+          followedCommunities: parsedItems.followedCommunities || [],
+          savedVaultItems: parsedItems.savedVaultItems || [],
+          savedGames: parsedItems.savedGames || [],
+          savedDrinks: parsedItems.savedDrinks || [],
+        };
+        
+        setSavedItems(mergedItems);
       }
     } catch (error) {
       console.log('Error loading saved items:', error);
@@ -160,12 +173,13 @@ export function useSavedItems() {
   const toggleSavedVaultItem = (item: SavedItem | { id: string; name: string; subtitle?: string; image?: string }) => {
     const vaultItem: SavedItem = { ...item, type: 'vault' };
     setSavedItems(prev => {
-      const exists = prev.savedVaultItems.find(v => v.id === vaultItem.id);
+      const savedVaultItems = prev.savedVaultItems || [];
+      const exists = savedVaultItems.find(v => v.id === vaultItem.id);
       const newItems = {
         ...prev,
         savedVaultItems: exists
-          ? prev.savedVaultItems.filter(v => v.id !== vaultItem.id)
-          : [...prev.savedVaultItems, vaultItem]
+          ? savedVaultItems.filter(v => v.id !== vaultItem.id)
+          : [...savedVaultItems, vaultItem]
       };
       saveToStorage(newItems);
       return newItems;
@@ -175,12 +189,13 @@ export function useSavedItems() {
   const toggleSavedGame = (item: SavedItem | { id: string; name: string; subtitle?: string; image?: string }) => {
     const gameItem: SavedItem = { ...item, type: 'game' };
     setSavedItems(prev => {
-      const exists = prev.savedGames.find(g => g.id === gameItem.id);
+      const savedGames = prev.savedGames || [];
+      const exists = savedGames.find(g => g.id === gameItem.id);
       const newItems = {
         ...prev,
         savedGames: exists
-          ? prev.savedGames.filter(g => g.id !== gameItem.id)
-          : [...prev.savedGames, gameItem]
+          ? savedGames.filter(g => g.id !== gameItem.id)
+          : [...savedGames, gameItem]
       };
       saveToStorage(newItems);
       return newItems;
@@ -190,12 +205,13 @@ export function useSavedItems() {
   const toggleSavedDrink = (item: SavedItem | { id: string; name: string; subtitle?: string; image?: string }) => {
     const drinkItem: SavedItem = { ...item, type: 'drink' };
     setSavedItems(prev => {
-      const exists = prev.savedDrinks.find(d => d.id === drinkItem.id);
+      const savedDrinks = prev.savedDrinks || [];
+      const exists = savedDrinks.find(d => d.id === drinkItem.id);
       const newItems = {
         ...prev,
         savedDrinks: exists
-          ? prev.savedDrinks.filter(d => d.id !== drinkItem.id)
-          : [...prev.savedDrinks, drinkItem]
+          ? savedDrinks.filter(d => d.id !== drinkItem.id)
+          : [...savedDrinks, drinkItem]
       };
       saveToStorage(newItems);
       return newItems;
@@ -204,17 +220,18 @@ export function useSavedItems() {
 
   // Helper functions to check if items are saved
   const isBarSaved = (barId: string) => {
+    if (!savedItems.savedBars || !Array.isArray(savedItems.savedBars)) return false;
     const isSaved = savedItems.savedBars.some(b => b.id === barId);
     console.log(`Checking if bar ${barId} is saved:`, isSaved, 'Saved bars:', savedItems.savedBars.map(b => b.id));
     return isSaved;
   };
-  const isSpiritSaved = (spiritId: string) => savedItems.savedSpirits.some(s => s.id === spiritId);
-  const isCocktailSaved = (cocktailId: string) => savedItems.savedCocktails.some(c => c.id === cocktailId);
-  const isEventSaved = (eventId: string) => savedItems.savedEvents.some(e => e.id === eventId);
-  const isCommunityFollowed = (communityId: string) => savedItems.followedCommunities.some(c => c.id === communityId);
-  const isVaultItemSaved = (vaultId: string) => savedItems.savedVaultItems.some(v => v.id === vaultId);
-  const isGameSaved = (gameId: string) => savedItems.savedGames.some(g => g.id === gameId);
-  const isDrinkSaved = (drinkId: string) => savedItems.savedDrinks.some(d => d.id === drinkId);
+  const isSpiritSaved = (spiritId: string) => savedItems.savedSpirits?.some(s => s.id === spiritId) || false;
+  const isCocktailSaved = (cocktailId: string) => savedItems.savedCocktails?.some(c => c.id === cocktailId) || false;
+  const isEventSaved = (eventId: string) => savedItems.savedEvents?.some(e => e.id === eventId) || false;
+  const isCommunityFollowed = (communityId: string) => savedItems.followedCommunities?.some(c => c.id === communityId) || false;
+  const isVaultItemSaved = (vaultId: string) => savedItems.savedVaultItems?.some(v => v.id === vaultId) || false;
+  const isGameSaved = (gameId: string) => savedItems.savedGames?.some(g => g.id === gameId) || false;
+  const isDrinkSaved = (drinkId: string) => savedItems.savedDrinks?.some(d => d.id === drinkId) || false;
 
   return {
     savedItems,

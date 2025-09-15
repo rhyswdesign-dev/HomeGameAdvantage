@@ -193,6 +193,19 @@ export default function CocktailDetailScreen() {
       headerTintColor: colors.text,
       headerTitleStyle: { color: colors.text, fontWeight: '900' },
       headerShadowVisible: false,
+      headerRight: () => (
+        <View style={{ flexDirection: 'row', gap: 14 }}>
+          <Pressable hitSlop={10} onPress={() => {}}>
+            <Ionicons name="search-outline" size={20} color={colors.text} />
+          </Pressable>
+          <Pressable hitSlop={10} onPress={() => {}}>
+            <Ionicons name="funnel-outline" size={20} color={colors.text} />
+          </Pressable>
+          <Pressable hitSlop={10} onPress={() => {}}>
+            <Ionicons name="ellipsis-horizontal" size={20} color={colors.text} />
+          </Pressable>
+        </View>
+      ),
     });
   }, [nav, cocktail?.title]);
 

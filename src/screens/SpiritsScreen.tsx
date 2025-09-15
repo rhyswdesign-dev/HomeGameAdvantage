@@ -7,16 +7,22 @@ import {
   Image,
   Pressable,
   Modal,
+  TouchableOpacity,
+  Share,
+  Alert,
 } from 'react-native';
-import { colors, spacing, radii } from '../theme/tokens';
+import { colors, spacing, radii, fonts } from '../theme/tokens';
 import { Ionicons } from '@expo/vector-icons';
-import SectionHeader from '../components/SectionHeader';
 import PillButton from '../components/ui/PillButton';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '../navigation/RootNavigator';
 import { getRandomizedBrandsByCategory } from '../data/brands';
 import { useSavedItems } from '../hooks/useSavedItems';
+import { SearchableItem, FilterOptions } from '../services/searchService';
+import SearchModal from '../components/SearchModal';
+import FilterDrawer from '../components/FilterDrawer';
+import CreateRecipeModal from '../components/CreateRecipeModal';
 
 
 const chips: Array<{ key: string; label: string }> = [
@@ -34,6 +40,36 @@ export default function SpiritsScreen() {
   const [active, setActive] = useState<string>('Spirits');
   const [selectedSpirit, setSelectedSpirit] = useState<any>(null);
   const { toggleSavedSpirit, isSpiritSaved } = useSavedItems();
+
+  // Modal states
+  const [searchModalVisible, setSearchModalVisible] = useState(false);
+  const [filterDrawerVisible, setFilterDrawerVisible] = useState(false);
+  const [createRecipeModalVisible, setCreateRecipeModalVisible] = useState(false);
+  const [currentFilters, setCurrentFilters] = useState<Partial<FilterOptions>>({});
+
+  const handleSearch = (query: string) => {
+    // Handle search - you could filter spirits or navigate to search results
+    console.log('Search query:', query);
+    setSearchModalVisible(false);
+  };
+
+  const handleFilterApply = (filters: Partial<FilterOptions>) => {
+    setCurrentFilters(filters);
+    setFilterDrawerVisible(false);
+    console.log('Applied filters:', filters);
+    // Apply filters to spirit results
+  };
+
+  const handleRecipeCreated = (recipeId: string) => {
+    console.log('Recipe created:', recipeId);
+    setCreateRecipeModalVisible(false);
+    // Could navigate to the created recipe
+  };
+
+  const handleCompetitionEntryCreated = (entryId: string) => {
+    console.log('Competition entry created:', entryId);
+    // Could navigate to the entry or competitions section
+  };
 
   const goto = (key: string) => {
     setActive(key);
@@ -64,7 +100,6 @@ export default function SpiritsScreen() {
     setSelectedSpirit(brand);
   };
 
-
   useLayoutEffect(() => {
     nav.setOptions({
       title: 'Spirits',
@@ -78,15 +113,15 @@ export default function SpiritsScreen() {
         </Pressable>
       ),
       headerRight: () => (
-        <View style={{ flexDirection: 'row', gap: 14 }}>
-          <Pressable hitSlop={10} onPress={() => {}}>
-            <Ionicons name="search-outline" size={20} color={colors.text} />
+        <View style={{ flexDirection: 'row', gap: 16 }}>
+          <Pressable hitSlop={12} onPress={() => setSearchModalVisible(true)}>
+            <Ionicons name="search" size={24} color={colors.text} />
           </Pressable>
-          <Pressable hitSlop={10} onPress={() => {}}>
-            <Ionicons name="funnel-outline" size={20} color={colors.text} />
+          <Pressable hitSlop={12} onPress={() => setFilterDrawerVisible(true)}>
+            <Ionicons name="funnel" size={24} color={colors.text} />
           </Pressable>
-          <Pressable hitSlop={10} onPress={() => {}}>
-            <Ionicons name="ellipsis-horizontal" size={20} color={colors.text} />
+          <Pressable hitSlop={12} onPress={() => setCreateRecipeModalVisible(true)}>
+            <Ionicons name="add-circle" size={24} color={colors.accent} />
           </Pressable>
         </View>
       ),
@@ -118,274 +153,29 @@ export default function SpiritsScreen() {
       </ScrollView>
 
       {/* Whiskey Brands */}
-      <SectionHeader title="Whiskey" />
-      {getRandomizedBrandsByCategory('Whiskey').map((brand) => (
-        <View key={brand.id} style={styles.card}>
-          <View style={styles.imageContainer}>
-            <Image source={{ uri: brand.hero?.image || '' }} style={styles.hero} />
-            <Pressable 
-              style={styles.saveButton} 
-              onPress={() => toggleSavedSpirit({
-                id: brand.id,
-                name: brand.name,
-                subtitle: brand.category || brand.region,
-                image: brand.hero?.image || brand.image
-              })}
-              hitSlop={12}
-            >
-              <Ionicons 
-                name={isSpiritSaved(brand.id) ? "bookmark" : "bookmark-outline"} 
-                size={20} 
-                color={isSpiritSaved(brand.id) ? colors.accent : colors.text} 
-              />
-            </Pressable>
-          </View>
-          <View style={styles.rowBetween}>
-            <View style={{ flex: 1 }}>
-              <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: spacing(0.5) }}>
-                <Text style={styles.h2}>{brand.name || 'Unknown Brand'}</Text>
-                <View style={[
-                  styles.tierBadge,
-                  brand.tier === 'gold' && styles.goldBadge,
-                  brand.tier === 'silver' && styles.silverBadge,
-                  brand.tier === 'bronze' && styles.bronzeBadge
-                ].filter(Boolean)}>
-                  <Text style={[
-                    styles.tierText,
-                    brand.tier === 'gold' && styles.goldText,
-                    brand.tier === 'silver' && styles.silverText,
-                    brand.tier === 'bronze' && styles.bronzeText
-                  ].filter(Boolean)}>{brand.tier.toUpperCase()}</Text>
-                </View>
-              </View>
-              <Text style={styles.kicker}>
-                {brand.hero?.tagline || `${brand.quickInfo?.style || ''} • ${brand.quickInfo?.origin || ''}`}
-              </Text>
-            </View>
-            <PillButton
-              title="Explore"
-              onPress={() => onExploreBrand(brand)}
-              style={styles.pillRight}
-            />
-          </View>
-        </View>
-      ))}
+      <Section title="Whiskey">
+        <SpiritCarousel spirits={getRandomizedBrandsByCategory('Whiskey')} />
+      </Section>
 
       {/* Gin Brands */}
-      <SectionHeader title="Gin" />
-      {getRandomizedBrandsByCategory('Gin').map((brand) => (
-        <View key={brand.id} style={styles.card}>
-          <View style={styles.imageContainer}>
-            <Image source={{ uri: brand.hero?.image || '' }} style={styles.hero} />
-            <Pressable 
-              style={styles.saveButton} 
-              onPress={() => toggleSavedSpirit({
-                id: brand.id,
-                name: brand.name,
-                subtitle: brand.category || brand.region,
-                image: brand.hero?.image || brand.image
-              })}
-              hitSlop={12}
-            >
-              <Ionicons 
-                name={isSpiritSaved(brand.id) ? "bookmark" : "bookmark-outline"} 
-                size={20} 
-                color={isSpiritSaved(brand.id) ? colors.accent : colors.text} 
-              />
-            </Pressable>
-          </View>
-          <View style={styles.rowBetween}>
-            <View style={{ flex: 1 }}>
-              <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: spacing(0.5) }}>
-                <Text style={styles.h2}>{brand.name || 'Unknown Brand'}</Text>
-                <View style={[
-                  styles.tierBadge,
-                  brand.tier === 'gold' && styles.goldBadge,
-                  brand.tier === 'silver' && styles.silverBadge,
-                  brand.tier === 'bronze' && styles.bronzeBadge
-                ].filter(Boolean)}>
-                  <Text style={[
-                    styles.tierText,
-                    brand.tier === 'gold' && styles.goldText,
-                    brand.tier === 'silver' && styles.silverText,
-                    brand.tier === 'bronze' && styles.bronzeText
-                  ].filter(Boolean)}>{brand.tier.toUpperCase()}</Text>
-                </View>
-              </View>
-              <Text style={styles.kicker}>
-                {brand.hero?.tagline || `${brand.quickInfo?.style || ''} • ${brand.quickInfo?.origin || ''}`}
-              </Text>
-            </View>
-            <PillButton
-              title="Explore"
-              onPress={() => onExploreBrand(brand)}
-              style={styles.pillRight}
-            />
-          </View>
-        </View>
-      ))}
+      <Section title="Gin">
+        <SpiritCarousel spirits={getRandomizedBrandsByCategory('Gin')} />
+      </Section>
 
       {/* Vodka Brands */}
-      <SectionHeader title="Vodka" />
-      {getRandomizedBrandsByCategory('Vodka').map((brand) => (
-        <View key={brand.id} style={styles.card}>
-          <View style={styles.imageContainer}>
-            <Image source={{ uri: brand.hero?.image || '' }} style={styles.hero} />
-            <Pressable 
-              style={styles.saveButton} 
-              onPress={() => toggleSavedSpirit({
-                id: brand.id,
-                name: brand.name,
-                subtitle: brand.category || brand.region,
-                image: brand.hero?.image || brand.image
-              })}
-              hitSlop={12}
-            >
-              <Ionicons 
-                name={isSpiritSaved(brand.id) ? "bookmark" : "bookmark-outline"} 
-                size={20} 
-                color={isSpiritSaved(brand.id) ? colors.accent : colors.text} 
-              />
-            </Pressable>
-          </View>
-          <View style={styles.rowBetween}>
-            <View style={{ flex: 1 }}>
-              <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: spacing(0.5) }}>
-                <Text style={styles.h2}>{brand.name || 'Unknown Brand'}</Text>
-                <View style={[
-                  styles.tierBadge,
-                  brand.tier === 'gold' && styles.goldBadge,
-                  brand.tier === 'silver' && styles.silverBadge,
-                  brand.tier === 'bronze' && styles.bronzeBadge
-                ].filter(Boolean)}>
-                  <Text style={[
-                    styles.tierText,
-                    brand.tier === 'gold' && styles.goldText,
-                    brand.tier === 'silver' && styles.silverText,
-                    brand.tier === 'bronze' && styles.bronzeText
-                  ].filter(Boolean)}>{brand.tier.toUpperCase()}</Text>
-                </View>
-              </View>
-              <Text style={styles.kicker}>
-                {brand.hero?.tagline || `${brand.quickInfo?.style || ''} • ${brand.quickInfo?.origin || ''}`}
-              </Text>
-            </View>
-            <PillButton
-              title="Explore"
-              onPress={() => onExploreBrand(brand)}
-              style={styles.pillRight}
-            />
-          </View>
-        </View>
-      ))}
+      <Section title="Vodka">
+        <SpiritCarousel spirits={getRandomizedBrandsByCategory('Vodka')} />
+      </Section>
 
       {/* Tequila Brands */}
-      <SectionHeader title="Tequila" />
-      {getRandomizedBrandsByCategory('Tequila').map((brand) => (
-        <View key={brand.id} style={styles.card}>
-          <View style={styles.imageContainer}>
-            <Image source={{ uri: brand.hero?.image || '' }} style={styles.hero} />
-            <Pressable 
-              style={styles.saveButton} 
-              onPress={() => toggleSavedSpirit({
-                id: brand.id,
-                name: brand.name,
-                subtitle: brand.category || brand.region,
-                image: brand.hero?.image || brand.image
-              })}
-              hitSlop={12}
-            >
-              <Ionicons 
-                name={isSpiritSaved(brand.id) ? "bookmark" : "bookmark-outline"} 
-                size={20} 
-                color={isSpiritSaved(brand.id) ? colors.accent : colors.text} 
-              />
-            </Pressable>
-          </View>
-          <View style={styles.rowBetween}>
-            <View style={{ flex: 1 }}>
-              <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: spacing(0.5) }}>
-                <Text style={styles.h2}>{brand.name || 'Unknown Brand'}</Text>
-                <View style={[
-                  styles.tierBadge,
-                  brand.tier === 'gold' && styles.goldBadge,
-                  brand.tier === 'silver' && styles.silverBadge,
-                  brand.tier === 'bronze' && styles.bronzeBadge
-                ].filter(Boolean)}>
-                  <Text style={[
-                    styles.tierText,
-                    brand.tier === 'gold' && styles.goldText,
-                    brand.tier === 'silver' && styles.silverText,
-                    brand.tier === 'bronze' && styles.bronzeText
-                  ].filter(Boolean)}>{brand.tier.toUpperCase()}</Text>
-                </View>
-              </View>
-              <Text style={styles.kicker}>
-                {brand.hero?.tagline || `${brand.quickInfo?.style || ''} • ${brand.quickInfo?.origin || ''}`}
-              </Text>
-            </View>
-            <PillButton
-              title="Explore"
-              onPress={() => onExploreBrand(brand)}
-              style={styles.pillRight}
-            />
-          </View>
-        </View>
-      ))}
+      <Section title="Tequila">
+        <SpiritCarousel spirits={getRandomizedBrandsByCategory('Tequila')} />
+      </Section>
 
       {/* Rum Brands */}
-      <SectionHeader title="Rum" />
-      {getRandomizedBrandsByCategory('Rum').map((brand) => (
-        <View key={brand.id} style={styles.card}>
-          <View style={styles.imageContainer}>
-            <Image source={{ uri: brand.hero?.image || '' }} style={styles.hero} />
-            <Pressable 
-              style={styles.saveButton} 
-              onPress={() => toggleSavedSpirit({
-                id: brand.id,
-                name: brand.name,
-                subtitle: brand.category || brand.region,
-                image: brand.hero?.image || brand.image
-              })}
-              hitSlop={12}
-            >
-              <Ionicons 
-                name={isSpiritSaved(brand.id) ? "bookmark" : "bookmark-outline"} 
-                size={20} 
-                color={isSpiritSaved(brand.id) ? colors.accent : colors.text} 
-              />
-            </Pressable>
-          </View>
-          <View style={styles.rowBetween}>
-            <View style={{ flex: 1 }}>
-              <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: spacing(0.5) }}>
-                <Text style={styles.h2}>{brand.name || 'Unknown Brand'}</Text>
-                <View style={[
-                  styles.tierBadge,
-                  brand.tier === 'gold' && styles.goldBadge,
-                  brand.tier === 'silver' && styles.silverBadge,
-                  brand.tier === 'bronze' && styles.bronzeBadge
-                ].filter(Boolean)}>
-                  <Text style={[
-                    styles.tierText,
-                    brand.tier === 'gold' && styles.goldText,
-                    brand.tier === 'silver' && styles.silverText,
-                    brand.tier === 'bronze' && styles.bronzeText
-                  ].filter(Boolean)}>{brand.tier.toUpperCase()}</Text>
-                </View>
-              </View>
-              <Text style={styles.kicker}>
-                {brand.hero?.tagline || `${brand.quickInfo?.style || ''} • ${brand.quickInfo?.origin || ''}`}
-              </Text>
-            </View>
-            <PillButton
-              title="Explore"
-              onPress={() => onExploreBrand(brand)}
-              style={styles.pillRight}
-            />
-          </View>
-        </View>
-      ))}
+      <Section title="Rum">
+        <SpiritCarousel spirits={getRandomizedBrandsByCategory('Rum')} />
+      </Section>
 
       {/* bottom spacer so tab bar never overlaps last card */}
       <View style={{ height: spacing(6) }} />
@@ -462,7 +252,126 @@ export default function SpiritsScreen() {
         </View>
       )}
     </Modal>
+
+    {/* Header Action Modals */}
+    <SearchModal
+      visible={searchModalVisible}
+      onClose={() => setSearchModalVisible(false)}
+      onSearch={handleSearch}
+    />
+    
+    <FilterDrawer
+      visible={filterDrawerVisible}
+      onClose={() => setFilterDrawerVisible(false)}
+      onApply={handleFilterApply}
+      currentFilters={currentFilters}
+    />
+    
+    <CreateRecipeModal
+      visible={createRecipeModalVisible}
+      onClose={() => setCreateRecipeModalVisible(false)}
+      onSuccess={handleRecipeCreated}
+    />
+
     </View>
+  );
+}
+
+function Section({ title, children }: { title: string; children: React.ReactNode }) {
+  return (
+    <View style={styles.section}>
+      <Text style={styles.sectionTitle}>{title}</Text>
+      <View style={{ marginTop: spacing(1) }}>{children}</View>
+    </View>
+  );
+}
+
+function SpiritCarousel({ spirits }: { spirits: any[] }) {
+  const { toggleSavedSpirit, isSpiritSaved } = useSavedItems();
+  const nav = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+
+  const handleShare = async (brand: any) => {
+    try {
+      await Share.share({
+        message: `Check out ${brand.name}! ${brand.hero?.tagline || `${brand.quickInfo?.style || ''} • ${brand.quickInfo?.origin || ''}`}`,
+        title: `${brand.name} - Premium Spirit`,
+      });
+    } catch (error) {
+      Alert.alert('Error', 'Unable to share at this time');
+    }
+  };
+
+  const onExploreBrand = (brand: any) => {
+    if (brand.tier === 'gold') {
+      nav.navigate('FeaturedSpirit', { spiritId: brand.id, tier: brand.tier });
+    } else {
+      nav.navigate('BrandDetail', { brandId: brand.id });
+    }
+  };
+
+  return (
+    <ScrollView 
+      horizontal 
+      showsHorizontalScrollIndicator={false}
+      contentContainerStyle={styles.carouselContainer}
+    >
+      {spirits.map((brand) => (
+        <TouchableOpacity 
+          key={brand.id} 
+          style={styles.spiritCard} 
+          onPress={() => onExploreBrand(brand)} 
+          activeOpacity={0.8}
+        >
+          <View style={styles.cardImageContainer}>
+            <Image source={{ uri: brand.hero?.image || '' }} style={styles.spiritImage} />
+            <TouchableOpacity
+              style={styles.cardShareButton}
+              onPress={() => handleShare(brand)}
+              activeOpacity={0.7}
+            >
+              <Ionicons name="share-outline" size={20} color={colors.white} />
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.cardSaveButton}
+              onPress={() => toggleSavedSpirit({
+                id: brand.id,
+                name: brand.name,
+                subtitle: brand.category || brand.quickInfo?.origin,
+                image: brand.hero?.image
+              })}
+              activeOpacity={0.7}
+            >
+              <Ionicons 
+                name={isSpiritSaved(brand.id) ? "bookmark" : "bookmark-outline"} 
+                size={20} 
+                color={isSpiritSaved(brand.id) ? colors.accent : colors.white} 
+              />
+            </TouchableOpacity>
+            {brand.tier === 'gold' && (
+              <View style={[styles.tierBadge, styles.goldBadge, { position: 'absolute', bottom: 8, left: 8 }]}>
+                <Text style={[styles.tierText, styles.goldText]}>GOLD</Text>
+              </View>
+            )}
+            {brand.tier === 'silver' && (
+              <View style={[styles.tierBadge, styles.silverBadge, { position: 'absolute', bottom: 8, left: 8 }]}>
+                <Text style={[styles.tierText, styles.silverText]}>SILVER</Text>
+              </View>
+            )}
+            {brand.tier === 'bronze' && (
+              <View style={[styles.tierBadge, styles.bronzeBadge, { position: 'absolute', bottom: 8, left: 8 }]}>
+                <Text style={[styles.tierText, styles.bronzeText]}>BRONZE</Text>
+              </View>
+            )}
+          </View>
+          <View style={styles.spiritInfo}>
+            <Text style={styles.cardTitle}>{brand.name || 'Unknown Brand'}</Text>
+            <Text style={styles.cardSubtitle}>
+              {brand.hero?.tagline || `${brand.quickInfo?.style || ''} • ${brand.quickInfo?.origin || ''}`}
+            </Text>
+          </View>
+        </TouchableOpacity>
+      ))}
+    </ScrollView>
   );
 }
 
@@ -485,72 +394,68 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing(2),
     gap: spacing(1),
   },
-  chip: {
-    paddingHorizontal: spacing(2),
-    paddingVertical: spacing(1),
-    borderRadius: 999,
-    borderWidth: StyleSheet.hairlineWidth,
-    borderColor: colors.line,
+
+  // New Section styles (matching FeaturedScreen template)
+  section: { 
+    paddingHorizontal: spacing(2), 
+    marginTop: spacing(3) 
   },
-  chipText: {
-    fontSize: 15,
-    fontWeight: '700',
+  sectionTitle: { 
+    color: colors.text, 
+    fontSize: fonts.h2, 
+    fontWeight: '800' 
   },
 
-  // Cards
-  card: {
-    backgroundColor: colors.card,
-    borderRadius: radii.xl,
-    marginHorizontal: spacing(2),
-    marginBottom: spacing(2),
-    overflow: 'hidden',
-    borderWidth: StyleSheet.hairlineWidth,
-    borderColor: colors.line,
+  // New Carousel styles (matching FeaturedScreen HScroll template)
+  carouselContainer: {
+    gap: spacing(2),
+    paddingHorizontal: spacing(2),
   },
-  imageContainer: {
+  spiritCard: { 
+    width: 260 
+  },
+  cardImageContainer: {
     position: 'relative',
+    marginBottom: spacing(1),
   },
-  hero: {
-    width: '100%',
-    height: 200,
+  spiritImage: { 
+    width: 260, 
+    height: 160, 
+    borderRadius: radii.md 
   },
-  saveButton: {
+  cardShareButton: {
+    position: 'absolute',
+    top: spacing(1),
+    right: spacing(4),
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  cardSaveButton: {
     position: 'absolute',
     top: spacing(1),
     right: spacing(1),
     width: 36,
     height: 36,
     borderRadius: 18,
-    backgroundColor: 'rgba(0,0,0,0.5)',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
     alignItems: 'center',
     justifyContent: 'center',
   },
-  cardBody: {
-    padding: spacing(2),
-    gap: spacing(1),
+  cardTitle: { 
+    color: colors.text, 
+    fontWeight: '800', 
+    fontSize: fonts.h3 
   },
-  h2: {
-    color: colors.text,
-    fontSize: 18,
-    fontWeight: '800',
-    marginBottom: spacing(0.5),
+  cardSubtitle: { 
+    color: colors.muted, 
+    marginTop: 2 
   },
-  muted: {
-    color: colors.muted,
-    lineHeight: 20,
-  },
-  kicker: {
-    color: colors.muted,
-    marginTop: spacing(0.5),
-  },
-  rowBetween: {
-    padding: spacing(2),
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  pillRight: {
-    alignSelf: 'flex-end',
+  spiritInfo: {
+    paddingHorizontal: spacing(0.5),
   },
   
   // Tier Badges
