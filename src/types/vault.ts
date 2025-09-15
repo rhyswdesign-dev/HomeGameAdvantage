@@ -36,6 +36,7 @@ export interface VaultItem {
   // Metadata
   contents?: string[];               // What's included (for mystery/kits)
   estimatedValue?: string;           // "$200+ Value" display
+  partner?: string;                  // Partner venue/brand name
   isActive: boolean;                 // Can be unlocked
   releaseDate: string;
   expiryDate?: string;               // Auto-remove date

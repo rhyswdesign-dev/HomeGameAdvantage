@@ -151,7 +151,12 @@ export default function VaultScreen() {
       </View>
 
       {/* Global Stats Bar */}
-      <View style={styles.statsBar}>
+      <ScrollView 
+        horizontal 
+        showsHorizontalScrollIndicator={false}
+        style={styles.statsBarContainer}
+        contentContainerStyle={styles.statsBar}
+      >
         {/* XP Balance - Earned Only */}
         <View style={styles.statCard}>
           <MaterialCommunityIcons name="star" size={18} color={colors.gold} />
@@ -178,7 +183,7 @@ export default function VaultScreen() {
         <TouchableOpacity style={[styles.actionButton, styles.earnButton]} onPress={handleEarnXP}>
           <Text style={[styles.actionButtonText, styles.earnButtonText]}>Earn XP</Text>
         </TouchableOpacity>
-      </View>
+      </ScrollView>
 
       {/* Tier Tabs */}
       <ScrollView 
@@ -335,14 +340,17 @@ const styles = StyleSheet.create({
   },
   
   // Global Stats Bar
+  statsBarContainer: {
+    backgroundColor: colors.card,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.line,
+  },
   statsBar: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: colors.card,
     padding: spacing(2),
-    borderBottomWidth: 1,
-    borderBottomColor: colors.line,
     gap: spacing(2),
+    minWidth: '100%',
   },
   statCard: {
     flexDirection: 'row',
@@ -372,11 +380,10 @@ const styles = StyleSheet.create({
     borderRadius: radii.md,
     paddingHorizontal: spacing(2),
     paddingVertical: spacing(1),
-    marginLeft: 'auto',
+    minWidth: 80,
   },
   earnButton: {
     backgroundColor: colors.gold,
-    marginLeft: spacing(1),
   },
   actionButtonText: {
     color: colors.white,
