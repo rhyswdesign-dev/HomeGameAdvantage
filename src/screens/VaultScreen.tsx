@@ -331,7 +331,12 @@ export default function VaultScreen() {
               <MaterialCommunityIcons name="star" size={20} color={colors.gold} />
               <Text style={styles.xpBalanceText}>{userXP} XP</Text>
             </View>
-            <View style={styles.headerActions}>
+            <ScrollView 
+              horizontal 
+              showsHorizontalScrollIndicator={false}
+              style={styles.headerActionsScroll}
+              contentContainerStyle={styles.headerActions}
+            >
               <Pressable 
                 style={styles.browseCategoriesButton}
                 onPress={() => nav.navigate('CategoriesList' as never)}
@@ -347,7 +352,7 @@ export default function VaultScreen() {
                 <Ionicons name="star" size={16} color={colors.white} />
                 <Text style={styles.premiumButtonText}>Premium</Text>
               </Pressable>
-            </View>
+            </ScrollView>
           </View>
         </View>
 
@@ -434,9 +439,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginTop: spacing(1),
   },
+  headerActionsScroll: {
+    flex: 1,
+  },
   headerActions: {
     flexDirection: 'row',
     gap: spacing(2),
+    paddingRight: spacing(2),
   },
   xpBalance: {
     flexDirection: 'row',
