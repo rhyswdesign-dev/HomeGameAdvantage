@@ -8,6 +8,7 @@ import XPReminderScreen from './src/screens/XPReminderScreen';
 import WelcomeCarouselScreen from './src/screens/WelcomeCarouselScreen';
 import { useSimpleOnboarding as useOnboarding } from './src/hooks/useSimpleOnboarding';
 import { UserProvider } from './src/contexts/UserContext';
+import { VaultProvider } from './src/contexts/VaultContext';
 
 export default function App() {
   const { appState, handleSplashFinish, completeBartendingWelcome, completeWelcome, completeOnboarding, skipToXPReminder, completeXPReminder, goBackToOnboarding } = useOnboarding();
@@ -42,9 +43,11 @@ export default function App() {
   // Show main app
   return (
     <UserProvider>
-      <NavigationContainer>
-        <RootNavigator />
-      </NavigationContainer>
+      <VaultProvider>
+        <NavigationContainer>
+          <RootNavigator />
+        </NavigationContainer>
+      </VaultProvider>
     </UserProvider>
   );
 }
