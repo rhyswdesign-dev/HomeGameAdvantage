@@ -475,7 +475,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: colors.subtext,
+    backgroundColor: colors.card,
+    borderWidth: 1.5,
+    borderColor: colors.line,
     borderRadius: radii.lg,
     paddingHorizontal: spacing(3),
     paddingVertical: spacing(2),
@@ -497,7 +499,7 @@ const styles = StyleSheet.create({
   actionButtonText: {
     fontSize: 14,
     fontWeight: '700',
-    color: colors.subtext,
+    color: colors.text,
     textAlign: 'center',
   },
 });

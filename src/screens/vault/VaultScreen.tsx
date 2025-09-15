@@ -357,9 +357,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: colors.bg,
     borderRadius: radii.md,
-    padding: spacing(1.5),
+    paddingHorizontal: spacing(2),
+    paddingVertical: spacing(1.5),
     gap: spacing(1),
-    minWidth: 80,
   },
   statInfo: {
     alignItems: 'center',
@@ -378,9 +378,10 @@ const styles = StyleSheet.create({
   actionButton: {
     backgroundColor: colors.accent,
     borderRadius: radii.md,
-    paddingHorizontal: spacing(2),
-    paddingVertical: spacing(1),
-    minWidth: 80,
+    paddingHorizontal: spacing(2.5),
+    paddingVertical: spacing(1.5),
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   earnButton: {
     backgroundColor: colors.gold,
@@ -408,9 +409,10 @@ const styles = StyleSheet.create({
     backgroundColor: colors.card,
     borderWidth: 1,
     borderColor: colors.line,
-    borderRadius: radii.lg,
-    padding: spacing(2),
-    minWidth: 160,
+    borderRadius: radii.md,
+    paddingHorizontal: spacing(2),
+    paddingVertical: spacing(1.5),
+    alignSelf: 'flex-start',
   },
   activeTabChip: {
     backgroundColor: colors.accent,
@@ -419,14 +421,14 @@ const styles = StyleSheet.create({
   tabHeader: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: spacing(1),
+    gap: spacing(0.75),
     marginBottom: spacing(0.5),
   },
   tabLabel: {
     fontSize: 14,
     fontWeight: '700',
     color: colors.text,
-    flex: 1,
+    lineHeight: 16,
   },
   activeTabLabel: {
     color: colors.white,
