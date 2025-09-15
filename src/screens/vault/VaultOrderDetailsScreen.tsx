@@ -117,7 +117,7 @@ export default function VaultOrderDetailsScreen() {
     switch (status) {
       case 'completed': return 'checkmark-circle';
       case 'processing': return 'time';
-      case 'shipped': return 'car';
+      case 'shipped': return 'car-outline';
       case 'delivered': return 'home';
       case 'cancelled': return 'close-circle';
       default: return 'help-circle';
@@ -128,9 +128,9 @@ export default function VaultOrderDetailsScreen() {
     switch (type) {
       case 'keys': return 'key';
       case 'booster': return 'flash';
-      case 'pass': return 'card';
-      case 'merch': return 'gift';
-      default: return 'cube';
+      case 'pass': return 'card-outline';
+      case 'merch': return 'gift-outline';
+      default: return 'cube-outline';
     }
   };
 

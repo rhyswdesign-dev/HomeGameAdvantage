@@ -39,6 +39,7 @@ export const colors = {
   shadow:        'rgba(0,0,0,0.35)',
   error:         '#F44336', // error/danger color
   success:       '#4CAF50', // success color
+  destructive:   '#F44336', // destructive action color
   
   // Avatar/Profile
   avatar:        '#2A241F', // avatar background

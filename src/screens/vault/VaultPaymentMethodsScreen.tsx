@@ -79,11 +79,11 @@ export default function VaultPaymentMethodsScreen() {
 
   const getBrandIcon = (brand: string): string => {
     switch (brand.toLowerCase()) {
-      case 'visa': return 'card';
-      case 'mastercard': return 'card';
-      case 'amex': return 'card';
-      case 'discover': return 'card';
-      default: return 'card';
+      case 'visa': return 'credit-card-outline';
+      case 'mastercard': return 'credit-card-outline';
+      case 'amex': return 'credit-card-outline';
+      case 'discover': return 'credit-card-outline';
+      default: return 'credit-card-outline';
     }
   };
 

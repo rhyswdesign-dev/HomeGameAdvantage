@@ -68,9 +68,9 @@ export default function VaultStoreScreen() {
     switch (type) {
       case 'keys': return 'key';
       case 'booster': return 'flash';
-      case 'pass': return 'card';
-      case 'merch': return 'gift';
-      default: return 'cube';
+      case 'pass': return 'card-outline';
+      case 'merch': return 'gift-outline';
+      default: return 'cube-outline';
     }
   };
 
