@@ -8,10 +8,10 @@ import { VaultItem, VaultCycle, MonetizationItem, UserVaultProfile } from '../ty
 // ================== CURRENT VAULT CYCLE ==================
 
 export const currentVaultCycle: VaultCycle = {
-  id: 'cycle_2025_01',
-  name: 'January 2025 Collection',
-  startDate: '2025-01-01T00:00:00Z',
-  endDate: '2025-01-31T23:59:59Z',
+  id: 'cycle_2025_09',
+  name: 'September 2025 Collection',
+  startDate: '2025-09-01T00:00:00Z',
+  endDate: '2025-09-30T23:59:59Z',
   isActive: true,
   featuredItemIds: ['vault_comp_untitled', 'vault_class_mixology', 'vault_mystery_premium'],
   mysteryDropPool: ['vault_mystery_common', 'vault_mystery_premium'],

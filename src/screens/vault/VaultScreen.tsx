@@ -145,8 +145,24 @@ export default function VaultScreen() {
             Resets in {countdown.days}D:{countdown.hours.toString().padStart(2, '0')}H:{countdown.minutes.toString().padStart(2, '0')}M
           </Text>
         </View>
-        <View style={styles.statsChip}>
-          <Text style={styles.statsText}>{currentVaultCycle.totalUnlocks.toLocaleString()} unlocks</Text>
+        <View style={styles.headerActions}>
+          {/* XP Balance */}
+          <View style={styles.headerStatCard}>
+            <MaterialCommunityIcons name="star" size={18} color={colors.gold} />
+            <View style={styles.headerStatInfo}>
+              <Text style={styles.headerStatValue}>{state.userProfile.xpBalance.toLocaleString()}</Text>
+              <Text style={styles.headerStatLabel}>XP</Text>
+            </View>
+          </View>
+          
+          {/* Keys Balance */}
+          <View style={styles.headerStatCard}>
+            <MaterialCommunityIcons name="key" size={18} color={colors.accent} />
+            <View style={styles.headerStatInfo}>
+              <Text style={styles.headerStatValue}>{state.userProfile.keysBalance}</Text>
+              <Text style={styles.headerStatLabel}>Keys</Text>
+            </View>
+          </View>
         </View>
       </View>
 
@@ -157,24 +173,6 @@ export default function VaultScreen() {
         style={styles.statsBarContainer}
         contentContainerStyle={styles.statsBar}
       >
-        {/* XP Balance - Earned Only */}
-        <View style={styles.statCard}>
-          <MaterialCommunityIcons name="star" size={18} color={colors.gold} />
-          <View style={styles.statInfo}>
-            <Text style={styles.statValue}>{state.userProfile.xpBalance.toLocaleString()}</Text>
-            <Text style={styles.statLabel}>XP</Text>
-          </View>
-        </View>
-        
-        {/* Keys Balance - Purchasable */}
-        <View style={styles.statCard}>
-          <MaterialCommunityIcons name="key" size={18} color={colors.accent} />
-          <View style={styles.statInfo}>
-            <Text style={styles.statValue}>{state.userProfile.keysBalance}</Text>
-            <Text style={styles.statLabel}>Keys</Text>
-          </View>
-        </View>
-        
         {/* Action Buttons */}
         <TouchableOpacity style={styles.actionButton} onPress={handleGetKeys}>
           <Text style={styles.actionButtonText}>Get Keys</Text>
@@ -183,6 +181,7 @@ export default function VaultScreen() {
         <TouchableOpacity style={[styles.actionButton, styles.earnButton]} onPress={handleEarnXP}>
           <Text style={[styles.actionButtonText, styles.earnButtonText]}>Earn XP</Text>
         </TouchableOpacity>
+        
       </ScrollView>
 
       {/* Tier Tabs */}
@@ -302,6 +301,29 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: spacing(1),
   },
+  headerStatCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: colors.bg,
+    borderRadius: radii.md,
+    paddingHorizontal: spacing(2),
+    paddingVertical: spacing(1.5),
+    gap: spacing(1),
+  },
+  headerStatInfo: {
+    alignItems: 'center',
+  },
+  headerStatValue: {
+    fontSize: 16,
+    fontWeight: '900',
+    color: colors.text,
+  },
+  headerStatLabel: {
+    fontSize: 10,
+    color: colors.subtext,
+    fontWeight: '600',
+    textTransform: 'uppercase',
+  },
   
   // Month Header
   monthHeader: {
@@ -378,8 +400,8 @@ const styles = StyleSheet.create({
   actionButton: {
     backgroundColor: colors.accent,
     borderRadius: radii.md,
-    paddingHorizontal: spacing(2.5),
-    paddingVertical: spacing(1.5),
+    paddingHorizontal: spacing(2),
+    paddingVertical: spacing(1.25),
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -411,7 +433,7 @@ const styles = StyleSheet.create({
     borderColor: colors.line,
     borderRadius: radii.md,
     paddingHorizontal: spacing(2),
-    paddingVertical: spacing(1.5),
+    paddingVertical: spacing(1.25),
     alignSelf: 'flex-start',
   },
   activeTabChip: {

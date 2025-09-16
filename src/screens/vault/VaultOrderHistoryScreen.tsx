@@ -39,8 +39,8 @@ export default function VaultOrderHistoryScreen() {
       id: 'order_1234567890',
       date: '2024-01-15T14:30:00Z',
       status: 'completed',
-      itemsCount: 2,
-      total: 754,
+      itemsCount: 1,
+      total: 299, // $2.99 - Starter Key Pack
       primaryItem: 'Starter Key Pack'
     },
     {
@@ -48,24 +48,24 @@ export default function VaultOrderHistoryScreen() {
       date: '2024-01-10T09:15:00Z',
       status: 'completed',
       itemsCount: 1,
-      total: 199,
-      primaryItem: '24-Hour XP Booster'
+      total: 199, // $1.99 - 2x XP Booster
+      primaryItem: '2x XP Booster'
     },
     {
       id: 'order_1122334455',
       date: '2024-01-05T16:45:00Z',
       status: 'delivered',
       itemsCount: 1,
-      total: 2999,
-      primaryItem: 'Premium Cocktail Kit'
+      total: 699, // $6.99 - Value Key Bundle
+      primaryItem: 'Value Key Bundle'
     },
     {
       id: 'order_5544332211',
       date: '2023-12-28T11:20:00Z',
       status: 'completed',
-      itemsCount: 3,
-      total: 1297,
-      primaryItem: 'Ultimate Key Bundle'
+      itemsCount: 1,
+      total: 1499, // $14.99 - Ultimate Key Collection
+      primaryItem: 'Ultimate Key Collection'
     }
   ]);
   
@@ -135,29 +135,9 @@ export default function VaultOrderHistoryScreen() {
   ];
 
   const filteredOrders = getFilteredOrders();
-  const totalSpent = orders.reduce((sum, order) => sum + order.total, 0);
 
   return (
     <View style={styles.container}>
-      {/* Summary Header */}
-      <View style={styles.summaryHeader}>
-        <View style={styles.summaryCard}>
-          <MaterialCommunityIcons name="receipt" size={24} color={colors.accent} />
-          <View style={styles.summaryInfo}>
-            <Text style={styles.summaryValue}>{orders.length}</Text>
-            <Text style={styles.summaryLabel}>Total Orders</Text>
-          </View>
-        </View>
-        
-        <View style={styles.summaryCard}>
-          <MaterialCommunityIcons name="currency-usd" size={24} color={colors.gold} />
-          <View style={styles.summaryInfo}>
-            <Text style={styles.summaryValue}>${(totalSpent / 100).toFixed(0)}</Text>
-            <Text style={styles.summaryLabel}>Total Spent</Text>
-          </View>
-        </View>
-      </View>
-
       {/* Filter Tabs */}
       <ScrollView 
         horizontal 
@@ -204,6 +184,7 @@ export default function VaultOrderHistoryScreen() {
       ) : (
         <ScrollView 
           style={styles.ordersList}
+          contentContainerStyle={styles.ordersContent}
           refreshControl={
             <RefreshControl 
               refreshing={refreshing} 
@@ -268,46 +249,16 @@ const styles = StyleSheet.create({
     backgroundColor: colors.bg,
   },
   
-  // Summary Header
-  summaryHeader: {
-    flexDirection: 'row',
-    backgroundColor: colors.card,
-    padding: spacing(3),
-    borderBottomWidth: 1,
-    borderBottomColor: colors.line,
-    gap: spacing(2),
-  },
-  summaryCard: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: colors.bg,
-    borderRadius: radii.lg,
-    padding: spacing(2),
-    gap: spacing(2),
-  },
-  summaryInfo: {
-    flex: 1,
-  },
-  summaryValue: {
-    fontSize: 18,
-    fontWeight: '900',
-    color: colors.text,
-  },
-  summaryLabel: {
-    fontSize: 12,
-    color: colors.subtext,
-    marginTop: spacing(0.5),
-  },
   
   // Filters
   filtersContainer: {
+    backgroundColor: colors.card,
     borderBottomWidth: 1,
     borderBottomColor: colors.line,
   },
   filtersContent: {
     paddingHorizontal: spacing(2),
-    paddingVertical: spacing(2),
+    paddingVertical: spacing(1),
     gap: spacing(1.5),
   },
   filterChip: {
@@ -316,22 +267,24 @@ const styles = StyleSheet.create({
     backgroundColor: 'transparent',
     borderWidth: 1,
     borderColor: colors.line,
-    borderRadius: radii.md,
-    paddingHorizontal: spacing(2),
-    paddingVertical: spacing(1),
+    borderRadius: 9999,
+    paddingHorizontal: 16,
+    paddingVertical: 8,
     gap: spacing(1),
+    alignSelf: 'flex-start',
   },
   activeFilterChip: {
-    backgroundColor: colors.accent,
-    borderColor: colors.accent,
+    backgroundColor: colors.pillButtonColor,
+    borderWidth: 0,
+    borderColor: 'transparent',
   },
   filterText: {
-    fontSize: 14,
+    fontSize: 16,
     fontWeight: '600',
     color: colors.text,
   },
   activeFilterText: {
-    color: colors.white,
+    color: colors.pillTextOnLight,
   },
   filterBadge: {
     backgroundColor: colors.bg,
@@ -377,10 +330,13 @@ const styles = StyleSheet.create({
   ordersList: {
     flex: 1,
   },
+  ordersContent: {
+    paddingTop: spacing(1),
+  },
   orderCard: {
     backgroundColor: colors.card,
     borderRadius: radii.lg,
-    margin: spacing(2),
+    marginHorizontal: spacing(2),
     marginBottom: spacing(1),
     borderWidth: 1,
     borderColor: colors.line,

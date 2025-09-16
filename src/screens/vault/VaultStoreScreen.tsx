@@ -306,7 +306,7 @@ const styles = StyleSheet.create({
     borderColor: colors.line,
     borderRadius: radii.md,
     paddingHorizontal: spacing(2),
-    paddingVertical: spacing(1),
+    paddingVertical: spacing(1.25),
     gap: spacing(1),
   },
   activeCategoryChip: {
@@ -416,8 +416,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: colors.accent,
-    borderRadius: radii.lg,
-    paddingVertical: spacing(2),
+    borderRadius: radii.md,
+    paddingHorizontal: spacing(2),
+    paddingVertical: spacing(1.25),
     gap: spacing(1),
   },
   disabledButton: {

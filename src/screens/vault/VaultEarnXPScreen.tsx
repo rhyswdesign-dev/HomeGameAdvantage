@@ -46,16 +46,6 @@ export default function VaultEarnXPScreen() {
       navigationTarget: 'Main', // Navigate to lessons tab
     },
     {
-      id: 'mini_game',
-      title: 'Play Mini-Game',
-      description: 'Quick cocktail trivia and challenges',
-      expectedXP: 20,
-      icon: 'game-controller',
-      color: colors.gold,
-      estimatedTime: '2-3 min',
-      navigationTarget: 'Games',
-    },
-    {
       id: 'daily_streak',
       title: 'Daily Login Streak',
       description: 'Keep your learning streak alive',
@@ -195,8 +185,8 @@ export default function VaultEarnXPScreen() {
                 </View>
               </View>
               
-              <View style={styles.actionFooter}>
-                <Ionicons name="chevron-forward" size={16} color={colors.subtext} />
+              <View style={styles.actionArrow}>
+                <Ionicons name="chevron-forward" size={20} color={colors.subtext} />
               </View>
             </TouchableOpacity>
           );
@@ -299,11 +289,13 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: colors.line,
     overflow: 'hidden',
+    position: 'relative',
   },
   actionHeader: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: spacing(3),
+    padding: spacing(2.5),
+    paddingRight: spacing(4.5),
     gap: spacing(2),
   },
   actionIcon: {
@@ -360,9 +352,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  actionFooter: {
-    alignItems: 'center',
-    paddingBottom: spacing(2),
+  actionArrow: {
+    position: 'absolute',
+    right: spacing(2.5),
+    top: '50%',
+    marginTop: -10,
   },
   
   // Booster Upsell
