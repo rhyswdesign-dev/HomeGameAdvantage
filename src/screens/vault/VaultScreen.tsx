@@ -183,9 +183,7 @@ export default function VaultScreen() {
               title={tab.label}
               onPress={() => setSelectedTab(tab.key)}
               style={!isActive ? { backgroundColor: 'transparent', borderWidth: 1, borderColor: colors.line } : undefined}
-              textStyle={[
-                { color: isActive ? colors.pillTextOnLight : colors.text }
-              ]}
+              textStyle={{ color: isActive ? colors.pillTextOnLight : colors.text }}
             />
           );
         })}

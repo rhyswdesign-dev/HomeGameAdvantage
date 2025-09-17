@@ -240,9 +240,7 @@ export default function VaultOrderHistoryScreen() {
             title={filter.label}
             onPress={() => setSelectedFilter(filter.key)}
             style={!isActive ? { backgroundColor: 'transparent', borderWidth: 1, borderColor: colors.line } : undefined}
-            textStyle={[
-              { color: isActive ? colors.pillTextOnLight : colors.text }
-            ]}
+            textStyle={{ color: isActive ? colors.pillTextOnLight : colors.text }}
           />
         );
       })}

@@ -67,7 +67,7 @@ export default function RecommenderComponent({
         <Pressable
           key={user.id}
           style={styles.compactUserCard}
-          onPress={() => nav.navigate('UserProfile' as never, { userId: user.id, isOwnProfile: false } as never)}
+          onPress={() => nav.navigate('UserProfile', { userId: user.id, isOwnProfile: false })}
         >
           <View style={styles.compactUserInfo}>
             <Image source={{ uri: user.avatar }} style={styles.compactAvatar} />
@@ -99,7 +99,7 @@ export default function RecommenderComponent({
       <Pressable
         key={user.id}
         style={styles.userCard}
-        onPress={() => nav.navigate('UserProfile' as never, { userId: user.id, isOwnProfile: false } as never)}
+        onPress={() => nav.navigate('UserProfile', { userId: user.id, isOwnProfile: false })}
       >
         <View style={styles.userCardContent}>
           <View style={styles.userAvatarContainer}>
@@ -141,7 +141,7 @@ export default function RecommenderComponent({
         <Pressable
           key={group.id}
           style={styles.compactGroupCard}
-          onPress={() => nav.navigate('GroupProfile' as never, { groupId: group.id } as never)}
+          onPress={() => nav.navigate('GroupProfile', { groupId: group.id })}
         >
           <View style={styles.compactGroupInfo}>
             <Image source={{ uri: group.avatar }} style={styles.compactGroupAvatar} />
@@ -173,7 +173,7 @@ export default function RecommenderComponent({
       <Pressable
         key={group.id}
         style={styles.groupCard}
-        onPress={() => nav.navigate('GroupProfile' as never, { groupId: group.id } as never)}
+        onPress={() => nav.navigate('GroupProfile', { groupId: group.id })}
       >
         <View style={styles.groupCardContent}>
           <Image source={{ uri: group.avatar }} style={styles.groupAvatar} />

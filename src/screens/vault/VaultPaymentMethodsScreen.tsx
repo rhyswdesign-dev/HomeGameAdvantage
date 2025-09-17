@@ -165,7 +165,7 @@ export default function VaultPaymentMethodsScreen() {
               <View style={styles.cardHeader}>
                 <View style={styles.cardBrand}>
                   <MaterialCommunityIcons 
-                    name={getBrandIcon(method.brand)} 
+                    name={getBrandIcon(method.brand) as any} 
                     size={24} 
                     color={getBrandColor(method.brand)} 
                   />

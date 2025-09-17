@@ -30,12 +30,13 @@ export default function AppDrawerItems({
             key={route.key}
             label={label}
             focused={focused}
-            onPress={() =>
-              navigation.navigate(
-                route.name as never,
-                (route.params as never) ?? ({} as never)
-              )
-            }
+            onPress={() => {
+              if (route.params) {
+                navigation.navigate(route.name as string, route.params);
+              } else {
+                navigation.navigate(route.name as string);
+              }
+            }}
             icon={options.drawerIcon}
           />
         );

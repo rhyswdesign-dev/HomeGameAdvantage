@@ -220,7 +220,7 @@ const UntitledLoungeScreen: React.FC = () => {
                 <PillButton 
                   title="Learn More"
                   onPress={() => navigation.navigate('CocktailSubmission')}
-                  variant="filled"
+                  variant="primary"
                 />
               }
             >
@@ -300,7 +300,7 @@ const UntitledLoungeScreen: React.FC = () => {
           <PillButton 
             title="Buy Now"
             onPress={() => {}}
-            variant="filled"
+            variant="primary"
             style={styles.ctaButton}
           />
           <PillButton 

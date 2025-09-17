@@ -56,6 +56,10 @@ export const colors = {
   pillButtonColor: '#E4933E',
   pillTextOnLight: '#000000',
   pillTextOnDark: '#FFFFFF',
+  
+  // Secondary colors for PillButton variants
+  secondary: '#3A2A1F',
+  secondaryText: '#F5ECDF',
 };
 
 export const spacing = (n: number) => 8 * n;

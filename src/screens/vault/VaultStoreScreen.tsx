@@ -105,7 +105,7 @@ export default function VaultStoreScreen() {
       <View style={styles.itemHeader}>
         <View style={[styles.itemIcon, { backgroundColor: getItemColor(item.type) }]}>
           <MaterialCommunityIcons 
-            name={getItemIcon(item.type)} 
+            name={getItemIcon(item.type) as any} 
             size={20} 
             color={colors.white} 
           />
@@ -207,9 +207,7 @@ export default function VaultStoreScreen() {
               title={category.label}
               onPress={() => setSelectedCategory(category.key)}
               style={!isActive ? { backgroundColor: 'transparent', borderWidth: 1, borderColor: colors.line } : undefined}
-              textStyle={[
-                { color: isActive ? colors.pillTextOnLight : colors.text }
-              ]}
+              textStyle={{ color: isActive ? colors.pillTextOnLight : colors.text }}
             />
           );
         })}

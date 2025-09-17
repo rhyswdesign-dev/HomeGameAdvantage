@@ -8,6 +8,7 @@ type Props = {
   style?: ViewStyle;
   textStyle?: TextStyle;
   disabled?: boolean;
+  variant?: 'primary' | 'secondary' | 'outline';
 };
 
 function getLuminance(hex: string) {
@@ -26,16 +27,33 @@ function bestTextColor(bgHex: string) {
   return L < 0.5 ? colors.pillTextOnDark : colors.pillTextOnLight;
 }
 
-export const PillButton: React.FC<Props> = ({ title, onPress, style, textStyle, disabled }) => {
-  const bg = colors.pillButtonColor;
-  const txt = bestTextColor(bg);
+export const PillButton: React.FC<Props> = ({ title, onPress, style, textStyle, disabled, variant = 'primary' }) => {
+  const getVariantStyles = () => {
+    switch (variant) {
+      case 'secondary':
+        return { backgroundColor: colors.secondary, color: colors.secondaryText };
+      case 'outline':
+        return { backgroundColor: 'transparent', color: colors.text, borderWidth: 1, borderColor: colors.line };
+      default:
+        return { backgroundColor: colors.pillButtonColor, color: bestTextColor(colors.pillButtonColor) };
+    }
+  };
+  
+  const variantStyles = getVariantStyles();
+  const bg = variantStyles.backgroundColor;
+  const txt = variantStyles.color;
   return (
     <Pressable
       onPress={onPress}
       disabled={disabled}
       style={({ pressed }) => [
         styles.base,
-        { backgroundColor: bg, opacity: pressed ? 0.9 : 1 },
+        { 
+          backgroundColor: bg, 
+          opacity: pressed ? 0.9 : 1,
+          ...(variantStyles.borderWidth && { borderWidth: variantStyles.borderWidth }),
+          ...(variantStyles.borderColor && { borderColor: variantStyles.borderColor })
+        },
         disabled && { opacity: 0.6 },
         style,
       ]}

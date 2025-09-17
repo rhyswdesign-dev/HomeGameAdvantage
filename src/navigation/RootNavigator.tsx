@@ -49,6 +49,15 @@ import UserProfileScreen from '../screens/UserProfileScreen';
 import FollowersListScreen from '../screens/FollowersListScreen';
 import GroupDiscoveryScreen from '../screens/GroupDiscoveryScreen';
 import GroupProfileScreen from '../screens/GroupProfileScreen';
+import FeaturedBarsScreen from '../screens/FeaturedBarsScreen';
+// Onboarding screens
+import WelcomeScreen from '../screens/onboarding/WelcomeScreen';
+import ConsentScreen from '../screens/onboarding/ConsentScreen';
+import SurveyScreen from '../screens/onboarding/SurveyScreen';
+import SurveyResultsScreen from '../screens/onboarding/SurveyResultsScreen';
+// Lesson screens
+import LessonEngineScreen from '../screens/lessons/LessonEngineScreen';
+import LessonSummaryScreen from '../screens/lessons/LessonSummaryScreen';
 // Commerce screens
 import PricingScreen from '../screens/commerce/PricingScreen';
 import CartScreen from '../screens/commerce/CartScreen';
@@ -104,6 +113,15 @@ export type RootStackParamList = {
   FollowersList: { userId: string; type: 'followers' | 'following' };
   GroupDiscovery: undefined;
   GroupProfile: { groupId: string };
+  FeaturedBar: { barId: string };
+  // Onboarding screens
+  Welcome: undefined;
+  Consent: undefined;
+  Survey: undefined;
+  SurveyResults: { answers: any };
+  // Lesson screens
+  LessonEngine: { moduleId?: string; lessonId?: string; isFirstLesson?: boolean };
+  LessonSummary: { xpAwarded: number; correctCount: number; totalCount: number; masteryDelta: number; moduleId?: string; lessonId?: string; isFirstLesson?: boolean };
   // Commerce screens
   Pricing: undefined;
   Cart: undefined;
@@ -242,6 +260,15 @@ export default function RootNavigator() {
     <Stack.Screen name="FollowersList" component={FollowersListScreen} options={{ headerShown: true, title: 'Followers' }} />
     <Stack.Screen name="GroupDiscovery" component={GroupDiscoveryScreen} options={{ headerShown: true, title: 'Discover Groups' }} />
     <Stack.Screen name="GroupProfile" component={GroupProfileScreen} options={{ headerShown: true, title: 'Group' }} />
+    <Stack.Screen name="FeaturedBar" component={FeaturedBarsScreen} options={{ headerShown: true, title: 'Featured Bar' }} />
+    {/* Onboarding screens */}
+    <Stack.Screen name="Welcome" component={WelcomeScreen} options={{ headerShown: false }} />
+    <Stack.Screen name="Consent" component={ConsentScreen} options={{ headerShown: false }} />
+    <Stack.Screen name="Survey" component={SurveyScreen} options={{ headerShown: false }} />
+    <Stack.Screen name="SurveyResults" component={SurveyResultsScreen} options={{ headerShown: false }} />
+    {/* Lesson screens */}
+    <Stack.Screen name="LessonEngine" component={LessonEngineScreen} options={{ headerShown: false }} />
+    <Stack.Screen name="LessonSummary" component={LessonSummaryScreen} options={{ headerShown: false }} />
     {/* Commerce screens */}
     <Stack.Screen name="Pricing" component={PricingScreen} options={{ headerShown: true, title: 'Premium' }} />
     <Stack.Screen name="Cart" component={CartScreen} options={{ headerShown: true, title: 'Cart' }} />
