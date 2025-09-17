@@ -19,34 +19,24 @@ import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '../../navigation/RootNavigator';
 import { colors, spacing, radii } from '../../theme/tokens';
 
-interface OrderItem {
+interface TransactionItem {
   id: string;
   name: string;
-  type: 'keys' | 'booster' | 'pass' | 'merch';
+  price: number;
   quantity: number;
-  unitPrice: number;
-  totalPrice: number;
+  type: 'keys' | 'booster' | 'bundle';
 }
 
-interface Order {
+interface OrderDetails {
   id: string;
   date: string;
   status: 'completed' | 'processing' | 'shipped' | 'delivered' | 'cancelled';
-  items: OrderItem[];
-  subtotal: number;
-  tax: number;
-  shipping: number;
+  itemsCount: number;
   total: number;
+  primaryItem: string;
+  items: TransactionItem[];
   paymentMethod: string;
-  shippingAddress?: {
-    name: string;
-    street1: string;
-    street2?: string;
-    city: string;
-    state: string;
-    zipCode: string;
-  };
-  trackingNumber?: string;
+  transactionId: string;
 }
 
 type OrderDetailsRouteProp = RouteProp<RootStackParamList, 'VaultOrderDetails'>;
@@ -57,35 +47,70 @@ export default function VaultOrderDetailsScreen() {
   
   const { orderId } = route.params || {};
   
-  // Mock order data - would come from backend in real app
-  const order: Order = {
-    id: orderId || 'order_1234567890',
-    date: '2024-01-15T14:30:00Z',
-    status: 'completed',
-    items: [
-      {
-        id: 'keys_starter_pack',
-        name: 'Starter Key Pack',
-        type: 'keys',
-        quantity: 1,
-        unitPrice: 499,
-        totalPrice: 499
+  // Mock order details - would come from backend in real app
+  const getOrderDetails = (id: string): OrderDetails => {
+    const orders: Record<string, OrderDetails> = {
+      'order_1234567890': {
+        id: 'order_1234567890',
+        date: '2024-01-15T14:30:00Z',
+        status: 'completed',
+        itemsCount: 1,
+        total: 299,
+        primaryItem: 'Starter Key Pack',
+        paymentMethod: 'Apple Pay',
+        transactionId: 'txn_abc123def456',
+        items: [
+          { id: 'item_1', name: 'Starter Key Pack', price: 299, quantity: 1, type: 'keys' }
+        ]
       },
-      {
-        id: 'xp_booster_24h',
-        name: '24-Hour XP Booster',
-        type: 'booster',
-        quantity: 1,
-        unitPrice: 199,
-        totalPrice: 199
+      'order_0987654321': {
+        id: 'order_0987654321',
+        date: '2024-01-10T09:15:00Z',
+        status: 'completed',
+        itemsCount: 2,
+        total: 398,
+        primaryItem: '2x XP Booster + Keys',
+        paymentMethod: 'Credit Card',
+        transactionId: 'txn_xyz789ghi012',
+        items: [
+          { id: 'item_2', name: '2x XP Booster', price: 199, quantity: 1, type: 'booster' },
+          { id: 'item_3', name: 'Small Key Pack', price: 199, quantity: 1, type: 'keys' }
+        ]
+      },
+      'order_1122334455': {
+        id: 'order_1122334455',
+        date: '2024-01-05T16:45:00Z',
+        status: 'delivered',
+        itemsCount: 1,
+        total: 699,
+        primaryItem: 'Value Key Bundle',
+        paymentMethod: 'PayPal',
+        transactionId: 'txn_mno345pqr678',
+        items: [
+          { id: 'item_4', name: 'Value Key Bundle', price: 699, quantity: 1, type: 'bundle' }
+        ]
+      },
+      'order_5544332211': {
+        id: 'order_5544332211',
+        date: '2023-12-28T11:20:00Z',
+        status: 'completed',
+        itemsCount: 3,
+        total: 1497,
+        primaryItem: 'Ultimate Collection',
+        paymentMethod: 'Apple Pay',
+        transactionId: 'txn_stu901vwx234',
+        items: [
+          { id: 'item_5', name: 'Ultimate Key Collection', price: 999, quantity: 1, type: 'bundle' },
+          { id: 'item_6', name: '5x XP Booster', price: 299, quantity: 1, type: 'booster' },
+          { id: 'item_7', name: 'Premium Key Pack', price: 199, quantity: 1, type: 'keys' }
+        ]
       }
-    ],
-    subtotal: 698,
-    tax: 56,
-    shipping: 0,
-    total: 754,
-    paymentMethod: 'Card ending in ••••4242'
+    };
+    
+    return orders[id] || orders['order_1234567890'];
   };
+
+  const order = getOrderDetails(orderId || 'order_1234567890');
   
   useLayoutEffect(() => {
     nav.setOptions({
@@ -94,15 +119,11 @@ export default function VaultOrderDetailsScreen() {
       headerTintColor: colors.text,
       headerTitleStyle: { color: colors.text, fontWeight: '900' },
       headerShadowVisible: false,
-      headerLeft: () => (
-        <Pressable hitSlop={12} onPress={() => nav.goBack()}>
-          <Ionicons name="arrow-back" size={24} color={colors.text} />
-        </Pressable>
-      ),
+      headerLeft: () => null,
     });
   }, [nav]);
 
-  const getStatusColor = (status: Order['status']): string => {
+  const getStatusColor = (status: OrderDetails['status']): string => {
     switch (status) {
       case 'completed': return colors.accent;
       case 'processing': return colors.gold;
@@ -113,7 +134,7 @@ export default function VaultOrderDetailsScreen() {
     }
   };
 
-  const getStatusIcon = (status: Order['status']): string => {
+  const getStatusIcon = (status: OrderDetails['status']): string => {
     switch (status) {
       case 'completed': return 'checkmark-circle';
       case 'processing': return 'time';
@@ -124,32 +145,34 @@ export default function VaultOrderDetailsScreen() {
     }
   };
 
-  const getItemIcon = (type: OrderItem['type']): string => {
+  const getItemTypeIcon = (type: TransactionItem['type']): string => {
     switch (type) {
       case 'keys': return 'key';
       case 'booster': return 'flash';
-      case 'pass': return 'card-outline';
-      case 'merch': return 'gift-outline';
+      case 'bundle': return 'gift-outline';
       default: return 'cube-outline';
     }
   };
 
+  const getItemTypeColor = (type: TransactionItem['type']): string => {
+    switch (type) {
+      case 'keys': return colors.accentLight;
+      case 'booster': return colors.gold;
+      case 'bundle': return colors.accent;
+      default: return colors.subtext;
+    }
+  };
+
   const formatDate = (dateString: string): string => {
-    return new Date(dateString).toLocaleDateString('en-US', {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', {
+      weekday: 'long',
       year: 'numeric',
       month: 'long',
       day: 'numeric',
       hour: '2-digit',
       minute: '2-digit'
     });
-  };
-
-  const handleDownloadReceipt = () => {
-    Alert.alert(
-      'Download Receipt',
-      'Receipt will be downloaded to your device.',
-      [{ text: 'OK' }]
-    );
   };
 
   const handleContactSupport = () => {
@@ -164,150 +187,82 @@ export default function VaultOrderDetailsScreen() {
   };
 
   return (
-    <View style={styles.container}>
-      <ScrollView>
-        {/* Order Status */}
-        <View style={styles.statusSection}>
-          <View style={styles.statusHeader}>
-            <Ionicons 
-              name={getStatusIcon(order.status)} 
-              size={32} 
-              color={getStatusColor(order.status)} 
-            />
-            <View style={styles.statusInfo}>
-              <Text style={styles.statusTitle}>
-                {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
-              </Text>
-              <Text style={styles.statusSubtitle}>
-                Order #{order.id.slice(-8)}
-              </Text>
-              <Text style={styles.orderDate}>
-                {formatDate(order.date)}
-              </Text>
-            </View>
-          </View>
-          
-          {order.trackingNumber && (
-            <View style={styles.trackingInfo}>
-              <Text style={styles.trackingLabel}>Tracking Number</Text>
-              <Text style={styles.trackingNumber}>{order.trackingNumber}</Text>
-            </View>
-          )}
-        </View>
-
-        {/* Order Items */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Items Purchased</Text>
-          
-          {order.items.map((item) => (
-            <View key={item.id} style={styles.orderItem}>
-              <View style={styles.itemIcon}>
-                <MaterialCommunityIcons 
-                  name={getItemIcon(item.type)} 
-                  size={20} 
-                  color={colors.accent} 
-                />
-              </View>
-              
-              <View style={styles.itemInfo}>
-                <Text style={styles.itemName}>{item.name}</Text>
-                <Text style={styles.itemDetails}>
-                  Qty: {item.quantity} • ${(item.unitPrice / 100).toFixed(2)} each
-                </Text>
-              </View>
-              
-              <Text style={styles.itemPrice}>
-                ${(item.totalPrice / 100).toFixed(2)}
-              </Text>
-            </View>
-          ))}
-        </View>
-
-        {/* Order Summary */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Order Summary</Text>
-          
-          <View style={styles.summaryRows}>
-            <View style={styles.summaryRow}>
-              <Text style={styles.summaryLabel}>Subtotal</Text>
-              <Text style={styles.summaryValue}>
-                ${(order.subtotal / 100).toFixed(2)}
-              </Text>
-            </View>
-            
-            <View style={styles.summaryRow}>
-              <Text style={styles.summaryLabel}>Tax</Text>
-              <Text style={styles.summaryValue}>
-                ${(order.tax / 100).toFixed(2)}
-              </Text>
-            </View>
-            
-            {order.shipping > 0 && (
-              <View style={styles.summaryRow}>
-                <Text style={styles.summaryLabel}>Shipping</Text>
-                <Text style={styles.summaryValue}>
-                  ${(order.shipping / 100).toFixed(2)}
-                </Text>
-              </View>
-            )}
-            
-            <View style={[styles.summaryRow, styles.totalRow]}>
-              <Text style={styles.totalLabel}>Total</Text>
-              <Text style={styles.totalValue}>
-                ${(order.total / 100).toFixed(2)}
-              </Text>
-            </View>
+    <ScrollView style={styles.container} contentContainerStyle={styles.content}>
+      {/* Order Summary */}
+      <View style={styles.summaryCard}>
+        <View style={styles.summaryHeader}>
+          <Text style={styles.orderNumber}>Order #{order.id.slice(-8)}</Text>
+          <View style={[styles.statusBadge, { backgroundColor: getStatusColor(order.status) }]}>
+            <Text style={styles.statusText}>
+              {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
+            </Text>
           </View>
         </View>
+        
+        <Text style={styles.orderDate}>{formatDate(order.date)}</Text>
+        <Text style={styles.totalAmount}>${(order.total / 100).toFixed(2)}</Text>
+      </View>
 
-        {/* Payment & Shipping */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Payment & Shipping</Text>
-          
-          <View style={styles.infoRows}>
-            <View style={styles.infoRow}>
-              <Text style={styles.infoLabel}>Payment Method</Text>
-              <Text style={styles.infoValue}>{order.paymentMethod}</Text>
+      {/* Transaction Items */}
+      <View style={styles.itemsCard}>
+        <Text style={styles.sectionTitle}>Items Purchased</Text>
+        
+        {order.items.map((item, index) => (
+          <View key={item.id} style={[
+            styles.transactionItem,
+            index === order.items.length - 1 && styles.lastItem
+          ]}>
+            <View style={[styles.itemIcon, { backgroundColor: getItemTypeColor(item.type) }]}>
+              <Ionicons 
+                name={getItemTypeIcon(item.type) as any} 
+                size={20} 
+                color={colors.white} 
+              />
             </View>
-            
-            {order.shippingAddress && (
-              <View style={styles.infoRow}>
-                <Text style={styles.infoLabel}>Shipping Address</Text>
-                <View style={styles.addressValue}>
-                  <Text style={styles.addressLine}>{order.shippingAddress.name}</Text>
-                  <Text style={styles.addressLine}>{order.shippingAddress.street1}</Text>
-                  {order.shippingAddress.street2 && (
-                    <Text style={styles.addressLine}>{order.shippingAddress.street2}</Text>
-                  )}
-                  <Text style={styles.addressLine}>
-                    {order.shippingAddress.city}, {order.shippingAddress.state} {order.shippingAddress.zipCode}
-                  </Text>
-                </View>
-              </View>
-            )}
+            <View style={styles.itemInfo}>
+              <Text style={styles.itemName}>{item.name}</Text>
+              <Text style={styles.itemDetails}>
+                {item.type.charAt(0).toUpperCase() + item.type.slice(1)} • Quantity: {item.quantity}
+              </Text>
+            </View>
+            <Text style={styles.itemPrice}>${(item.price / 100).toFixed(2)}</Text>
           </View>
+        ))}
+        
+        {/* Total */}
+        <View style={styles.totalRow}>
+          <Text style={styles.totalLabel}>Total</Text>
+          <Text style={styles.totalPrice}>${(order.total / 100).toFixed(2)}</Text>
         </View>
+      </View>
 
-        {/* Actions */}
-        <View style={styles.actionsSection}>
-          <TouchableOpacity 
-            style={styles.actionButton}
-            onPress={handleDownloadReceipt}
-          >
-            <Ionicons name="download-outline" size={20} color={colors.text} />
-            <Text style={styles.actionButtonText}>Download Receipt</Text>
-          </TouchableOpacity>
-          
-          <TouchableOpacity 
-            style={styles.actionButton}
-            onPress={handleContactSupport}
-          >
-            <Ionicons name="help-circle-outline" size={20} color={colors.text} />
-            <Text style={styles.actionButtonText}>Contact Support</Text>
-          </TouchableOpacity>
+      {/* Payment Information */}
+      <View style={styles.paymentCard}>
+        <Text style={styles.sectionTitle}>Payment Information</Text>
+        
+        <View style={styles.paymentRow}>
+          <Text style={styles.paymentLabel}>Payment Method</Text>
+          <Text style={styles.paymentValue}>{order.paymentMethod}</Text>
         </View>
-      </ScrollView>
-    </View>
+        
+        <View style={styles.paymentRow}>
+          <Text style={styles.paymentLabel}>Transaction ID</Text>
+          <Text style={styles.paymentValue}>{order.transactionId}</Text>
+        </View>
+      </View>
+
+      {/* Support Section */}
+      <View style={styles.supportCard}>
+        <Text style={styles.sectionTitle}>Need Help?</Text>
+        <Text style={styles.supportText}>
+          If you have any questions about this order, our support team is here to help.
+        </Text>
+        <Pressable style={styles.supportButton} onPress={handleContactSupport}>
+          <Ionicons name="chatbubble" size={20} color={colors.accent} />
+          <Text style={styles.supportButtonText}>Contact Support</Text>
+        </Pressable>
+      </View>
+    </ScrollView>
   );
 }
 
@@ -317,178 +272,13 @@ const styles = StyleSheet.create({
     backgroundColor: colors.bg,
   },
   
-  // Status Section
-  statusSection: {
-    backgroundColor: colors.card,
-    padding: spacing(3),
-    borderBottomWidth: 1,
-    borderBottomColor: colors.line,
-  },
-  statusHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: spacing(2),
-  },
-  statusInfo: {
-    marginLeft: spacing(2),
-  },
-  statusTitle: {
-    fontSize: 20,
-    fontWeight: '800',
-    color: colors.text,
-  },
-  statusSubtitle: {
-    fontSize: 14,
-    color: colors.subtext,
-    marginTop: spacing(0.5),
-  },
-  orderDate: {
-    fontSize: 12,
-    color: colors.subtext,
-    marginTop: spacing(0.5),
-  },
-  trackingInfo: {
-    backgroundColor: colors.bg,
-    borderRadius: radii.lg,
+  content: {
     padding: spacing(2),
-  },
-  trackingLabel: {
-    fontSize: 12,
-    color: colors.subtext,
-    marginBottom: spacing(0.5),
-  },
-  trackingNumber: {
-    fontSize: 16,
-    fontWeight: '700',
-    color: colors.text,
+    paddingBottom: spacing(4),
   },
   
-  // Sections
-  section: {
-    backgroundColor: colors.card,
-    padding: spacing(3),
-    borderBottomWidth: 1,
-    borderBottomColor: colors.line,
-  },
-  sectionTitle: {
-    fontSize: 18,
-    fontWeight: '800',
-    color: colors.text,
-    marginBottom: spacing(2),
-  },
-  
-  // Order Items
-  orderItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: colors.bg,
-    borderRadius: radii.lg,
-    padding: spacing(2),
-    marginBottom: spacing(2),
-  },
-  itemIcon: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: colors.card,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  itemInfo: {
-    flex: 1,
-    marginLeft: spacing(2),
-  },
-  itemName: {
-    fontSize: 14,
-    fontWeight: '700',
-    color: colors.text,
-    marginBottom: spacing(0.5),
-  },
-  itemDetails: {
-    fontSize: 12,
-    color: colors.subtext,
-  },
-  itemPrice: {
-    fontSize: 16,
-    fontWeight: '800',
-    color: colors.text,
-  },
-  
-  // Summary
-  summaryRows: {
-    backgroundColor: colors.bg,
-    borderRadius: radii.lg,
-    padding: spacing(2),
-  },
-  summaryRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingVertical: spacing(1),
-  },
-  summaryLabel: {
-    fontSize: 14,
-    color: colors.subtext,
-  },
-  summaryValue: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: colors.text,
-  },
-  totalRow: {
-    marginTop: spacing(1),
-    paddingTop: spacing(2),
-    borderTopWidth: 1,
-    borderTopColor: colors.line,
-  },
-  totalLabel: {
-    fontSize: 16,
-    fontWeight: '800',
-    color: colors.text,
-  },
-  totalValue: {
-    fontSize: 18,
-    fontWeight: '900',
-    color: colors.text,
-  },
-  
-  // Info Rows
-  infoRows: {
-    backgroundColor: colors.bg,
-    borderRadius: radii.lg,
-    padding: spacing(2),
-  },
-  infoRow: {
-    paddingVertical: spacing(1.5),
-    borderBottomWidth: 1,
-    borderBottomColor: colors.line,
-  },
-  infoLabel: {
-    fontSize: 12,
-    color: colors.subtext,
-    marginBottom: spacing(0.5),
-  },
-  infoValue: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: colors.text,
-  },
-  addressValue: {
-    
-  },
-  addressLine: {
-    fontSize: 14,
-    color: colors.text,
-    lineHeight: 20,
-  },
-  
-  // Actions
-  actionsSection: {
-    padding: spacing(3),
-  },
-  actionButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
+  // Summary Card
+  summaryCard: {
     backgroundColor: colors.card,
     borderRadius: radii.lg,
     padding: spacing(3),
@@ -496,10 +286,186 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: colors.line,
   },
-  actionButtonText: {
+  
+  summaryHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: spacing(2),
+  },
+  
+  orderNumber: {
+    fontSize: 18,
+    fontWeight: '800',
+    color: colors.text,
+  },
+  
+  statusBadge: {
+    paddingHorizontal: spacing(1.5),
+    paddingVertical: spacing(0.5),
+    borderRadius: radii.sm,
+  },
+  
+  statusText: {
+    color: colors.white,
+    fontSize: 12,
+    fontWeight: '800',
+  },
+  
+  orderDate: {
+    fontSize: 14,
+    color: colors.subtext,
+    marginBottom: spacing(1),
+  },
+  
+  totalAmount: {
+    fontSize: 28,
+    fontWeight: '900',
+    color: colors.text,
+  },
+  
+  // Items Card
+  itemsCard: {
+    backgroundColor: colors.card,
+    borderRadius: radii.lg,
+    padding: spacing(3),
+    marginBottom: spacing(2),
+    borderWidth: 1,
+    borderColor: colors.line,
+  },
+  
+  sectionTitle: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: colors.text,
+    marginBottom: spacing(2),
+  },
+  
+  transactionItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: spacing(2),
+    borderBottomWidth: 1,
+    borderBottomColor: colors.line,
+    gap: spacing(2),
+  },
+  
+  lastItem: {
+    borderBottomWidth: 0,
+  },
+  
+  itemIcon: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  
+  itemInfo: {
+    flex: 1,
+  },
+  
+  itemName: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: colors.text,
+    marginBottom: spacing(0.25),
+  },
+  
+  itemDetails: {
+    fontSize: 12,
+    color: colors.subtext,
+  },
+  
+  itemPrice: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: colors.text,
+  },
+  
+  totalRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingTop: spacing(2),
+    marginTop: spacing(2),
+    borderTopWidth: 2,
+    borderTopColor: colors.line,
+  },
+  
+  totalLabel: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: colors.text,
+  },
+  
+  totalPrice: {
+    fontSize: 20,
+    fontWeight: '900',
+    color: colors.text,
+  },
+  
+  // Payment Card
+  paymentCard: {
+    backgroundColor: colors.card,
+    borderRadius: radii.lg,
+    padding: spacing(3),
+    marginBottom: spacing(2),
+    borderWidth: 1,
+    borderColor: colors.line,
+  },
+  
+  paymentRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: spacing(1),
+  },
+  
+  paymentLabel: {
+    fontSize: 14,
+    color: colors.subtext,
+  },
+  
+  paymentValue: {
     fontSize: 14,
     fontWeight: '600',
     color: colors.text,
-    marginLeft: spacing(2),
+  },
+  
+  // Support Card
+  supportCard: {
+    backgroundColor: colors.card,
+    borderRadius: radii.lg,
+    padding: spacing(3),
+    borderWidth: 1,
+    borderColor: colors.line,
+  },
+  
+  supportText: {
+    fontSize: 14,
+    color: colors.subtext,
+    marginBottom: spacing(2),
+    lineHeight: 20,
+  },
+  
+  supportButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: colors.bg,
+    borderRadius: radii.md,
+    paddingVertical: spacing(2),
+    paddingHorizontal: spacing(3),
+    gap: spacing(1),
+    borderWidth: 1,
+    borderColor: colors.line,
+  },
+  
+  supportButtonText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: colors.accent,
   },
 });

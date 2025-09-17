@@ -18,9 +18,7 @@ import GarnishCompetitionScreen from '../screens/GarnishCompetitionScreen';
 import CocktailSubmissionScreen from '../screens/CocktailSubmissionScreen';
 import MixologyMasterClassScreen from '../screens/MixologyMasterClassScreen';
 import BrandDetailScreen from '../screens/BrandDetailScreen';
-import FeaturedBarScreen from '../screens/FeaturedBarScreen';
 import FeaturedSpiritScreen from '../screens/FeaturedSpiritScreen';
-import ExploreScreen from '../screens/ExploreScreen';
 import XPTransactionScreen from '../screens/XPTransactionScreen';
 import XPReminderScreen from '../screens/XPReminderScreen';
 import SettingsScreen from '../screens/SettingsScreen';
@@ -31,6 +29,7 @@ import FeedbackScreen from '../screens/FeedbackScreen';
 import CocktailDetailScreen from '../screens/CocktailDetailScreen';
 import SavedItemsScreen from '../screens/SavedItemsScreen';
 import EditProfileScreen from '../screens/EditProfileScreen';
+import NonAlcoholicScreen from '../screens/NonAlcoholicScreen';
 import VaultScreen from '../screens/vault/VaultScreen';
 // Vault screens
 import VaultStoreScreen from '../screens/vault/VaultStoreScreen';
@@ -59,7 +58,6 @@ import OrderHistoryScreen from '../screens/commerce/OrderHistoryScreen';
 
 export type RootStackParamList = {
   Main: undefined;
-  Explore: undefined;
   Bars: undefined;
   Spirits: undefined;
   Events: undefined;
@@ -77,7 +75,6 @@ export type RootStackParamList = {
   CocktailSubmission: undefined;
   MixologyMasterClass: undefined;
   BrandDetail: { brandId: string };
-  FeaturedBar: { barId: string; tier?: 'bronze' | 'silver' | 'gold' };
   FeaturedSpirit: { spiritId: string; tier: 'bronze' | 'silver' | 'gold' };
   XPTransaction: undefined;
   Settings: undefined;
@@ -88,6 +85,7 @@ export type RootStackParamList = {
   CocktailDetail: { cocktailId: string };
   SavedItems: { category: 'bars' | 'spirits' | 'cocktails' | 'events' | 'communities' };
   EditProfile: undefined;
+  NonAlcoholic: undefined;
   Vault: undefined;
   VaultStore: undefined;
   VaultCart: undefined;
@@ -130,12 +128,11 @@ export default function RootNavigator() {
         headerTintColor: colors.headerText,
         headerTitleStyle: components.headerText,
         headerShadowVisible: false,
-        animation: 'slide_from_right',
-        animationDuration: 300,
+        animation: 'fade',
+        animationDuration: 200,
       }}
     >
       <Stack.Screen name="Main" component={Tabs} />
-      <Stack.Screen name="Explore" component={ExploreScreen} options={{ headerShown: true, title: 'Explore' }} />
       <Stack.Screen name="Bars" component={BarsScreen} options={{ headerShown: true, title: 'Featured Bars' }} />
       <Stack.Screen name="Spirits" component={SpiritsScreen} options={{ headerShown: true, title: 'Featured Spirits' }} />
       <Stack.Screen name="Events" component={EventsScreen} options={{ headerShown: true, title: 'Events' }} />
@@ -150,11 +147,7 @@ export default function RootNavigator() {
         headerTintColor: colors.headerText,
         headerTitleStyle: components.headerText,
         headerShadowVisible: false,
-        headerLeft: () => (
-          <Pressable hitSlop={12} onPress={() => navigation.goBack()}>
-            <Ionicons name="arrow-back" size={24} color={colors.headerText} />
-          </Pressable>
-        ),
+        headerLeft: () => null,
         headerRight: () => (
           <Pressable hitSlop={12} onPress={() => { /* Save bar functionality will be handled in screen */ }}>
             <Ionicons name="bookmark-outline" size={24} color={colors.headerText} />
@@ -168,11 +161,7 @@ export default function RootNavigator() {
         headerTintColor: colors.headerText,
         headerTitleStyle: components.headerText,
         headerShadowVisible: false,
-        headerLeft: () => (
-          <Pressable hitSlop={12} onPress={() => navigation.goBack()}>
-            <Ionicons name="arrow-back" size={24} color={colors.headerText} />
-          </Pressable>
-        ),
+        headerLeft: () => null,
         headerRight: () => (
           <Pressable hitSlop={12} onPress={() => { /* Save game */ }}>
             <Ionicons name="bookmark-outline" size={24} color={colors.headerText} />
@@ -186,11 +175,7 @@ export default function RootNavigator() {
         headerTintColor: colors.headerText,
         headerTitleStyle: components.headerText,
         headerShadowVisible: false,
-        headerLeft: () => (
-          <Pressable hitSlop={12} onPress={() => navigation.goBack()}>
-            <Ionicons name="arrow-back" size={24} color={colors.headerText} />
-          </Pressable>
-        ),
+        headerLeft: () => null,
         headerRight: () => (
           <Pressable hitSlop={12} onPress={() => { /* Save game */ }}>
             <Ionicons name="bookmark-outline" size={24} color={colors.headerText} />
@@ -205,19 +190,6 @@ export default function RootNavigator() {
       <Stack.Screen 
         name="BrandDetail" 
         component={BrandDetailScreen} 
-        options={{
-          headerShown: true,
-          headerTransparent: true,
-          headerTitle: '',
-          headerTintColor: '#FFFFFF',
-          headerStyle: {
-            backgroundColor: 'transparent',
-          },
-        }}
-      />
-      <Stack.Screen 
-        name="FeaturedBar" 
-        component={FeaturedBarScreen} 
         options={{
           headerShown: true,
           headerTransparent: true,
@@ -250,6 +222,7 @@ export default function RootNavigator() {
       <Stack.Screen name="CocktailDetail" component={CocktailDetailScreen} options={{ headerShown: true, title: 'Cocktail' }} />
       <Stack.Screen name="SavedItems" component={SavedItemsScreen} options={{ headerShown: true, title: 'Saved Items' }} />
       <Stack.Screen name="EditProfile" component={EditProfileScreen} options={{ headerShown: true, title: 'Edit Profile' }} />
+      <Stack.Screen name="NonAlcoholic" component={NonAlcoholicScreen} options={{ headerShown: true, title: 'Non-Alcoholic' }} />
     <Stack.Screen name="Vault" component={VaultScreen} options={{ headerShown: true, title: 'Vault' }} />
     {/* Vault Economy Screens */}
     <Stack.Screen name="VaultStore" component={VaultStoreScreen} options={{ headerShown: true, title: 'Keys & Boosters' }} />

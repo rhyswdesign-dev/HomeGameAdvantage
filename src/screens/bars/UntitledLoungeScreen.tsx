@@ -21,7 +21,7 @@ import { useSavedItems } from '../../hooks/useSavedItems';
 import { getBar } from '../../data/bars';
 import { BAR_TIERS } from '../../config/barTiers';
 import Card from '../../components/ui/Card';
-import PillButton from '../../components/ui/PillButton';
+import PillButton from '../../components/PillButton';
 import Section from '../../components/ui/Section';
 import Avatar from '../../components/ui/Avatar';
 import Icon from '../../components/ui/Icon';

@@ -107,15 +107,6 @@ export default function HelpSupportScreen({ onBack }: HelpSupportScreenProps) {
       headerTintColor: colors.text,
       headerTitleStyle: { color: colors.text, fontWeight: '700' },
       headerShadowVisible: false,
-      headerLeft: () => (
-        <TouchableOpacity 
-          onPress={onBack || (() => navigation.goBack())}
-          style={styles.backButton}
-          activeOpacity={0.7}
-        >
-          <Ionicons name="arrow-back" size={24} color={colors.text} />
-        </TouchableOpacity>
-      ),
     });
   }, [navigation, onBack]);
 

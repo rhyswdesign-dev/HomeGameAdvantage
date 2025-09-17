@@ -179,11 +179,7 @@ export default function FeaturedScreen() {
       headerTintColor: colors.text,
       headerTitleStyle: { color: colors.text, fontWeight: '900' },
       headerShadowVisible: false,
-      headerLeft: active === 'Home' ? undefined : () => (
-        <Pressable hitSlop={12} onPress={() => nav.goBack()}>
-          <Ionicons name="arrow-back" size={24} color={colors.text} />
-        </Pressable>
-      ),
+      headerLeft: () => null,
       headerRight: () => (
         <View style={{ flexDirection: 'row', gap: 16 }}>
           <Pressable hitSlop={12} onPress={() => setSearchModalVisible(true)}>
@@ -224,8 +220,9 @@ export default function FeaturedScreen() {
         nav.navigate('Games' as never);
       } else if (key === 'Vault') {
         nav.navigate('Vault' as never);
+      } else if (key === 'NonAlcoholic') {
+        nav.navigate('NonAlcoholic');
       }
-      // Non-Alcoholic stays on featured screen
     } catch (error) {
       // Silently handle navigation errors for non-existent screens
     }

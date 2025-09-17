@@ -31,11 +31,7 @@ export default function VaultCartScreen() {
       headerTintColor: colors.text,
       headerTitleStyle: { color: colors.text, fontWeight: '900' },
       headerShadowVisible: false,
-      headerLeft: () => (
-        <Pressable hitSlop={12} onPress={() => nav.goBack()}>
-          <Ionicons name="arrow-back" size={24} color={colors.text} />
-        </Pressable>
-      ),
+      headerLeft: () => null,
     });
   }, [nav]);
 

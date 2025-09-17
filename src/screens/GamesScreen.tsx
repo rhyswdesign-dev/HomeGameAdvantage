@@ -61,6 +61,7 @@ const topChips: Array<{ key: string; label: string }> = [
   { key: 'Bars', label: 'Bars' },
   { key: 'Events', label: 'Events' },
   { key: 'Games', label: 'Games' },
+  { key: 'Vault', label: 'Vault' },
 ];
 
 export default function GamesScreen() {
@@ -75,18 +76,14 @@ export default function GamesScreen() {
       headerTintColor: colors.text,
       headerTitleStyle: { color: colors.text, fontWeight: '900' },
       headerShadowVisible: false,
-      headerLeft: () => (
-        <Pressable hitSlop={12} onPress={() => nav.goBack()}>
-          <Ionicons name="arrow-back" size={24} color={colors.text} />
-        </Pressable>
-      ),
+      headerLeft: () => null,
     });
   }, [nav]);
 
   const navigateToSection = (section: string) => {
     try {
       if (section === 'Home') {
-        nav.goBack();
+        nav.navigate('Main', { screen: 'Featured' });
       } else if (section === 'Spirits') {
         nav.navigate('Spirits' as never);
       } else if (section === 'Bars') {
@@ -94,8 +91,9 @@ export default function GamesScreen() {
       } else if (section === 'Events') {
         nav.navigate('Events' as never);
       } else if (section === 'NonAlcoholic') {
-        // Navigate back to Featured screen instead
-        nav.goBack();
+        nav.navigate('NonAlcoholic' as never);
+      } else if (section === 'Vault') {
+        nav.navigate('Vault' as never);
       }
       // Games stays on current screen
     } catch (error) {
@@ -123,7 +121,7 @@ export default function GamesScreen() {
                 setActiveChip(c.key);
                 navigateToSection(c.key);
               }}
-              style={!isActive ? { backgroundColor: 'transparent', borderWidth: 1, borderColor: colors.border } : undefined}
+              style={!isActive ? { backgroundColor: 'transparent', borderWidth: 1, borderColor: colors.line } : undefined}
               textStyle={!isActive ? { color: colors.text } : undefined}
             />
           );

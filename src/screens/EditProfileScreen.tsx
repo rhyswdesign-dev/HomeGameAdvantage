@@ -90,15 +90,6 @@ export default function EditProfileScreen() {
       headerTintColor: colors.text,
       headerTitleStyle: { color: colors.text, fontWeight: '900' },
       headerShadowVisible: false,
-      headerLeft: () => (
-        <TouchableOpacity 
-          onPress={() => nav.goBack()}
-          style={styles.headerButton}
-          activeOpacity={0.7}
-        >
-          <Ionicons name="arrow-back" size={24} color={colors.text} />
-        </TouchableOpacity>
-      ),
       headerRight: () => (
         <TouchableOpacity 
           onPress={handleSave}

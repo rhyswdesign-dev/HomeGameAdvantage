@@ -7,17 +7,27 @@ import React, { useLayoutEffect, useState } from 'react';
 import {
   View,
   Text,
-  ScrollView,
+  FlatList,
   StyleSheet,
   TouchableOpacity,
   Pressable,
   RefreshControl,
+  ScrollView,
 } from 'react-native';
-import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
+import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '../../navigation/RootNavigator';
 import { colors, spacing, radii } from '../../theme/tokens';
+import PillButton from '../../components/PillButton';
+
+interface TransactionItem {
+  id: string;
+  name: string;
+  price: number;
+  quantity: number;
+  type: 'keys' | 'booster' | 'bundle';
+}
 
 interface OrderSummary {
   id: string;
@@ -25,7 +35,8 @@ interface OrderSummary {
   status: 'completed' | 'processing' | 'shipped' | 'delivered' | 'cancelled';
   itemsCount: number;
   total: number;
-  primaryItem: string; // Main item name for display
+  primaryItem: string;
+  items: TransactionItem[];
 }
 
 export default function VaultOrderHistoryScreen() {
@@ -33,39 +44,53 @@ export default function VaultOrderHistoryScreen() {
   const [refreshing, setRefreshing] = useState(false);
   const [selectedFilter, setSelectedFilter] = useState<string>('all');
   
-  // Mock order history - would come from backend in real app
   const [orders, setOrders] = useState<OrderSummary[]>([
     {
       id: 'order_1234567890',
       date: '2024-01-15T14:30:00Z',
       status: 'completed',
       itemsCount: 1,
-      total: 299, // $2.99 - Starter Key Pack
-      primaryItem: 'Starter Key Pack'
+      total: 299,
+      primaryItem: 'Starter Key Pack',
+      items: [
+        { id: 'item_1', name: 'Starter Key Pack', price: 299, quantity: 1, type: 'keys' }
+      ]
     },
     {
       id: 'order_0987654321',
       date: '2024-01-10T09:15:00Z',
       status: 'completed',
-      itemsCount: 1,
-      total: 199, // $1.99 - 2x XP Booster
-      primaryItem: '2x XP Booster'
+      itemsCount: 2,
+      total: 398,
+      primaryItem: '2x XP Booster + Keys',
+      items: [
+        { id: 'item_2', name: '2x XP Booster', price: 199, quantity: 1, type: 'booster' },
+        { id: 'item_3', name: 'Small Key Pack', price: 199, quantity: 1, type: 'keys' }
+      ]
     },
     {
       id: 'order_1122334455',
       date: '2024-01-05T16:45:00Z',
       status: 'delivered',
       itemsCount: 1,
-      total: 699, // $6.99 - Value Key Bundle
-      primaryItem: 'Value Key Bundle'
+      total: 699,
+      primaryItem: 'Value Key Bundle',
+      items: [
+        { id: 'item_4', name: 'Value Key Bundle', price: 699, quantity: 1, type: 'bundle' }
+      ]
     },
     {
       id: 'order_5544332211',
       date: '2023-12-28T11:20:00Z',
       status: 'completed',
-      itemsCount: 1,
-      total: 1499, // $14.99 - Ultimate Key Collection
-      primaryItem: 'Ultimate Key Collection'
+      itemsCount: 3,
+      total: 1497,
+      primaryItem: 'Ultimate Collection',
+      items: [
+        { id: 'item_5', name: 'Ultimate Key Collection', price: 999, quantity: 1, type: 'bundle' },
+        { id: 'item_6', name: '5x XP Booster', price: 299, quantity: 1, type: 'booster' },
+        { id: 'item_7', name: 'Premium Key Pack', price: 199, quantity: 1, type: 'keys' }
+      ]
     }
   ]);
   
@@ -76,17 +101,12 @@ export default function VaultOrderHistoryScreen() {
       headerTintColor: colors.text,
       headerTitleStyle: { color: colors.text, fontWeight: '900' },
       headerShadowVisible: false,
-      headerLeft: () => (
-        <Pressable hitSlop={12} onPress={() => nav.goBack()}>
-          <Ionicons name="arrow-back" size={24} color={colors.text} />
-        </Pressable>
-      ),
+      headerLeft: () => null,
     });
   }, [nav]);
 
   const onRefresh = async () => {
     setRefreshing(true);
-    // Simulate API call
     await new Promise(resolve => setTimeout(resolve, 1000));
     setRefreshing(false);
   };
@@ -99,17 +119,6 @@ export default function VaultOrderHistoryScreen() {
       case 'delivered': return '#4CAF50';
       case 'cancelled': return colors.destructive;
       default: return colors.subtext;
-    }
-  };
-
-  const getStatusIcon = (status: OrderSummary['status']): string => {
-    switch (status) {
-      case 'completed': return 'checkmark-circle';
-      case 'processing': return 'time';
-      case 'shipped': return 'car';
-      case 'delivered': return 'home';
-      case 'cancelled': return 'close-circle';
-      default: return 'help-circle';
     }
   };
 
@@ -136,109 +145,128 @@ export default function VaultOrderHistoryScreen() {
 
   const filteredOrders = getFilteredOrders();
 
-  return (
-    <View style={styles.container}>
-      {/* Filter Tabs */}
-      <ScrollView 
-        horizontal 
-        showsHorizontalScrollIndicator={false}
-        style={styles.filtersContainer}
-        contentContainerStyle={styles.filtersContent}
-      >
-        {filters.map((filter) => {
-          const isActive = selectedFilter === filter.key;
-          return (
-            <TouchableOpacity
-              key={filter.key}
-              style={[styles.filterChip, isActive && styles.activeFilterChip]}
-              onPress={() => setSelectedFilter(filter.key)}
-              activeOpacity={0.8}
-            >
-              <Text style={[styles.filterText, isActive && styles.activeFilterText]}>
-                {filter.label}
-              </Text>
-              {filter.count > 0 && (
-                <View style={[styles.filterBadge, isActive && styles.activeFilterBadge]}>
-                  <Text style={[styles.filterBadgeText, isActive && styles.activeFilterBadgeText]}>
-                    {filter.count}
-                  </Text>
-                </View>
-              )}
-            </TouchableOpacity>
-          );
-        })}
-      </ScrollView>
+  const getItemTypeIcon = (type: TransactionItem['type']): string => {
+    switch (type) {
+      case 'keys': return 'key';
+      case 'booster': return 'flash';
+      case 'bundle': return 'gift-outline';
+      default: return 'cube-outline';
+    }
+  };
 
-      {/* Orders List */}
-      {filteredOrders.length === 0 ? (
-        <View style={styles.emptyState}>
-          <Ionicons name="receipt-outline" size={80} color={colors.subtext} />
-          <Text style={styles.emptyTitle}>No orders found</Text>
-          <Text style={styles.emptySubtitle}>
-            {selectedFilter === 'all' 
-              ? 'Your purchase history will appear here'
-              : `No ${selectedFilter} orders found`
-            }
+  const getItemTypeColor = (type: TransactionItem['type']): string => {
+    switch (type) {
+      case 'keys': return colors.accentLight;
+      case 'booster': return colors.gold;
+      case 'bundle': return colors.accent;
+      default: return colors.subtext;
+    }
+  };
+
+  const renderOrder = ({ item }: { item: OrderSummary }) => (
+    <View style={styles.orderCard}>
+      {/* Order Header */}
+      <TouchableOpacity
+        style={styles.orderHeader}
+        onPress={() => nav.navigate('VaultOrderDetails' as never, { orderId: item.id } as never)}
+        activeOpacity={0.8}
+      >
+        <View style={styles.orderInfo}>
+          <Text style={styles.orderTitle}>{item.primaryItem}</Text>
+          <Text style={styles.orderDetails}>
+            Order #{item.id.slice(-8)} • {formatDate(item.date)}
           </Text>
         </View>
-      ) : (
-        <ScrollView 
-          style={styles.ordersList}
-          contentContainerStyle={styles.ordersContent}
-          refreshControl={
-            <RefreshControl 
-              refreshing={refreshing} 
-              onRefresh={onRefresh}
-              tintColor={colors.accent}
-            />
-          }
-        >
-          {filteredOrders.map((order) => (
-            <TouchableOpacity
-              key={order.id}
-              style={styles.orderCard}
-              onPress={() => nav.navigate('VaultOrderDetails' as never, { orderId: order.id } as never)}
-              activeOpacity={0.8}
-            >
-              <View style={styles.orderHeader}>
-                <View style={styles.orderInfo}>
-                  <Text style={styles.orderPrimaryItem}>{order.primaryItem}</Text>
-                  <Text style={styles.orderDetails}>
-                    Order #{order.id.slice(-8)} • {order.itemsCount} item{order.itemsCount !== 1 ? 's' : ''}
-                  </Text>
-                  <Text style={styles.orderDate}>{formatDate(order.date)}</Text>
-                </View>
-                
-                <View style={styles.orderMeta}>
-                  <Text style={styles.orderTotal}>${(order.total / 100).toFixed(2)}</Text>
-                  <View style={[styles.statusBadge, { backgroundColor: getStatusColor(order.status) }]}>
-                    <Ionicons 
-                      name={getStatusIcon(order.status)} 
-                      size={12} 
-                      color={colors.white} 
-                    />
-                    <Text style={styles.statusText}>
-                      {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
-                    </Text>
-                  </View>
-                </View>
-              </View>
-              
-              <View style={styles.orderActions}>
-                <TouchableOpacity 
-                  style={styles.actionButton}
-                  onPress={() => nav.navigate('VaultOrderDetails' as never, { orderId: order.id } as never)}
-                >
-                  <Text style={styles.actionButtonText}>View Details</Text>
-                  <Ionicons name="chevron-forward" size={16} color={colors.subtext} />
-                </TouchableOpacity>
-              </View>
-            </TouchableOpacity>
-          ))}
-          
-          <View style={styles.bottomSpacer} />
-        </ScrollView>
-      )}
+        
+        <View style={styles.orderMeta}>
+          <Text style={styles.orderPrice}>${(item.total / 100).toFixed(2)}</Text>
+          <View style={[styles.statusBadge, { backgroundColor: getStatusColor(item.status) }]}>
+            <Text style={styles.statusText}>
+              {item.status.charAt(0).toUpperCase() + item.status.slice(1)}
+            </Text>
+          </View>
+        </View>
+      </TouchableOpacity>
+
+      {/* Transaction Items */}
+      <View style={styles.itemsList}>
+        {item.items.map((transactionItem, index) => (
+          <View key={transactionItem.id} style={styles.transactionItem}>
+            <View style={[styles.itemIcon, { backgroundColor: getItemTypeColor(transactionItem.type) }]}>
+              <Ionicons 
+                name={getItemTypeIcon(transactionItem.type) as any} 
+                size={16} 
+                color={colors.white} 
+              />
+            </View>
+            <View style={styles.itemInfo}>
+              <Text style={styles.itemName}>{transactionItem.name}</Text>
+              <Text style={styles.itemType}>
+                {transactionItem.type.charAt(0).toUpperCase() + transactionItem.type.slice(1)} • Qty: {transactionItem.quantity}
+              </Text>
+            </View>
+            <Text style={styles.itemPrice}>${(transactionItem.price / 100).toFixed(2)}</Text>
+          </View>
+        ))}
+      </View>
+    </View>
+  );
+
+  const renderEmptyState = () => (
+    <View style={styles.emptyContainer}>
+      <Ionicons name="receipt-outline" size={80} color={colors.subtext} />
+      <Text style={styles.emptyTitle}>No orders found</Text>
+      <Text style={styles.emptySubtitle}>
+        {selectedFilter === 'all' 
+          ? 'Your purchase history will appear here'
+          : `No ${selectedFilter} orders found`
+        }
+      </Text>
+    </View>
+  );
+
+  const renderHeader = () => (
+    <ScrollView 
+      horizontal 
+      showsHorizontalScrollIndicator={false}
+      style={styles.filtersScrollView}
+      contentContainerStyle={styles.filtersContainer}
+    >
+      {filters.map((filter) => {
+        const isActive = selectedFilter === filter.key;
+        return (
+          <PillButton
+            key={filter.key}
+            title={filter.label}
+            onPress={() => setSelectedFilter(filter.key)}
+            style={!isActive ? { backgroundColor: 'transparent', borderWidth: 1, borderColor: colors.line } : undefined}
+            textStyle={[
+              { color: isActive ? colors.pillTextOnLight : colors.text }
+            ]}
+          />
+        );
+      })}
+    </ScrollView>
+  );
+
+  return (
+    <View style={styles.container}>
+      <FlatList
+        data={filteredOrders}
+        renderItem={renderOrder}
+        keyExtractor={(item) => item.id}
+        ListHeaderComponent={renderHeader}
+        ListEmptyComponent={renderEmptyState}
+        refreshControl={
+          <RefreshControl 
+            refreshing={refreshing} 
+            onRefresh={onRefresh}
+            tintColor={colors.accent}
+          />
+        }
+        contentContainerStyle={styles.listContent}
+        showsVerticalScrollIndicator={false}
+      />
     </View>
   );
 }
@@ -249,70 +277,94 @@ const styles = StyleSheet.create({
     backgroundColor: colors.bg,
   },
   
+  listContent: {
+    flexGrow: 1,
+  },
   
-  // Filters
+  filtersScrollView: {
+    backgroundColor: colors.bg,
+  },
+  
   filtersContainer: {
+    flexDirection: 'row',
+    paddingHorizontal: spacing(2),
+    paddingTop: spacing(1),
+    paddingBottom: spacing(2),
+    gap: spacing(1),
+  },
+  
+  
+  orderCard: {
     backgroundColor: colors.card,
+    marginHorizontal: spacing(2),
+    marginBottom: spacing(1.5),
+    borderRadius: radii.lg,
+    borderWidth: 1,
+    borderColor: colors.line,
+    overflow: 'hidden',
+  },
+  
+  orderHeader: {
+    flexDirection: 'row',
+    padding: spacing(3),
+    alignItems: 'center',
     borderBottomWidth: 1,
     borderBottomColor: colors.line,
   },
-  filtersContent: {
-    paddingHorizontal: spacing(2),
-    paddingVertical: spacing(1),
-    gap: spacing(1.5),
-  },
-  filterChip: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: 'transparent',
-    borderWidth: 1,
-    borderColor: colors.line,
-    borderRadius: 9999,
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    gap: spacing(1),
-    alignSelf: 'flex-start',
-  },
-  activeFilterChip: {
-    backgroundColor: colors.pillButtonColor,
-    borderWidth: 0,
-    borderColor: 'transparent',
-  },
-  filterText: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: colors.text,
-  },
-  activeFilterText: {
-    color: colors.pillTextOnLight,
-  },
-  filterBadge: {
-    backgroundColor: colors.bg,
-    borderRadius: 10,
-    minWidth: 20,
-    height: 20,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  activeFilterBadge: {
-    backgroundColor: 'rgba(255,255,255,0.2)',
-  },
-  filterBadgeText: {
-    fontSize: 10,
-    fontWeight: '800',
-    color: colors.text,
-  },
-  activeFilterBadgeText: {
-    color: colors.white,
+  
+  orderInfo: {
+    flex: 1,
   },
   
-  // Empty State
-  emptyState: {
+  orderTitle: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: colors.text,
+    marginBottom: spacing(0.5),
+  },
+  
+  orderDetails: {
+    fontSize: 12,
+    color: colors.subtext,
+    marginBottom: spacing(0.5),
+  },
+  
+  orderDate: {
+    fontSize: 11,
+    color: colors.subtext,
+  },
+  
+  orderMeta: {
+    alignItems: 'flex-end',
+    gap: spacing(1),
+  },
+  
+  orderPrice: {
+    fontSize: 18,
+    fontWeight: '900',
+    color: colors.text,
+  },
+  
+  statusBadge: {
+    paddingHorizontal: spacing(1.5),
+    paddingVertical: spacing(0.5),
+    borderRadius: radii.sm,
+  },
+  
+  statusText: {
+    color: colors.white,
+    fontSize: 10,
+    fontWeight: '800',
+  },
+  
+  emptyContainer: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
     paddingHorizontal: spacing(4),
+    paddingTop: spacing(8),
   },
+  
   emptyTitle: {
     fontSize: 20,
     fontWeight: '800',
@@ -320,90 +372,55 @@ const styles = StyleSheet.create({
     marginTop: spacing(2),
     marginBottom: spacing(1),
   },
+  
   emptySubtitle: {
     fontSize: 14,
     color: colors.subtext,
     textAlign: 'center',
   },
   
-  // Orders List
-  ordersList: {
-    flex: 1,
+  // Transaction Items
+  itemsList: {
+    paddingHorizontal: spacing(3),
+    paddingBottom: spacing(2),
   },
-  ordersContent: {
-    paddingTop: spacing(1),
-  },
-  orderCard: {
-    backgroundColor: colors.card,
-    borderRadius: radii.lg,
-    marginHorizontal: spacing(2),
-    marginBottom: spacing(1),
-    borderWidth: 1,
-    borderColor: colors.line,
-    overflow: 'hidden',
-  },
-  orderHeader: {
+  
+  transactionItem: {
     flexDirection: 'row',
-    padding: spacing(3),
+    alignItems: 'center',
+    paddingVertical: spacing(1.5),
+    borderBottomWidth: 1,
+    borderBottomColor: colors.line,
+    gap: spacing(2),
   },
-  orderInfo: {
+  
+  itemIcon: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  
+  itemInfo: {
     flex: 1,
   },
-  orderPrimaryItem: {
-    fontSize: 16,
-    fontWeight: '700',
+  
+  itemName: {
+    fontSize: 14,
+    fontWeight: '600',
     color: colors.text,
-    marginBottom: spacing(0.5),
+    marginBottom: spacing(0.25),
   },
-  orderDetails: {
-    fontSize: 12,
-    color: colors.subtext,
-    marginBottom: spacing(0.5),
-  },
-  orderDate: {
+  
+  itemType: {
     fontSize: 11,
     color: colors.subtext,
   },
-  orderMeta: {
-    alignItems: 'flex-end',
-    gap: spacing(1),
-  },
-  orderTotal: {
-    fontSize: 18,
-    fontWeight: '900',
-    color: colors.text,
-  },
-  statusBadge: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    borderRadius: radii.sm,
-    paddingHorizontal: spacing(1.5),
-    paddingVertical: spacing(0.5),
-    gap: spacing(0.5),
-  },
-  statusText: {
-    color: colors.white,
-    fontSize: 10,
-    fontWeight: '800',
-  },
-  orderActions: {
-    borderTopWidth: 1,
-    borderTopColor: colors.line,
-    paddingHorizontal: spacing(3),
-    paddingVertical: spacing(2),
-  },
-  actionButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  actionButtonText: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: colors.accent,
-  },
   
-  bottomSpacer: {
-    height: spacing(4),
+  itemPrice: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: colors.text,
   },
 });

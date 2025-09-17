@@ -43,7 +43,7 @@ export default function VaultItemCard({ item, userProfile, onPress, onAddToCart 
       case 'limited': return 'diamond';
       case 'rare': return 'star';
       case 'prestige': return 'trophy';
-      case 'mystery': return 'help';
+      case 'mystery': return 'lock-open';
       default: return 'diamond-outline';
     }
   };
@@ -205,7 +205,7 @@ export default function VaultItemCard({ item, userProfile, onPress, onAddToCart 
               onPress={onPress}
               activeOpacity={0.8}
             >
-              <Ionicons name="unlock" size={16} color={colors.white} />
+              <Ionicons name="lock-open" size={16} color={colors.white} />
               <Text style={[styles.actionButtonText, { color: colors.white }]}>
                 Unlock
               </Text>

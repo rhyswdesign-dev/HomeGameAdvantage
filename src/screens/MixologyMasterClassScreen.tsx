@@ -21,11 +21,6 @@ export default function MixologyMasterClassScreen() {
   useLayoutEffect(() => {
     nav.setOptions({
       headerTitle: 'Mixology Master Class',
-      headerLeft: () => (
-        <Pressable hitSlop={12} onPress={() => nav.goBack()}>
-          <Ionicons name="arrow-back" size={24} color={colors.text} />
-        </Pressable>
-      ),
     });
   }, [nav]);
 

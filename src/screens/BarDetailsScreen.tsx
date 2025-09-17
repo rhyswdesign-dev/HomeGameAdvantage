@@ -109,11 +109,6 @@ export default function BarDetailsScreen() {
       headerTintColor: colors.text,
       headerTitleStyle: { color: colors.text, fontWeight: '900' },
       headerShadowVisible: false,
-      headerLeft: () => (
-        <Pressable hitSlop={12} onPress={() => navigation.goBack()}>
-          <Ionicons name="arrow-back" size={24} color={colors.text} />
-        </Pressable>
-      ),
       headerRight: () => (
         <View style={{ flexDirection: 'row', gap: 14 }}>
           <Pressable hitSlop={10} onPress={() => toggleSavedBar({

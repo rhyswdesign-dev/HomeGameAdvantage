@@ -13,7 +13,7 @@ import {
 } from 'react-native';
 import { colors, spacing, radii, fonts } from '../theme/tokens';
 import { Ionicons } from '@expo/vector-icons';
-import PillButton from '../components/ui/PillButton';
+import PillButton from '../components/PillButton';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '../navigation/RootNavigator';
@@ -75,7 +75,7 @@ export default function SpiritsScreen() {
     setActive(key);
     try {
       if (key === 'Home') {
-        nav.goBack();
+        nav.navigate('Main', { screen: 'Featured' });
       } else if (key === 'Spirits') {
         // Already on spirits screen, do nothing
         return;
@@ -107,11 +107,7 @@ export default function SpiritsScreen() {
       headerTintColor: colors.text,
       headerTitleStyle: { color: colors.text, fontWeight: '900' },
       headerShadowVisible: false,
-      headerLeft: () => (
-        <Pressable hitSlop={12} onPress={() => nav.goBack()}>
-          <Ionicons name="arrow-back" size={24} color={colors.text} />
-        </Pressable>
-      ),
+      headerLeft: () => null,
       headerRight: () => (
         <View style={{ flexDirection: 'row', gap: 16 }}>
           <Pressable hitSlop={12} onPress={() => setSearchModalVisible(true)}>

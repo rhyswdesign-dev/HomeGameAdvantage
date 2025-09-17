@@ -99,11 +99,6 @@ export default function GarnishCompetitionScreen() {
   useLayoutEffect(() => {
     nav.setOptions({
       headerTitle: 'Garnish Competition',
-      headerLeft: () => (
-        <Pressable hitSlop={12} onPress={() => nav.goBack()}>
-          <Ionicons name="arrow-back" size={24} color={colors.text} />
-        </Pressable>
-      ),
       headerRight: () => (
         <View style={{ flexDirection: 'row', gap: 12 }}>
           <Pressable hitSlop={12} onPress={handleShare}>

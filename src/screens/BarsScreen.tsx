@@ -313,6 +313,7 @@ const chips: Array<{ key: string; label: string }> = [
   { key: 'Bars',    label: 'Bars'    },
   { key: 'Events',  label: 'Events'  },
   { key: 'Games',   label: 'Games'   },
+  { key: 'Vault',   label: 'Vault'   },
 ];
 
 export default function BarsScreen() {
@@ -355,7 +356,9 @@ export default function BarsScreen() {
     setActive(key);
     try { 
       if (key === 'Home') {
-        navigation.goBack();
+        navigation.navigate('Main', { screen: 'Featured' });
+      } else if (key === 'NonAlcoholic') {
+        navigation.navigate('NonAlcoholic' as never);
       } else if (key) {
         navigation.navigate(key as never);
       }
@@ -369,11 +372,7 @@ export default function BarsScreen() {
       headerTintColor: colors.text,
       headerTitleStyle: { color: colors.text, fontWeight: '900' },
       headerShadowVisible: false,
-      headerLeft: () => (
-        <Pressable hitSlop={12} onPress={() => navigation.goBack()}>
-          <Ionicons name="arrow-back" size={24} color={colors.text} />
-        </Pressable>
-      ),
+      headerLeft: () => null,
       headerRight: () => (
         <View style={{ flexDirection: 'row', gap: 16 }}>
           <Pressable hitSlop={12} onPress={() => setSearchModalVisible(true)}>

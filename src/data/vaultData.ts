@@ -156,6 +156,28 @@ export const vaultItems: VaultItem[] = [
     updatedAt: '2025-03-12T08:30:00Z',
   },
 
+  // LIMITED TIER - High XP requirement scenario
+  {
+    id: 'vault_premium_spirits_collection',
+    name: 'Rare Spirits Collection',
+    description: 'Curated selection of 6 rare spirits from award-winning distilleries',
+    image: 'https://images.unsplash.com/photo-1569529465841-dfecdab7503b?auto=format&fit=crop&w=800&q=60',
+    category: 'spirits',
+    type: 'physical',
+    rarity: 'limited',
+    xpCost: 12000, // User has 8450 XP - needs 3550 more
+    keysCost: 3, // User has exactly 3 keys
+    totalStock: 20,
+    currentStock: 8,
+    cycleId: 'cycle_2025_09',
+    contents: ['6 Premium Spirits (50ml each)', 'Tasting Notes Card', 'Collector Box', 'Certificate of Authenticity'],
+    estimatedValue: '$320 Value',
+    isActive: true,
+    releaseDate: '2025-09-05T00:00:00Z',
+    createdAt: '2025-09-04T12:00:00Z',
+    updatedAt: '2025-09-12T08:30:00Z',
+  },
+
   // RARE/PRESTIGE TIER (10,000+ XP + 3-4 Keys)
   {
     id: 'vault_masterclass_rare',

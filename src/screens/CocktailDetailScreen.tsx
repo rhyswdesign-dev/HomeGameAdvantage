@@ -16,6 +16,445 @@ type CocktailDetailScreenRouteProp = {
   };
 };
 
+// Non-alcoholic beverages data (complete dataset matching NonAlcoholicScreen)
+const nonAlcoholicBeverages = [
+  {
+    id: 'seedlip-garden-108',
+    name: 'Seedlip Garden 108',
+    category: 'Zero-Proof Spirits',
+    region: 'United Kingdom',
+    tier: 'gold',
+    image: 'https://images.unsplash.com/photo-1544145945-f90425340c7e?q=80&w=1200&auto=format&fit=crop',
+    tagline: 'Herbal & Garden Fresh',
+    description: 'A complex blend of peas, hay, spearmint, rosemary, and thyme creating a fresh garden experience.',
+    abv: '0.0%',
+    flavorNotes: ['Fresh herbs', 'Garden peas', 'Mint', 'Rosemary'],
+    useCase: 'Perfect for G&T-style serves and herb-forward cocktails',
+    buyLink: 'https://seedlipdrinks.com',
+    recipes: [
+      {
+        name: 'Garden 108 & Tonic',
+        ingredients: ['2 oz Seedlip Garden 108', '4 oz Premium tonic water', '3 cucumber slices', 'Fresh mint sprig', 'Lime wheel'],
+        instructions: 'Fill glass with ice. Add Seedlip Garden 108. Top with tonic water. Garnish with cucumber, mint, and lime.',
+        glassware: 'Highball glass',
+        difficulty: 'Easy',
+        time: '2 min'
+      },
+      {
+        name: 'Herbaceous Spritz',
+        ingredients: ['1.5 oz Seedlip Garden 108', '3 oz Elderflower sparkling water', '0.5 oz Fresh lime juice', 'Rosemary sprig', 'Grapefruit peel'],
+        instructions: 'Combine in wine glass over ice. Stir gently. Express grapefruit oils and garnish with rosemary.',
+        glassware: 'Wine glass',
+        difficulty: 'Easy',
+        time: '3 min'
+      },
+      {
+        name: 'Garden Gimlet',
+        ingredients: ['2 oz Seedlip Garden 108', '0.75 oz Fresh lime juice', '0.75 oz Simple syrup', 'Cucumber wheel', 'Fresh basil'],
+        instructions: 'Shake ingredients with ice. Double strain into chilled coupe. Garnish with cucumber and basil.',
+        glassware: 'Coupe glass',
+        difficulty: 'Easy',
+        time: '3 min'
+      }
+    ]
+  },
+  {
+    id: 'lyre-s-american-malt',
+    name: "Lyre's American Malt",
+    category: 'Zero-Proof Spirits',
+    region: 'Australia',
+    tier: 'gold',
+    image: 'https://images.unsplash.com/photo-1569529465841-dfecdab7503b?q=80&w=1200&auto=format&fit=crop',
+    tagline: 'Rich & Smoky',
+    description: 'Generous flavors of honey and vanilla with a gentle smoky finish, perfect for classic cocktails.',
+    abv: '0.0%',
+    flavorNotes: ['Honey', 'Vanilla', 'Oak', 'Smoke'],
+    useCase: 'Ideal for whiskey cocktails like Old Fashioned and Manhattan',
+    buyLink: 'https://lyres.com',
+    recipes: [
+      {
+        name: 'Smokeless Old Fashioned',
+        ingredients: ['2 oz Lyre\'s American Malt', '0.25 oz Maple syrup', '2 dashes Orange bitters', '1 dash Angostura bitters', 'Orange peel', 'Luxardo cherry'],
+        instructions: 'Stir all ingredients with ice. Strain over large ice cube. Express orange oils and garnish with cherry.',
+        glassware: 'Old Fashioned glass',
+        difficulty: 'Easy',
+        time: '3 min'
+      },
+      {
+        name: 'Zero Proof Manhattan',
+        ingredients: ['2 oz Lyre\'s American Malt', '1 oz Sweet vermouth', '2 dashes Angostura bitters', 'Maraschino cherry'],
+        instructions: 'Stir ingredients with ice for 30 seconds. Strain into chilled coupe. Garnish with cherry.',
+        glassware: 'Coupe glass',
+        difficulty: 'Easy',
+        time: '3 min'
+      },
+      {
+        name: 'Maple Whiskey Sour',
+        ingredients: ['2 oz Lyre\'s American Malt', '0.75 oz Fresh lemon juice', '0.5 oz Maple syrup', '1 Egg white', 'Lemon wheel'],
+        instructions: 'Dry shake without ice. Shake again with ice. Double strain into coupe. Garnish with lemon wheel.',
+        glassware: 'Coupe glass',
+        difficulty: 'Medium',
+        time: '4 min'
+      }
+    ]
+  },
+  {
+    id: 'monday-gin',
+    name: 'Monday Zero Alcohol Gin',
+    category: 'Zero-Proof Spirits',
+    region: 'Canada',
+    tier: 'silver',
+    image: 'https://images.unsplash.com/photo-1551538827-9c037cb4f32a?q=80&w=1200&auto=format&fit=crop',
+    tagline: 'Juniper Forward',
+    description: 'Classic gin botanicals with zero alcohol - juniper, coriander, and citrus in perfect balance.',
+    abv: '0.0%',
+    flavorNotes: ['Juniper', 'Citrus', 'Coriander', 'Angelica'],
+    useCase: 'Classic gin cocktails and modern mixed drinks',
+    recipes: [
+      {
+        name: 'Zero Proof Gin & Tonic',
+        ingredients: ['2 oz Monday Gin', '4 oz Tonic water', 'Lime wheel', 'Juniper berries'],
+        instructions: 'Build in glass over ice. Stir gently. Garnish with lime and juniper berries.',
+        glassware: 'Highball glass',
+        difficulty: 'Easy',
+        time: '2 min'
+      }
+    ]
+  },
+  {
+    id: 'ghia-aperitif',
+    name: 'Ghia Aperitif',
+    category: 'Low-ABV Options',
+    region: 'United States',
+    tier: 'gold',
+    image: 'https://images.unsplash.com/photo-1574671928146-5c89a22b2e85?q=80&w=1200&auto=format&fit=crop',
+    tagline: 'Mediterranean Botanicals',
+    description: 'A sophisticated aperitif with rosemary, ginger, and elderflower for the perfect pre-dinner drink.',
+    abv: '0.0%',
+    flavorNotes: ['Rosemary', 'Ginger', 'Elderflower', 'Citrus'],
+    useCase: 'Perfect for aperitif hour and spritz-style cocktails',
+    recipes: [
+      {
+        name: 'Ghia Spritz',
+        ingredients: ['2 oz Ghia Aperitif', '3 oz Sparkling water', '1 oz Fresh grapefruit juice', 'Rosemary sprig', 'Grapefruit wheel'],
+        instructions: 'Build in wine glass over ice. Top with sparkling water. Garnish with grapefruit and rosemary.',
+        glassware: 'Wine glass',
+        difficulty: 'Easy',
+        time: '2 min'
+      }
+    ]
+  },
+  {
+    id: 'gt-s-gingerade',
+    name: "GT's Gingerade Kombucha",
+    category: 'Wellness Drinks',
+    region: 'United States',
+    tier: 'bronze',
+    image: 'https://images.unsplash.com/photo-1559181567-c3190ca9959b?q=80&w=1200&auto=format&fit=crop',
+    tagline: 'Probiotic & Refreshing',
+    description: 'Living kombucha with organic ginger providing digestive benefits and refreshing taste.',
+    abv: '<0.5%',
+    flavorNotes: ['Ginger', 'Fermented tea', 'Probiotics', 'Tangy'],
+    useCase: 'Great for wellness cocktails and digestive health',
+    recipes: [
+      {
+        name: 'Ginger Kombucha Mule',
+        ingredients: ['6 oz GT\'s Gingerade', '1 oz Fresh lime juice', '0.5 oz Agave syrup', 'Mint sprig', 'Candied ginger', 'Lime wheel'],
+        instructions: 'Combine lime juice and agave in mug. Add ice and kombucha. Stir gently. Garnish with mint, ginger, and lime.',
+        glassware: 'Copper mug',
+        difficulty: 'Easy',
+        time: '3 min'
+      }
+    ]
+  },
+  {
+    id: 'recess-hemp-sparkling-water',
+    name: 'Recess Hemp Sparkling Water',
+    category: 'Wellness Drinks',
+    region: 'United States',
+    tier: 'silver',
+    image: 'https://images.unsplash.com/photo-1556881286-fc6915169721?q=80&w=1200&auto=format&fit=crop',
+    tagline: 'Calm & Focused',
+    description: 'Sparkling water infused with hemp extract and adaptogens for relaxation and focus.',
+    abv: '0.0%',
+    flavorNotes: ['Light hemp', 'Citrus', 'Adaptogenic herbs', 'Clean finish'],
+    useCase: 'Perfect for mindful drinking and wellness-focused cocktails',
+    recipes: [
+      {
+        name: 'Zen Garden Spritz',
+        ingredients: ['8 oz Recess Hemp Water', '1 oz Fresh cucumber juice', '0.5 oz Mint simple syrup', 'Cucumber ribbons', 'Fresh mint'],
+        instructions: 'Combine cucumber juice and syrup in glass. Add ice and Recess water. Garnish with cucumber and mint.',
+        glassware: 'Wine glass',
+        difficulty: 'Easy',
+        time: '4 min'
+      },
+      {
+        name: 'Hemp Citrus Cooler',
+        ingredients: ['8 oz Recess Hemp Water', '1 oz Fresh lemon juice', '0.5 oz Simple syrup', 'Fresh thyme', 'Lemon wheel'],
+        instructions: 'Muddle thyme gently in glass. Add lemon juice and syrup. Fill with ice. Top with Recess water. Garnish with lemon wheel.',
+        glassware: 'Highball glass',
+        difficulty: 'Easy',
+        time: '3 min'
+      }
+    ]
+  },
+  {
+    id: 'ritual-zero-proof-gin',
+    name: 'Ritual Zero Proof Gin Alternative',
+    category: 'Zero-Proof Spirits',
+    region: 'United States',
+    tier: 'gold',
+    image: 'https://images.unsplash.com/photo-1578662996442-48f60103fc96?q=80&w=1200&auto=format&fit=crop',
+    tagline: 'Botanical Excellence',
+    description: 'Distilled with juniper, coriander, and angelica root for an authentic gin experience without alcohol.',
+    abv: '0.0%',
+    flavorNotes: ['Juniper', 'Angelica root', 'Coriander', 'Citrus'],
+    useCase: 'Perfect for classic gin cocktails and modern zero-proof mixology',
+    recipes: [
+      {
+        name: 'Zero Proof Negroni',
+        ingredients: ['1 oz Ritual Gin Alternative', '1 oz Seedlip Spice 94', '1 oz Sweet vermouth', 'Orange peel'],
+        instructions: 'Stir all ingredients with ice. Strain over fresh ice. Express orange oils and garnish with peel.',
+        glassware: 'Rocks glass',
+        difficulty: 'Easy',
+        time: '3 min'
+      },
+      {
+        name: 'Garden Martini',
+        ingredients: ['2.5 oz Ritual Gin Alternative', '0.5 oz Dry vermouth', '2 dashes Orange bitters', 'Lemon twist'],
+        instructions: 'Stir ingredients with ice until well chilled. Strain into chilled coupe. Garnish with lemon twist.',
+        glassware: 'Coupe glass',
+        difficulty: 'Easy',
+        time: '3 min'
+      }
+    ]
+  },
+  {
+    id: 'wilderton-earthen',
+    name: 'Wilderton Earthen',
+    category: 'Zero-Proof Spirits',
+    region: 'United States',
+    tier: 'silver',
+    image: 'https://images.unsplash.com/photo-1541745537411-b8046dc6d66c?q=80&w=1200&auto=format&fit=crop',
+    tagline: 'Forest Floor',
+    description: 'Crafted with Douglas fir, sage, and lavender for an earthy, complex botanical experience.',
+    abv: '0.0%',
+    flavorNotes: ['Douglas fir', 'Sage', 'Lavender', 'Earthy botanicals'],
+    useCase: 'Ideal for contemplative sipping and herbal cocktails',
+    recipes: [
+      {
+        name: 'Forest Floor',
+        ingredients: ['2 oz Wilderton Earthen', '0.5 oz Honey syrup', '0.5 oz Fresh lemon juice', 'Sage sprig', 'Lavender garnish'],
+        instructions: 'Shake ingredients with ice. Strain into rocks glass over fresh ice. Garnish with sage and lavender.',
+        glassware: 'Rocks glass',
+        difficulty: 'Easy',
+        time: '3 min'
+      }
+    ]
+  },
+  {
+    id: 'athletic-brewing-coffee',
+    name: 'Athletic Brewing Cold Brew Coffee',
+    category: 'Wellness Drinks',
+    region: 'United States',
+    tier: 'bronze',
+    image: 'https://images.unsplash.com/photo-1609951651556-5334e2706168?q=80&w=1200&auto=format&fit=crop',
+    tagline: 'Performance & Flavor',
+    description: 'Premium cold brew coffee crafted for athletes and coffee enthusiasts seeking clean energy.',
+    abv: '0.0%',
+    flavorNotes: ['Rich coffee', 'Chocolate notes', 'Smooth finish', 'No sugar crash'],
+    useCase: 'Perfect for coffee cocktails and energy-focused beverages',
+    recipes: [
+      {
+        name: 'Coffee Spritz',
+        ingredients: ['4 oz Athletic Cold Brew', '2 oz Sparkling water', '0.5 oz Vanilla syrup', 'Orange peel', 'Coffee beans'],
+        instructions: 'Combine cold brew and vanilla syrup in glass. Add ice and top with sparkling water. Garnish with orange peel and coffee beans.',
+        glassware: 'Highball glass',
+        difficulty: 'Easy',
+        time: '2 min'
+      },
+      {
+        name: 'Espresso Martini Zero',
+        ingredients: ['3 oz Athletic Cold Brew', '1 oz Coffee liqueur alternative', '0.5 oz Simple syrup', '3 Coffee beans'],
+        instructions: 'Shake all ingredients vigorously with ice. Double strain into chilled coupe. Float 3 coffee beans on foam.',
+        glassware: 'Coupe glass',
+        difficulty: 'Medium',
+        time: '4 min'
+      }
+    ]
+  },
+  {
+    id: 'kin-euphorics-high-rhode',
+    name: 'Kin Euphorics High Rhode',
+    category: 'Low-ABV Options',
+    region: 'United States',
+    tier: 'gold',
+    image: 'https://images.unsplash.com/photo-1574671928146-5c89a22b2e85?q=80&w=1200&auto=format&fit=crop',
+    tagline: 'Mood-Elevating',
+    description: 'A euphoric blend of adaptogens, nootropics, and botanicals designed to elevate your mood naturally.',
+    abv: '<0.5%',
+    flavorNotes: ['Hibiscus', 'Orange bitters', 'Licorice root', 'Cardamom'],
+    useCase: 'Perfect for social occasions and mood enhancement',
+    recipes: [
+      {
+        name: 'High Rhode Spritz',
+        ingredients: ['2 oz Kin High Rhode', '3 oz Sparkling wine', '1 oz Fresh grapefruit juice', 'Grapefruit wheel', 'Rosemary sprig'],
+        instructions: 'Combine High Rhode and grapefruit juice in wine glass. Add ice and top with sparkling wine. Garnish with grapefruit and rosemary.',
+        glassware: 'Wine glass',
+        difficulty: 'Easy',
+        time: '3 min'
+      }
+    ]
+  },
+  {
+    id: 'seedlip-spice-94',
+    name: 'Seedlip Spice 94',
+    category: 'Zero-Proof Spirits',
+    region: 'United Kingdom',
+    tier: 'gold',
+    image: 'https://images.unsplash.com/photo-1574671928146-5c89a22b2e85?q=80&w=1200&auto=format&fit=crop',
+    tagline: 'Warm & Spiced',
+    description: 'A warm, aromatic blend of allspice and cardamom with a complex spice profile.',
+    abv: '0.0%',
+    flavorNotes: ['Allspice', 'Cardamom', 'Oak', 'Citrus peel'],
+    useCase: 'Perfect for spiced cocktails and warming winter drinks',
+    recipes: [
+      {
+        name: 'Spiced Mule',
+        ingredients: ['2 oz Seedlip Spice 94', '0.5 oz Fresh lime juice', '4 oz Ginger beer', 'Lime wheel', 'Candied ginger'],
+        instructions: 'Build in copper mug over ice. Stir gently. Garnish with lime and candied ginger.',
+        glassware: 'Copper mug',
+        difficulty: 'Easy',
+        time: '2 min'
+      },
+      {
+        name: 'Spice Route',
+        ingredients: ['1.5 oz Seedlip Spice 94', '1 oz Apple juice', '0.5 oz Honey syrup', '0.25 oz Lemon juice', 'Cinnamon stick'],
+        instructions: 'Shake ingredients with ice. Strain into rocks glass over fresh ice. Garnish with cinnamon stick.',
+        glassware: 'Rocks glass',
+        difficulty: 'Easy',
+        time: '3 min'
+      }
+    ]
+  },
+  {
+    id: 'aperol-spritz-zero',
+    name: 'Lyre\'s Italian Orange',
+    category: 'Low-ABV Options',
+    region: 'Australia',
+    tier: 'silver',
+    image: 'https://images.unsplash.com/photo-1578662996442-48f60103fc96?q=80&w=1200&auto=format&fit=crop',
+    tagline: 'Italian Aperitivo',
+    description: 'Zero-proof alternative to Italian orange aperitif with bitter orange and herbal complexity.',
+    abv: '0.0%',
+    flavorNotes: ['Bitter orange', 'Herbs', 'Rhubarb', 'Vanilla'],
+    useCase: 'Perfect for aperitif hour and Italian-style spritzes',
+    recipes: [
+      {
+        name: 'Zero Proof Aperol Spritz',
+        ingredients: ['3 oz Lyre\'s Italian Orange', '3 oz Prosecco', '1 oz Soda water', 'Orange slice'],
+        instructions: 'Build in wine glass over ice. Top with soda water. Garnish with orange slice.',
+        glassware: 'Wine glass',
+        difficulty: 'Easy',
+        time: '2 min'
+      },
+      {
+        name: 'Italian Sunset',
+        ingredients: ['2 oz Lyre\'s Italian Orange', '1 oz Fresh grapefruit juice', '0.5 oz Honey syrup', '3 oz Sparkling water', 'Grapefruit twist'],
+        instructions: 'Shake orange liqueur, grapefruit juice, and honey with ice. Strain into highball over ice. Top with sparkling water.',
+        glassware: 'Highball glass',
+        difficulty: 'Easy',
+        time: '3 min'
+      }
+    ]
+  },
+  {
+    id: 'curious-elixir-no2',
+    name: 'Curious Elixir No. 2',
+    category: 'Low-ABV Options',
+    region: 'United States',
+    tier: 'bronze',
+    image: 'https://images.unsplash.com/photo-1541745537411-b8046dc6d66c?q=80&w=1200&auto=format&fit=crop',
+    tagline: 'Negroni Inspired',
+    description: 'A sophisticated blend inspired by the classic Negroni with bitter and sweet botanicals.',
+    abv: '<0.5%',
+    flavorNotes: ['Bitter orange', 'Juniper', 'Gentian', 'Rosemary'],
+    useCase: 'Ready-to-drink alternative to classic bitter cocktails',
+    recipes: [
+      {
+        name: 'Curious Spritz',
+        ingredients: ['4 oz Curious Elixir No. 2', '2 oz Sparkling water', 'Orange peel', 'Fresh rosemary'],
+        instructions: 'Pour over ice in wine glass. Top with sparkling water. Express orange oils and garnish with rosemary.',
+        glassware: 'Wine glass',
+        difficulty: 'Easy',
+        time: '2 min'
+      }
+    ]
+  },
+  {
+    id: 'health-ade-kombucha',
+    name: 'Health-Ade Ginger Lemon Kombucha',
+    category: 'Wellness Drinks',
+    region: 'United States',
+    tier: 'bronze',
+    image: 'https://images.unsplash.com/photo-1559181567-c3190ca9959b?q=80&w=1200&auto=format&fit=crop',
+    tagline: 'Probiotic Power',
+    description: 'Organic kombucha with real ginger and lemon for digestive health and refreshing taste.',
+    abv: '<0.5%',
+    flavorNotes: ['Fresh ginger', 'Lemon', 'Fermented tea', 'Tangy'],
+    useCase: 'Great for wellness cocktails and digestive support',
+    recipes: [
+      {
+        name: 'Ginger Lemon Mule',
+        ingredients: ['6 oz Health-Ade Ginger Lemon', '1 oz Fresh lime juice', '0.5 oz Agave nectar', 'Mint sprig', 'Crystallized ginger'],
+        instructions: 'Combine lime juice and agave in mug. Add ice and kombucha. Stir gently. Garnish with mint and ginger.',
+        glassware: 'Copper mug',
+        difficulty: 'Easy',
+        time: '3 min'
+      },
+      {
+        name: 'Wellness Spritzer',
+        ingredients: ['4 oz Health-Ade Ginger Lemon', '2 oz Sparkling water', '1 oz Fresh cucumber juice', 'Cucumber ribbon', 'Lemon wheel'],
+        instructions: 'Combine cucumber juice with kombucha in glass. Add ice and top with sparkling water. Garnish with cucumber and lemon.',
+        glassware: 'Highball glass',
+        difficulty: 'Easy',
+        time: '3 min'
+      }
+    ]
+  },
+  {
+    id: 'rebbl-ashwagandha-chai',
+    name: 'REBBL Ashwagandha Chai',
+    category: 'Wellness Drinks',
+    region: 'United States',
+    tier: 'silver',
+    image: 'https://images.unsplash.com/photo-1574671928146-5c89a22b2e85?q=80&w=1200&auto=format&fit=crop',
+    tagline: 'Adaptogenic Blend',
+    description: 'Plant-based superfood drink with ashwagandha, reishi, and warming spices for stress support.',
+    abv: '0.0%',
+    flavorNotes: ['Chai spices', 'Coconut', 'Ashwagandha', 'Cinnamon'],
+    useCase: 'Perfect for evening relaxation and stress relief cocktails',
+    recipes: [
+      {
+        name: 'Golden Hour Latte',
+        ingredients: ['6 oz REBBL Ashwagandha Chai', '2 oz Steamed oat milk', '0.5 oz Vanilla syrup', 'Cinnamon stick', 'Star anise'],
+        instructions: 'Heat chai drink. Steam oat milk and vanilla syrup. Combine in mug. Garnish with cinnamon and star anise.',
+        glassware: 'Coffee mug',
+        difficulty: 'Easy',
+        time: '4 min'
+      },
+      {
+        name: 'Spiced Chai Fizz',
+        ingredients: ['4 oz REBBL Ashwagandha Chai', '2 oz Sparkling water', '0.5 oz Maple syrup', 'Orange peel', 'Cardamom pod'],
+        instructions: 'Combine chai and maple syrup in glass. Add ice and top with sparkling water. Garnish with orange peel and cardamom.',
+        glassware: 'Highball glass',
+        difficulty: 'Easy',
+        time: '3 min'
+      }
+    ]
+  }
+];
+
 const cocktailData = {
   'old-fashioned': {
     id: 'old-fashioned',
@@ -139,12 +578,46 @@ const cocktailData = {
   }
 };
 
+// Function to get non-alcoholic recipe data
+const getNonAlcoholicRecipeData = (recipeId: string) => {
+  for (const beverage of nonAlcoholicBeverages) {
+    for (const recipe of beverage.recipes) {
+      const fullRecipeId = `${beverage.id}-${recipe.name}`;
+      if (fullRecipeId === recipeId) {
+        return {
+          id: fullRecipeId,
+          title: recipe.name,
+          subtitle: `${beverage.category} • ${beverage.name}`,
+          description: `${beverage.description} ${beverage.useCase}`,
+          img: beverage.image,
+          difficulty: recipe.difficulty,
+          time: recipe.time,
+          ingredients: recipe.ingredients.map(ingredient => ({ 
+            name: ingredient, 
+            note: beverage.name 
+          })),
+          instructions: recipe.instructions.split('. ').filter(step => step.trim()),
+          tips: beverage.flavorNotes.map(note => `Features ${note.toLowerCase()} notes`),
+          glassware: recipe.glassware,
+          kitAvailable: false,
+          kitPrice: 0,
+          isNonAlcoholic: true,
+          beverage
+        };
+      }
+    }
+  }
+  return null;
+};
+
 export default function CocktailDetailScreen() {
   const nav = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const route = useRoute<CocktailDetailScreenRouteProp>();
   const { toggleSavedCocktail, isCocktailSaved } = useSavedItems();
   
-  const cocktail = cocktailData[route.params.cocktailId as keyof typeof cocktailData];
+  // Check if it's a non-alcoholic recipe first
+  const nonAlcoholicRecipe = getNonAlcoholicRecipeData(route.params.cocktailId);
+  const cocktail = nonAlcoholicRecipe || cocktailData[route.params.cocktailId as keyof typeof cocktailData];
   const isSaved = isCocktailSaved(route.params.cocktailId);
 
   const handleShare = async () => {
@@ -292,7 +765,7 @@ export default function CocktailDetailScreen() {
             ))}
           </View>
 
-          {/* Add to Cart Button */}
+          {/* Add to Cart Button or Buy Beverage */}
           {cocktail.kitAvailable && (
             <View style={styles.section}>
               <Pressable 
@@ -304,13 +777,31 @@ export default function CocktailDetailScreen() {
               </Pressable>
             </View>
           )}
+          
+          {cocktail.isNonAlcoholic && cocktail.beverage?.buyLink && (
+            <View style={styles.section}>
+              <Pressable 
+                style={styles.addToCartButton}
+                onPress={() => Alert.alert('Buy Beverage', `Visit ${cocktail.beverage.name} store to purchase this premium non-alcoholic spirit.`)}
+              >
+                <MaterialCommunityIcons name="open-in-new" size={20} color={colors.white} />
+                <Text style={styles.addToCartText}>Buy {cocktail.beverage.name}</Text>
+              </Pressable>
+            </View>
+          )}
 
-          {/* Pro Tips */}
+          {/* Pro Tips / Flavor Notes */}
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Pro Tips</Text>
+            <Text style={styles.sectionTitle}>
+              {cocktail.isNonAlcoholic ? 'Flavor Profile' : 'Pro Tips'}
+            </Text>
             {cocktail.tips.map((tip, index) => (
               <View key={`tip-${index}`} style={styles.tipItem}>
-                <MaterialCommunityIcons name="lightbulb-outline" size={16} color={colors.accent} />
+                <MaterialCommunityIcons 
+                  name={cocktail.isNonAlcoholic ? "leaf" : "lightbulb-outline"} 
+                  size={16} 
+                  color={colors.accent} 
+                />
                 <Text style={styles.tipText}>{tip}</Text>
               </View>
             ))}

@@ -20,7 +20,7 @@ import { useSocialData, Group } from '../hooks/useSocialData';
 const categories = [
   { key: 'all', label: 'All', icon: 'grid-outline' },
   { key: 'cocktails', label: 'Cocktails', icon: 'wine-outline' },
-  { key: 'spirits', label: 'Spirits', icon: 'bottle-outline' },
+  { key: 'spirits', label: 'Spirits', icon: 'wine-outline' },
   { key: 'bars', label: 'Bars', icon: 'storefront-outline' },
   { key: 'events', label: 'Events', icon: 'calendar-outline' },
   { key: 'general', label: 'General', icon: 'people-outline' },
@@ -39,11 +39,6 @@ export default function GroupDiscoveryScreen() {
       headerTintColor: colors.text,
       headerTitleStyle: { color: colors.text, fontWeight: '700' },
       headerShadowVisible: false,
-      headerLeft: () => (
-        <Pressable hitSlop={12} onPress={() => nav.goBack()}>
-          <Ionicons name="arrow-back" size={24} color={colors.text} />
-        </Pressable>
-      ),
     });
   }, [nav]);
 

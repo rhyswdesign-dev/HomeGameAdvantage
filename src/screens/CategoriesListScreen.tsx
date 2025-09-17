@@ -58,7 +58,7 @@ const categories = [
   { 
     id: 'premium-spirits', 
     name: 'Premium Spirits', 
-    icon: 'bottle-outline', 
+    icon: 'wine-outline', 
     color: '#DDA0DD',
     description: 'Rare and exclusive bottles',
     itemCount: 32
@@ -107,11 +107,6 @@ export default function CategoriesListScreen() {
       headerTintColor: colors.text,
       headerTitleStyle: { color: colors.text, fontWeight: '900' },
       headerShadowVisible: false,
-      headerLeft: () => (
-        <Pressable hitSlop={12} onPress={() => nav.goBack()}>
-          <Ionicons name="arrow-back" size={24} color={colors.text} />
-        </Pressable>
-      ),
     });
   }, [nav]);
 

@@ -112,7 +112,7 @@ export default function VaultUnlockModal({
       case 'limited': return 'diamond';
       case 'rare': return 'star';
       case 'prestige': return 'trophy';
-      case 'mystery': return 'help';
+      case 'mystery': return 'lock-open';
       default: return 'diamond-outline';
     }
   };

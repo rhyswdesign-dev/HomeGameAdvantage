@@ -64,11 +64,7 @@ export default function VaultPaymentMethodsScreen() {
       headerTintColor: colors.text,
       headerTitleStyle: { color: colors.text, fontWeight: '900' },
       headerShadowVisible: false,
-      headerLeft: () => (
-        <Pressable hitSlop={12} onPress={() => nav.goBack()}>
-          <Ionicons name="arrow-back" size={24} color={colors.text} />
-        </Pressable>
-      ),
+      headerLeft: () => null,
       headerRight: () => (
         <Pressable hitSlop={12} onPress={() => setShowAddCard(true)}>
           <Ionicons name="add" size={24} color={colors.text} />

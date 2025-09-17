@@ -21,11 +21,6 @@ export default function CocktailSubmissionScreen() {
   useLayoutEffect(() => {
     nav.setOptions({
       headerTitle: 'Cocktail Competition',
-      headerLeft: () => (
-        <Pressable hitSlop={12} onPress={() => nav.goBack()}>
-          <Ionicons name="arrow-back" size={24} color={colors.text} />
-        </Pressable>
-      ),
     });
   }, [nav]);
 

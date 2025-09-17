@@ -15,6 +15,7 @@ const chips: Array<{ key: string; label: string }> = [
   { key: 'Bars',    label: 'Bars'    },
   { key: 'Events',  label: 'Events'  },
   { key: 'Games',   label: 'Games'   },
+  { key: 'Vault',   label: 'Vault'   },
 ];
 
 export default function EventsScreen() {
@@ -26,7 +27,9 @@ export default function EventsScreen() {
     setActive(key);
     try { 
       if (key === 'Home') {
-        nav.goBack();
+        nav.navigate('Main', { screen: 'Featured' });
+      } else if (key === 'NonAlcoholic') {
+        nav.navigate('NonAlcoholic' as never);
       } else if (key) {
         nav.navigate(key as never);
       }
@@ -40,11 +43,7 @@ export default function EventsScreen() {
       headerTintColor: colors.text,
       headerTitleStyle: { color: colors.text, fontWeight: '900' },
       headerShadowVisible: false,
-      headerLeft: () => (
-        <Pressable hitSlop={12} onPress={() => nav.goBack()}>
-          <Ionicons name="arrow-back" size={24} color={colors.text} />
-        </Pressable>
-      ),
+      headerLeft: () => null,
     });
   }, [nav]);
   return (
