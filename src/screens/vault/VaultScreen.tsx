@@ -24,6 +24,7 @@ import { currentVaultCycle, getVaultCountdown } from '../../data/vaultData';
 import PillButton from '../../components/PillButton';
 import VaultUnlockModal from './components/VaultUnlockModal';
 import VaultItemCard from './components/VaultItemCard';
+import { useScreenTracking, useAnalyticsContext } from '../../context/AnalyticsContext';
 
 const chips: Array<{ key: string; label: string }> = [
   { key: 'Home', label: 'Home' },
@@ -38,9 +39,13 @@ const chips: Array<{ key: string; label: string }> = [
 export default function VaultScreen() {
   const nav = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const { state, dispatch } = useVault();
+  const analytics = useAnalyticsContext();
   const [selectedTab, setSelectedTab] = useState<string>('common');
   const [countdown, setCountdown] = useState(getVaultCountdown());
   const [activeChip, setActiveChip] = useState<string>('Vault');
+  
+  // Track screen view
+  useScreenTracking('VaultScreen');
 
   // Update countdown every minute
   useEffect(() => {
@@ -114,6 +119,9 @@ export default function VaultScreen() {
       item={item}
       userProfile={state.userProfile}
       onPress={() => {
+        // Track vault item view
+        analytics.trackVaultView(item.id, item.category, item.rarity);
+        
         dispatch({ type: 'SET_SELECTED_ITEM', payload: item });
         dispatch({ type: 'SHOW_UNLOCK_MODAL', payload: true });
       }}

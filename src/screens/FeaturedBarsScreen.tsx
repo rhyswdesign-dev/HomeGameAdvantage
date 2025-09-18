@@ -8,8 +8,12 @@ import {
   Dimensions,
 } from 'react-native';
 import { DrawerActions, useNavigation } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import type { RootStackParamList } from '../navigation/RootNavigator';
 import { Feather, Ionicons } from '@expo/vector-icons';
 import { colors, spacing, radii, textStyles, layouts } from '../theme/tokens';
+import { CompactLocationMap } from '../components/ui';
+import { BARS } from '../data/bars';
 
 const { width } = Dimensions.get('window');
 const CARD = width - 32;
@@ -81,18 +85,20 @@ function MoodPill({ label }: { label: string }) {
 }
 
 function GridCard({
-  img,
-  title,
-  subtitle,
+  bar,
+  onPress,
 }: {
-  img: string;
-  title: string;
-  subtitle: string;
+  bar: typeof BARS[keyof typeof BARS];
+  onPress: () => void;
 }) {
   return (
-    <View style={{ width: (width - 16 * 3) / 2, margin: 8 }}>
+    <TouchableOpacity 
+      style={{ width: (width - 16 * 3) / 2, margin: 8 }} 
+      onPress={onPress}
+      activeOpacity={0.8}
+    >
       <Image
-        source={{ uri: img }}
+        source={{ uri: bar.hero.image }}
         style={{ width: '100%', height: 180, borderRadius: 12 }}
       />
       <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 8 }}>
@@ -103,17 +109,48 @@ function GridCard({
             fontWeight: '800',
           }}
         >
-          {title}
+          {bar.name}
         </Text>
         <Ionicons name="chevron-forward" size={16} color={colors.accent} style={{ marginLeft: 4 }} />
       </View>
-      <Text style={{ color: colors.textMuted, marginTop: 2 }}>{subtitle}</Text>
-    </View>
+      <Text style={{ color: colors.textMuted, marginTop: 2 }}>{bar.quickInfo?.vibe || bar.hero?.location || 'Bar'}</Text>
+    </TouchableOpacity>
   );
 }
 
 export default function FeaturedBarsScreen() {
-  const nav = useNavigation();
+  const nav = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+
+  const handleBarPress = (bar: typeof BARS[keyof typeof BARS]) => {
+    // Map bar IDs to their individual screens
+    const barScreenMap: Record<string, keyof RootStackParamList> = {
+      'the_alchemist': 'TheAlchemist',
+      'the_velvet_curtain': 'TheVelvetCurtain',
+      'the_gilded_lily': 'TheGildedLily',
+      'the_iron_flask': 'TheIronFlask',
+      'the_velvet_note': 'TheVelvetNote',
+      'skyline_lounge': 'SkylineLounge',
+      'the_tiki_hut': 'TheTikiHut',
+      'the_wine_cellar': 'TheWineCellar',
+      'the_hidden_flask': 'TheHiddenFlask',
+      'untitled_champagne_lounge': 'UntitledLounge',
+    };
+
+    const screenName = barScreenMap[bar.id];
+    
+    if (screenName) {
+      nav.navigate(screenName);
+    } else {
+      // Fallback to generic BarDetails for bars without individual screens
+      nav.navigate('BarDetails', {
+        name: bar.name,
+        subtitle: bar.quickInfo?.vibe || bar.hero?.location || 'Bar',
+        image: bar.hero.image,
+        city: bar.location?.city,
+        address: bar.location?.address
+      });
+    }
+  };
 
   return (
     <ScrollView style={{ flex: 1, backgroundColor: colors.bg }}>
@@ -174,30 +211,37 @@ export default function FeaturedBarsScreen() {
       </View>
 
       {/* Bar of the Month — Untitled Champagne Lounge (3 image slider) */}
-      <View style={{ paddingHorizontal: 16 }}>
-        <Image
-          source={{ uri: IMGS.ucl1 }}
-          style={{
-            width: CARD,
-            height: CARD * 0.56,
-            borderRadius: 16,
-          }}
-        />
-      </View>
-      <Text
-        style={{
-          color: colors.white,
-          fontSize: 28,
-          fontWeight: '900',
-          marginTop: 10,
-          paddingHorizontal: 16,
-        }}
+      <TouchableOpacity 
+        onPress={() => nav.navigate('UntitledLounge')}
+        activeOpacity={0.8}
       >
-        Untitled Champagne Lounge
-      </Text>
-      <Text style={{ color: colors.textMuted, paddingHorizontal: 16, marginBottom: 6 }}>
-        Bar of the Month
-      </Text>
+        <View style={{ paddingHorizontal: 16 }}>
+          <Image
+            source={{ uri: IMGS.ucl1 }}
+            style={{
+              width: CARD,
+              height: CARD * 0.56,
+              borderRadius: 16,
+            }}
+          />
+        </View>
+        <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, marginTop: 10 }}>
+          <Text
+            style={{
+              color: colors.white,
+              fontSize: 28,
+              fontWeight: '900',
+              flex: 1
+            }}
+          >
+            Untitled Champagne Lounge
+          </Text>
+          <Ionicons name="chevron-forward" size={24} color={colors.accent} />
+        </View>
+        <Text style={{ color: colors.textMuted, paddingHorizontal: 16, marginBottom: 6 }}>
+          Bar of the Month
+        </Text>
+      </TouchableOpacity>
       <ScrollView
         horizontal
         pagingEnabled
@@ -235,6 +279,26 @@ export default function FeaturedBarsScreen() {
         ))}
       </ScrollView>
 
+      {/* Bar Locations */}
+      <SectionTitle title="Bar Locations" />
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        style={{ paddingLeft: 16, marginBottom: 20 }}
+      >
+        {Object.values(BARS)
+          .filter(bar => bar.location)
+          .map((bar) => (
+            <View key={bar.id} style={{ marginRight: 12, width: 280 }}>
+              <CompactLocationMap
+                location={bar.location!}
+                onMarkerPress={(location) => console.log('Featured bar location pressed:', location.name)}
+              />
+            </View>
+          ))
+        }
+      </ScrollView>
+
       {/* All Bars (City) + Filter */}
       <SectionTitle
         title={`All Bars (${city})`}
@@ -261,14 +325,15 @@ export default function FeaturedBarsScreen() {
         }
       />
 
-      {/* Simple 2-column grid for bars list */}
+      {/* Dynamic 2-column grid using real bar data */}
       <View style={{ flexDirection: 'row', flexWrap: 'wrap', paddingHorizontal: 8 }}>
-        <GridCard img={IMGS.a} title="The Alchemist" subtitle="Craft Cocktails" />
-        <GridCard img={IMGS.b} title="The Velvet Curtain" subtitle="Wine Bar" />
-        <GridCard img={IMGS.c} title="The Gilded Lily" subtitle="Live Music" />
-        <GridCard img={IMGS.d} title="The Iron Flask" subtitle="Speakeasy" />
-        <GridCard img={IMGS.e} title="Skyline Lounge" subtitle="Rooftop" />
-        <GridCard img={IMGS.f} title="The Tiki Hut" subtitle="Miami" />
+        {Object.values(BARS).slice(0, 6).map((bar) => (
+          <GridCard 
+            key={bar.id}
+            bar={bar} 
+            onPress={() => handleBarPress(bar)}
+          />
+        ))}
       </View>
 
       <View style={{ height: 28 }} />

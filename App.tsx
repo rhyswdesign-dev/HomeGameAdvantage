@@ -9,6 +9,9 @@ import WelcomeCarouselScreen from './src/screens/WelcomeCarouselScreen';
 import { useSimpleOnboarding as useOnboarding } from './src/hooks/useSimpleOnboarding';
 import { UserProvider } from './src/contexts/UserContext';
 import { VaultProvider } from './src/contexts/VaultContext';
+import { FirebaseProvider } from './src/context/FirebaseContext';
+import { AnalyticsProvider } from './src/context/AnalyticsContext';
+import { MonetizationProvider } from './src/context/MonetizationContext';
 
 export default function App() {
   const { appState, handleSplashFinish, completeBartendingWelcome, completeWelcome, completeOnboarding, skipToXPReminder, completeXPReminder, goBackToOnboarding } = useOnboarding();
@@ -42,12 +45,18 @@ export default function App() {
 
   // Show main app
   return (
-    <UserProvider>
-      <VaultProvider>
-        <NavigationContainer>
-          <RootNavigator />
-        </NavigationContainer>
-      </VaultProvider>
-    </UserProvider>
+    <AnalyticsProvider>
+      <FirebaseProvider>
+        <MonetizationProvider>
+          <UserProvider>
+            <VaultProvider>
+              <NavigationContainer>
+                <RootNavigator />
+              </NavigationContainer>
+            </VaultProvider>
+          </UserProvider>
+        </MonetizationProvider>
+      </FirebaseProvider>
+    </AnalyticsProvider>
   );
 }

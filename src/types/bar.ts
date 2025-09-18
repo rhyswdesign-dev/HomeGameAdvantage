@@ -8,6 +8,18 @@ export interface BarContent {
     location?: string; 
     xpReward?: number;
   };
+  location?: {
+    latitude: number;
+    longitude: number;
+    name: string;
+    address: string;
+    city?: string;
+    state?: string;
+    zipCode?: string;
+    country?: string;
+    phone?: string;
+    website?: string;
+  };
   quickTags?: string[];
   quickInfo?: {
     music?: string; 

@@ -9,6 +9,8 @@ import { RouteProp } from '@react-navigation/native';
 import { RootStackParamList } from '../../navigation/RootNavigator';
 import { getPlacement, SurveyAnswers } from '../../services/placement';
 import { PlacementResult } from '../../types/domain';
+import { Ionicons } from '@expo/vector-icons';
+import { colors } from '../../theme/tokens';
 
 type SurveyResultsScreenProps = {
   navigation: NativeStackNavigationProp<RootStackParamList, 'SurveyResults'>;
@@ -73,12 +75,12 @@ export default function SurveyResultsScreen({ navigation, route }: SurveyResults
     }
   };
 
-  const getTrackEmoji = (track: string) => {
+  const getTrackIcon = (track: string) => {
     switch (track) {
-      case 'alcoholic': return '🍸';
-      case 'low-abv': return '🥂';
-      case 'zero-proof': return '🧃';
-      default: return '🍸';
+      case 'alcoholic': return 'wine';
+      case 'low-abv': return 'beer';
+      case 'zero-proof': return 'cafe';
+      default: return 'wine';
     }
   };
 
@@ -103,7 +105,9 @@ export default function SurveyResultsScreen({ navigation, route }: SurveyResults
           </View>
 
           <View style={styles.trackCard}>
-            <Text style={styles.trackEmoji}>{getTrackEmoji(placement.track)}</Text>
+            <View style={styles.trackIconContainer}>
+              <Ionicons name={getTrackIcon(placement.track) as any} size={32} color={colors.primary} />
+            </View>
             <Text style={styles.trackTitle}>
               {placement.track === 'alcoholic' && 'Classic Cocktails'}
               {placement.track === 'low-abv' && 'Low-ABV Focus'}
@@ -215,9 +219,14 @@ const styles = StyleSheet.create({
     padding: 20,
     alignItems: 'center',
   },
-  trackEmoji: {
-    fontSize: 32,
-    marginBottom: 8,
+  trackIconContainer: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: colors.primary + '20',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 12,
   },
   trackTitle: {
     fontSize: 18,

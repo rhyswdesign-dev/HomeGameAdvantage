@@ -17,9 +17,9 @@ import {
   UnlockedVaultItem
 } from '../types/vault';
 
-// Mock Firestore imports (replace with actual Firebase imports)
-// import { doc, updateDoc, increment, arrayUnion, getDoc, setDoc, addDoc, collection } from 'firebase/firestore';
-// import { db } from '../config/firebase';
+// Firebase Firestore imports
+import { doc, updateDoc, increment, arrayUnion, getDoc, setDoc, addDoc, collection } from 'firebase/firestore';
+import { db } from '../config/firebase';
 
 // Mock Stripe imports (replace with actual Stripe imports)
 // import { StripeProvider, useStripe } from '@stripe/stripe-react-native';
@@ -201,10 +201,7 @@ class VaultService {
     
     const transactionId = `unlock_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
     
-    // In real implementation, these would be atomic Firestore transactions
-    
     // 1. Deduct XP and Keys from user profile
-    /*
     await updateDoc(doc(db, 'userVaultProfiles', params.userId), {
       xpBalance: increment(-params.xpCost),
       keysBalance: increment(-params.keysCost),
@@ -212,7 +209,6 @@ class VaultService {
       totalKeysSpent: increment(params.keysCost),
       updatedAt: new Date().toISOString()
     });
-    */
 
     // 2. Add to user's unlocked items
     const unlockedItem: UnlockedVaultItem = {
@@ -227,14 +223,11 @@ class VaultService {
       shippingAddress: params.shippingAddress
     };
 
-    /*
     await updateDoc(doc(db, 'userVaultProfiles', params.userId), {
       unlockedItems: arrayUnion(unlockedItem)
     });
-    */
 
     // 3. Log transaction for analytics and order history
-    /*
     await addDoc(collection(db, 'vaultTransactions'), {
       transactionId,
       userId: params.userId,
@@ -246,7 +239,6 @@ class VaultService {
       stripePaymentIntentId: params.stripePaymentIntentId,
       timestamp: new Date().toISOString()
     });
-    */
 
     return transactionId;
   }
@@ -337,8 +329,6 @@ class VaultService {
     
     const purchaseId = `purchase_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
     
-    // In real implementation:
-    /*
     const updates: any = {
       updatedAt: new Date().toISOString()
     };
@@ -362,7 +352,6 @@ class VaultService {
     }
 
     await updateDoc(doc(db, 'userVaultProfiles', userId), updates);
-    */
 
     return purchaseId;
   }
@@ -379,8 +368,6 @@ class VaultService {
         return false;
       }
 
-      // In real implementation:
-      /*
       const cartRef = doc(db, 'vaultCarts', userId);
       const cartDoc = await getDoc(cartRef);
       
@@ -426,7 +413,6 @@ class VaultService {
       cart.updatedAt = new Date().toISOString();
 
       await setDoc(cartRef, cart);
-      */
       
       return true;
     } catch (error) {
@@ -514,28 +500,28 @@ class VaultService {
    */
   async getUserVaultProfile(userId: string): Promise<UserVaultProfile | null> {
     try {
-      // In real implementation:
-      /*
       const docRef = doc(db, 'userVaultProfiles', userId);
       const docSnap = await getDoc(docRef);
       
       if (docSnap.exists()) {
         return docSnap.data() as UserVaultProfile;
       }
-      */
       
-      // Mock data for demo
-      return {
+      // Create default profile if doesn't exist
+      const defaultProfile: UserVaultProfile = {
         userId,
-        xpBalance: 8450,
-        keysBalance: 3,
-        totalXpEarned: 15200,
-        totalKeysEarned: 8,
-        totalXpSpent: 6750,
-        totalKeysSpent: 5,
+        xpBalance: 0,
+        keysBalance: 0,
+        totalXpEarned: 0,
+        totalKeysEarned: 0,
+        totalXpSpent: 0,
+        totalKeysSpent: 0,
         unlockedItems: [],
         updatedAt: new Date().toISOString()
       };
+      
+      await setDoc(docRef, defaultProfile);
+      return defaultProfile;
     } catch (error) {
       console.error('Failed to get user vault profile:', error);
       return null;
@@ -547,17 +533,14 @@ class VaultService {
    */
   async getVaultItem(itemId: string): Promise<VaultItem | null> {
     try {
-      // In real implementation:
-      /*
       const docRef = doc(db, 'vaultItems', itemId);
       const docSnap = await getDoc(docRef);
       
       if (docSnap.exists()) {
         return docSnap.data() as VaultItem;
       }
-      */
       
-      // Mock - would fetch from vaultData
+      // Fallback to mock data if not in Firestore
       const { vaultItems } = await import('../data/vaultData');
       return vaultItems.find(item => item.id === itemId) || null;
     } catch (error) {
@@ -571,7 +554,14 @@ class VaultService {
    */
   async getMonetizationItem(itemId: string): Promise<MonetizationItem | null> {
     try {
-      // Mock - would fetch from Firestore
+      const docRef = doc(db, 'monetizationItems', itemId);
+      const docSnap = await getDoc(docRef);
+      
+      if (docSnap.exists()) {
+        return docSnap.data() as MonetizationItem;
+      }
+      
+      // Fallback to mock data if not in Firestore
       const { monetizationItems } = await import('../data/vaultData');
       return monetizationItems.find(item => item.id === itemId) || null;
     } catch (error) {
@@ -585,13 +575,10 @@ class VaultService {
    */
   private async decrementItemStock(itemId: string): Promise<void> {
     try {
-      // In real implementation:
-      /*
       await updateDoc(doc(db, 'vaultItems', itemId), {
         currentStock: increment(-1),
         updatedAt: new Date().toISOString()
       });
-      */
     } catch (error) {
       console.error('Failed to decrement item stock:', error);
     }
@@ -627,8 +614,6 @@ class VaultService {
         finalAmount = Math.floor(amount * multiplier);
       }
 
-      // In real implementation:
-      /*
       await updateDoc(doc(db, 'userVaultProfiles', userId), {
         xpBalance: increment(finalAmount),
         totalXpEarned: increment(finalAmount),
@@ -643,7 +628,6 @@ class VaultService {
         source, // 'lesson_complete', 'challenge_win', 'video_watch', etc.
         timestamp: new Date().toISOString()
       });
-      */
 
       return true;
     } catch (error) {

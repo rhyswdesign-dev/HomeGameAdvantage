@@ -11,7 +11,14 @@ export type AnalyticsEvent =
   | { type: 'scheduler.plan'; moduleId: string; mix: { current: number; review: number; older: number }; expectedMinutes: number }
   | { type: 'progress.xpAwarded'; amount: number }
   | { type: 'streak.updated'; value: number }
-  | { type: 'badge.unlocked'; name: string };
+  | { type: 'badge.unlocked'; name: string }
+  | { type: 'screen.viewed'; screenName: string; properties?: Record<string, any> }
+  | { type: 'audio.played'; soundType: string; context?: string }
+  | { type: 'vault.item.viewed'; itemId: string; category: string; rarity: string }
+  | { type: 'vault.item.unlocked'; itemId: string; xpSpent: number; keysSpent: number; cashSpent?: number }
+  | { type: 'vault.purchase.completed'; itemId: string; amount: number; currency: string }
+  | { type: 'search.performed'; query: string; category?: string; resultsCount: number }
+  | { type: 'user.identified'; userId: string; traits?: Record<string, any> };
 
 export interface AnalyticsSink {
   init(cfg: any): Promise<void>;
@@ -62,95 +69,59 @@ export class MemorySink implements AnalyticsSink {
 }
 
 /**
- * PostHog analytics sink
+ * PostHog analytics sink (import actual implementation)
  */
 export class PostHogSink implements AnalyticsSink {
-  private client: any = null;
-  private initialized = false;
+  private adapter: any = null;
 
   async init(cfg: { apiKey: string; host?: string }): Promise<void> {
     try {
-      // TODO: Implement PostHog integration
-      // const { PostHog } = require('posthog-react-native');
-      // this.client = new PostHog(cfg.apiKey, { host: cfg.host });
-      
-      console.log('PostHogSink would initialize with:', cfg);
-      this.initialized = true;
+      const { PostHogAdapter } = await import('./analytics.posthog');
+      this.adapter = new PostHogAdapter();
+      await this.adapter.init(cfg);
     } catch (error) {
       console.warn('PostHog initialization failed:', error);
-      this.initialized = false;
     }
   }
 
   async track(ev: AnalyticsEvent): Promise<void> {
-    if (!this.initialized || !this.client) {
-      console.warn('PostHog not initialized, skipping event:', ev.type);
-      return;
-    }
-
-    try {
-      // TODO: Implement actual PostHog tracking
-      // this.client.capture(ev.type, ev);
-      console.log('[PostHog]', ev.type, ev);
-    } catch (error) {
-      console.error('PostHog tracking error:', error);
+    if (this.adapter) {
+      await this.adapter.track(ev);
     }
   }
 
   async flush(): Promise<void> {
-    if (this.client?.flush) {
-      try {
-        await this.client.flush();
-      } catch (error) {
-        console.error('PostHog flush error:', error);
-      }
+    if (this.adapter?.flush) {
+      await this.adapter.flush();
     }
   }
 }
 
 /**
- * Segment analytics sink
+ * Segment analytics sink (import actual implementation)
  */
 export class SegmentSink implements AnalyticsSink {
-  private client: any = null;
-  private initialized = false;
+  private adapter: any = null;
 
   async init(cfg: { writeKey: string }): Promise<void> {
     try {
-      // TODO: Implement Segment integration
-      // const { createClient } = require('@segment/analytics-react-native');
-      // this.client = createClient({ writeKey: cfg.writeKey });
-      
-      console.log('SegmentSink would initialize with writeKey:', cfg.writeKey);
-      this.initialized = true;
+      const { SegmentAdapter } = await import('./analytics.segment');
+      this.adapter = new SegmentAdapter();
+      await this.adapter.init(cfg);
     } catch (error) {
       console.warn('Segment initialization failed:', error);
-      this.initialized = false;
     }
   }
 
   async track(ev: AnalyticsEvent): Promise<void> {
-    if (!this.initialized || !this.client) {
-      console.warn('Segment not initialized, skipping event:', ev.type);
-      return;
-    }
-
-    try {
-      // TODO: Implement actual Segment tracking
-      // this.client.track(ev.type, ev);
-      console.log('[Segment]', ev.type, ev);
-    } catch (error) {
-      console.error('Segment tracking error:', error);
+    if (this.adapter) {
+      await this.adapter.track(ev);
     }
   }
 
   async flush(): Promise<void> {
-    if (this.client?.flush) {
-      try {
-        await this.client.flush();
-      } catch (error) {
-        console.error('Segment flush error:', error);
-      }
+    if (this.adapter?.flush) {
+      await this.adapter.flush();
     }
   }
 }

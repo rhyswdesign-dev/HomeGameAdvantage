@@ -1,0 +1,301 @@
+{
+  "modules": [
+    {
+      "id": "ch1-basics",
+      "title": "Bartending Basics",
+      "chapterIndex": 1,
+      "estimatedMinutes": 45,
+      "tags": ["fundamentals", "home-bar", "mindset"]
+    },
+    {
+      "id": "ch2-tools-terms",
+      "title": "Tools & Terms",
+      "chapterIndex": 2,
+      "estimatedMinutes": 35,
+      "tags": ["tools", "terminology", "setup"]
+    },
+    {
+      "id": "ch3-techniques-prep",
+      "title": "Techniques & Prep",
+      "chapterIndex": 3,
+      "estimatedMinutes": 40,
+      "tags": ["techniques", "syrups", "prep"]
+    },
+    {
+      "id": "ch4-spirits-pairing",
+      "title": "Spirits & Pairing",
+      "chapterIndex": 4,
+      "estimatedMinutes": 50,
+      "tags": ["spirits", "ingredients", "pairing"]
+    },
+    {
+      "id": "ch5-classics-remix",
+      "title": "Classics & Remixes",
+      "chapterIndex": 5,
+      "estimatedMinutes": 55,
+      "tags": ["recipes", "classics", "variations"]
+    },
+    {
+      "id": "ch5b-batching-punches",
+      "title": "Batching & Punches",
+      "chapterIndex": 6,
+      "estimatedMinutes": 30,
+      "tags": ["batching", "parties", "service"]
+    },
+    {
+      "id": "ch6-hosting-vibes",
+      "title": "Hosting & Vibes",
+      "chapterIndex": 7,
+      "estimatedMinutes": 25,
+      "tags": ["hosting", "atmosphere", "service"]
+    },
+    {
+      "id": "sp101-gin",
+      "title": "Gin 101",
+      "chapterIndex": 8,
+      "estimatedMinutes": 15,
+      "tags": ["gin", "spirits", "spirit-101"]
+    },
+    {
+      "id": "sp101-rum",
+      "title": "Rum 101",
+      "chapterIndex": 9,
+      "estimatedMinutes": 15,
+      "tags": ["rum", "spirits", "spirit-101"]
+    },
+    {
+      "id": "sp101-tequila",
+      "title": "Tequila 101",
+      "chapterIndex": 10,
+      "estimatedMinutes": 15,
+      "tags": ["tequila", "spirits", "spirit-101"]
+    },
+    {
+      "id": "sp101-whiskey",
+      "title": "Whiskey 101",
+      "chapterIndex": 11,
+      "estimatedMinutes": 15,
+      "tags": ["whiskey", "spirits", "spirit-101"]
+    },
+    {
+      "id": "sp101-brandy-liqueurs",
+      "title": "Brandy & Liqueurs 101",
+      "chapterIndex": 12,
+      "estimatedMinutes": 15,
+      "tags": ["brandy", "liqueurs", "spirits", "spirit-101"]
+    }
+  ],
+
+  "lessons": [
+    {
+      "id": "lesson-ch1-001",
+      "moduleId": "ch1-basics",
+      "title": "Great Bartender Traits",
+      "types": ["mcq", "checkbox", "short", "roleplay"],
+      "itemIds": ["item-001", "item-002", "item-003", "item-004", "item-005", "item-006", "item-007"],
+      "estimatedMinutes": 4,
+      "prereqs": []
+    },
+    {
+      "id": "lesson-ch1-002",
+      "moduleId": "ch1-basics",
+      "title": "Core Spirits Setup",
+      "types": ["mcq", "match", "checkbox", "short"],
+      "itemIds": ["item-008", "item-009", "item-010", "item-011", "item-012", "item-013", "item-014", "item-015"],
+      "estimatedMinutes": 5,
+      "prereqs": []
+    },
+    {
+      "id": "lesson-ch1-003",
+      "moduleId": "ch1-basics",
+      "title": "Glassware Essentials",
+      "types": ["mcq", "match", "short", "roleplay"],
+      "itemIds": ["item-016", "item-017", "item-018", "item-019", "item-020", "item-021", "item-022"],
+      "estimatedMinutes": 4,
+      "prereqs": []
+    },
+    {
+      "id": "lesson-ch1-004",
+      "moduleId": "ch1-basics",
+      "title": "Bar Setup & Zones",
+      "types": ["order", "mcq", "roleplay", "short"],
+      "itemIds": ["item-023", "item-024", "item-025", "item-026", "item-027", "item-028", "item-029"],
+      "estimatedMinutes": 5,
+      "prereqs": []
+    },
+    {
+      "id": "lesson-ch1-005",
+      "moduleId": "ch1-basics",
+      "title": "Ice Strategy Pro",
+      "types": ["mcq", "match", "short", "roleplay"],
+      "itemIds": ["item-030", "item-031", "item-032", "item-033", "item-034", "item-035", "item-036"],
+      "estimatedMinutes": 4,
+      "prereqs": []
+    },
+    {
+      "id": "lesson-ch1-006",
+      "moduleId": "ch1-basics",
+      "title": "Tasting Like a Pro",
+      "types": ["order", "mcq", "short", "roleplay"],
+      "itemIds": ["item-037", "item-038", "item-039", "item-040", "item-041", "item-042", "item-043"],
+      "estimatedMinutes": 5,
+      "prereqs": []
+    },
+    {
+      "id": "lesson-ch1-007",
+      "moduleId": "ch1-basics",
+      "title": "Safety & HomeGame Spirit",
+      "types": ["checkbox", "mcq", "roleplay", "short"],
+      "itemIds": ["item-044", "item-045", "item-046", "item-047", "item-048", "item-049", "item-050"],
+      "estimatedMinutes": 4,
+      "prereqs": []
+    },
+    {
+      "id": "lesson-ch1-008",
+      "moduleId": "ch1-basics",
+      "title": "Fresh Goods & Citrus Game",
+      "types": ["match", "short", "mcq", "roleplay"],
+      "itemIds": ["item-051", "item-052", "item-053", "item-054", "item-055", "item-056", "item-057"],
+      "estimatedMinutes": 4,
+      "prereqs": []
+    },
+    {
+      "id": "lesson-ch1-009",
+      "moduleId": "ch1-basics",
+      "title": "Equipment Mastery",
+      "types": ["mcq", "checkbox", "match", "short"],
+      "itemIds": ["item-058", "item-059", "item-060", "item-061", "item-062", "item-063", "item-064"],
+      "estimatedMinutes": 4,
+      "prereqs": []
+    },
+    {
+      "id": "lesson-ch1-checkpoint",
+      "moduleId": "ch1-basics",
+      "title": "Checkpoint: Basics Mix-Off",
+      "types": ["roleplay", "short", "mcq", "match"],
+      "itemIds": ["item-065", "item-066", "item-067", "item-068", "item-069", "item-070"],
+      "estimatedMinutes": 6,
+      "prereqs": ["lesson-ch1-001", "lesson-ch1-002", "lesson-ch1-003"]
+    },
+    {
+      "id": "lesson-ch2-001",
+      "moduleId": "ch2-tools-terms",
+      "title": "Core 6 Tools",
+      "types": ["mcq", "match", "short", "checkbox"],
+      "itemIds": ["item-071", "item-072", "item-073", "item-074", "item-075", "item-076"],
+      "estimatedMinutes": 4,
+      "prereqs": []
+    },
+    {
+      "id": "lesson-ch2-002",
+      "moduleId": "ch2-tools-terms",
+      "title": "Bar Terms: Spec, Build, Float",
+      "types": ["mcq", "short", "match", "roleplay"],
+      "itemIds": ["item-077", "item-078", "item-079", "item-080", "item-081", "item-082"],
+      "estimatedMinutes": 4,
+      "prereqs": []
+    },
+    {
+      "id": "lesson-ch2-003",
+      "moduleId": "ch2-tools-terms",
+      "title": "Bar Slang Decoded",
+      "types": ["match", "mcq", "checkbox", "short"],
+      "itemIds": ["item-083", "item-084", "item-085", "item-086", "item-087", "item-088"],
+      "estimatedMinutes": 4,
+      "prereqs": []
+    },
+    {
+      "id": "lesson-ch2-004",
+      "moduleId": "ch2-tools-terms",
+      "title": "Tools by Cocktail Style",
+      "types": ["match", "mcq", "short", "roleplay"],
+      "itemIds": ["item-089", "item-090", "item-091", "item-092", "item-093", "item-094"],
+      "estimatedMinutes": 5,
+      "prereqs": []
+    },
+    {
+      "id": "lesson-ch2-005",
+      "moduleId": "ch2-tools-terms",
+      "title": "Triangle Workflow Magic",
+      "types": ["order", "roleplay", "mcq", "short"],
+      "itemIds": ["item-095", "item-096", "item-097", "item-098", "item-099", "item-100"],
+      "estimatedMinutes": 5,
+      "prereqs": []
+    },
+    {
+      "id": "lesson-ch2-checkpoint",
+      "moduleId": "ch2-tools-terms",
+      "title": "Checkpoint: Tool Mastery Mix-Off",
+      "types": ["roleplay", "short", "match", "mcq"],
+      "itemIds": ["item-101", "item-102", "item-103", "item-104", "item-105"],
+      "estimatedMinutes": 5,
+      "prereqs": ["lesson-ch2-001", "lesson-ch2-002"]
+    }
+  ],
+
+  "items": [
+    {
+      "id": "item-001",
+      "type": "mcq",
+      "prompt": "Which trait separates great bartenders from good ones?",
+      "options": ["Confidence", "Loudness", "Speed over precision", "Expensive tools"],
+      "answerIndex": 0,
+      "tags": ["traits", "mindset", "confidence"],
+      "conceptId": "bartender.confidence",
+      "difficulty": 0.2,
+      "xpAward": 10,
+      "reviewWeight": 0.8
+    },
+    {
+      "id": "item-002",
+      "type": "checkbox",
+      "prompt": "Select ALL the traits of a great bartender:",
+      "options": ["Confidence", "Cleanliness", "Precision + Speed", "Curiosity", "Showing off", "Rushing"],
+      "correct": ["Confidence", "Cleanliness", "Precision + Speed", "Curiosity"],
+      "tags": ["traits", "fundamentals", "checklist"],
+      "conceptId": "bartender.core.traits",
+      "difficulty": 0.3,
+      "xpAward": 15,
+      "reviewWeight": 0.9
+    },
+    {
+      "id": "item-003",
+      "type": "short",
+      "prompt": "Complete this HomeGame mantra: 'Own your ____'",
+      "answerText": "space",
+      "acceptableAnswers": ["space", "bar", "station", "area"],
+      "tags": ["mindset", "homegame", "mantra"],
+      "conceptId": "homegame.own.space",
+      "difficulty": 0.2,
+      "xpAward": 10,
+      "reviewWeight": 0.7
+    },
+    {
+      "id": "item-004",
+      "type": "mcq",
+      "prompt": "The HomeGame mentality is built on four pillars. Which describes them best?",
+      "options": ["Fast and flashy", "Precision, playful, confident, creative", "Expensive and exclusive", "Traditional and rigid"],
+      "answerIndex": 1,
+      "tags": ["homegame", "mindset", "pillars"],
+      "conceptId": "homegame.four.pillars",
+      "difficulty": 0.3,
+      "xpAward": 12,
+      "reviewWeight": 0.8
+    },
+    {
+      "id": "item-005",
+      "type": "roleplay",
+      "prompt": "Friends arrive for cocktails at your home bar. How do you embody confident bartender energy?",
+      "roleplay": {
+        "context": "Your first time hosting friends at your new home bar setup",
+        "task": "Show confident bartender presence",
+        "choices": ["Welcome warmly, move with purpose, start making drinks", "Apologize that you're not a 'real' bartender", "Hide behind complicated techniques", "Rush nervously through everything"]
+      },
+      "tags": ["confidence", "hosting", "roleplay", "mindset"],
+      "conceptId": "bartender.confidence",
+      "difficulty": 0.4,
+      "xpAward": 15,
+      "reviewWeight": 0.6
+    }
+  ]
+}

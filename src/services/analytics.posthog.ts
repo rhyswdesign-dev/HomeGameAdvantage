@@ -13,19 +13,17 @@ export class PostHogAdapter implements AnalyticsSink {
     this.config = cfg;
     
     try {
-      // TODO: Uncomment when PostHog is available
-      // const { PostHog } = require('posthog-react-native');
-      // 
-      // this.client = new PostHog(cfg.apiKey, {
-      //   host: cfg.host || 'https://app.posthog.com',
-      //   captureApplicationLifecycleEvents: false,
-      //   debug: __DEV__,
-      // });
-      //
-      // console.log('PostHog initialized successfully');
+      const PostHog = require('posthog-react-native').default;
       
-      // For now, just log
-      console.log('PostHog would initialize with config:', cfg);
+      this.client = new PostHog(cfg.apiKey, {
+        host: cfg.host || 'https://app.posthog.com',
+        captureApplicationLifecycleEvents: false,
+        debug: __DEV__,
+        flushAt: 5, // Flush after 5 events
+        flushInterval: 30000, // Flush every 30 seconds
+      });
+
+      console.log('PostHog initialized successfully');
       
     } catch (error) {
       console.warn('PostHog initialization failed - falling back to console logging:', error);
@@ -45,9 +43,7 @@ export class PostHogAdapter implements AnalyticsSink {
       const properties = { ...ev };
       delete (properties as any).type;
 
-      // TODO: Uncomment when PostHog is available
-      // this.client.capture(ev.type, properties);
-      
+      this.client.capture(ev.type, properties);
       console.log('[PostHog]', ev.type, properties);
       
     } catch (error) {
@@ -58,8 +54,7 @@ export class PostHogAdapter implements AnalyticsSink {
   async flush(): Promise<void> {
     if (this.client?.flush) {
       try {
-        // TODO: Uncomment when PostHog is available
-        // await this.client.flush();
+        await this.client.flush();
         console.log('PostHog flush completed');
       } catch (error) {
         console.error('PostHog flush error:', error);
@@ -72,8 +67,7 @@ export class PostHogAdapter implements AnalyticsSink {
     if (!this.client) return;
 
     try {
-      // TODO: Uncomment when PostHog is available
-      // this.client.identify(userId, traits);
+      this.client.identify(userId, traits);
       console.log('[PostHog] Identify:', userId, traits);
     } catch (error) {
       console.error('PostHog identify error:', error);
@@ -85,8 +79,7 @@ export class PostHogAdapter implements AnalyticsSink {
     if (!this.client) return;
 
     try {
-      // TODO: Uncomment when PostHog is available
-      // this.client.setPersonProperties(properties);
+      this.client.setPersonProperties(properties);
       console.log('[PostHog] Set person properties:', properties);
     } catch (error) {
       console.error('PostHog set person properties error:', error);

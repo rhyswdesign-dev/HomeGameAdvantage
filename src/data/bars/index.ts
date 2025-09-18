@@ -9,6 +9,18 @@ export const BARS: Record<string, BarContent> = {
       location: 'Distillery District, Toronto',
       xpReward: 150,
     },
+    location: {
+      latitude: 43.6503,
+      longitude: -79.3593,
+      name: 'The Alchemist',
+      address: '15 Trinity St',
+      city: 'Toronto',
+      state: 'ON',
+      zipCode: 'M5A 3C4',
+      country: 'Canada',
+      phone: '+1 (416) 555-0123',
+      website: 'https://thealchemist.ca'
+    },
     quickInfo: {
       music: 'Ambient Electronic',
       vibe: 'Modern Laboratory',
@@ -91,6 +103,18 @@ export const BARS: Record<string, BarContent> = {
       image: 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?q=80&w=1200&auto=format&fit=crop',
       location: 'King Street West, Toronto',
       xpReward: 180,
+    },
+    location: {
+      latitude: 43.6465,
+      longitude: -79.3952,
+      name: 'The Gilded Lily',
+      address: '125 King St W',
+      city: 'Toronto',
+      state: 'ON',
+      zipCode: 'M5H 1J8',
+      country: 'Canada',
+      phone: '+1 (416) 555-0456',
+      website: 'https://thegildedlily.ca'
     },
     quickInfo: {
       music: 'Live Jazz Nightly',
@@ -297,6 +321,18 @@ export const BARS: Record<string, BarContent> = {
       location: 'CN Tower District, Toronto',
       xpReward: 250,
     },
+    location: {
+      latitude: 43.6426,
+      longitude: -79.3871,
+      name: 'Skyline Lounge',
+      address: '301 Front St W',
+      city: 'Toronto',
+      state: 'ON',
+      zipCode: 'M5V 2T6',
+      country: 'Canada',
+      phone: '+1 (416) 555-0789',
+      website: 'https://skylinelounge.ca'
+    },
     quickInfo: {
       music: 'Lounge & Deep House',
       vibe: 'Sky-High Luxury',
@@ -439,6 +475,18 @@ export const BARS: Record<string, BarContent> = {
       image: 'https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?q=80&w=1200&auto=format&fit=crop',
       location: 'Financial District, Toronto',
       xpReward: 300,
+    },
+    location: {
+      latitude: 43.6481,
+      longitude: -79.3821,
+      name: 'Untitled Champagne Lounge',
+      address: '222 Bay St',
+      city: 'Toronto',
+      state: 'ON',
+      zipCode: 'M5K 1B5',
+      country: 'Canada',
+      phone: '+1 (416) 555-0888',
+      website: 'https://untitledchampagne.ca'
     },
     quickInfo: {
       music: 'Live Piano & Jazz',
@@ -588,7 +636,7 @@ export const BARS: Record<string, BarContent> = {
         { icon: 'calendar-clock', text: 'Reservations recommended' },
       ],
       dressCodeAndEntry: [
-        { icon: 'tuxedo', text: 'Business Formal' },
+        { icon: 'shirt-outline', text: 'Business Formal' },
         { icon: 'currency-usd', text: 'Premium pricing' },
         { icon: 'account-check', text: 'Member benefits available' },
       ],

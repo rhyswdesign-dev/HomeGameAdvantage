@@ -24,6 +24,11 @@ import { Item, Attempt } from '../../types/domain';
 import { colors, spacing, radii } from '../../theme/tokens';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
+import { CompletionAnimation } from '../animations/CompletionAnimation';
+import { QuickFeedbackAnimation } from '../animations/QuickFeedbackAnimation';
+import { useCompletionAnimation } from '../../hooks/useCompletionAnimation';
+import { useAudio } from '../../hooks/useAudio';
+import { useAnalyticsContext } from '../../context/AnalyticsContext';
 
 interface LessonEngineProps {
   lessonId: string;
@@ -39,6 +44,11 @@ export const LessonEngine: React.FC<LessonEngineProps> = ({ lessonId, onComplete
   const [error, setError] = useState<string | null>(null);
   const [showFeedback, setShowFeedback] = useState(false);
   const [lastResult, setLastResult] = useState<{ correct: boolean; msToAnswer: number } | null>(null);
+  const [showQuickFeedback, setShowQuickFeedback] = useState(false);
+  const [quickFeedbackType, setQuickFeedbackType] = useState<'correct' | 'incorrect' | 'streak'>('correct');
+  const completionAnimation = useCompletionAnimation();
+  const audio = useAudio();
+  const analytics = useAnalyticsContext();
   
   // Animation values
   const fadeAnim = useRef(new Animated.Value(0)).current;
@@ -142,6 +152,12 @@ export const LessonEngine: React.FC<LessonEngineProps> = ({ lessonId, onComplete
       }
 
       startSession(lessonId, lessonItems);
+      
+      // Track lesson start
+      analytics.track({
+        type: 'lesson.start',
+        lessonId
+      });
     } catch (err) {
       setError('Failed to load lesson');
       console.error('Lesson loading error:', err);
@@ -166,6 +182,31 @@ export const LessonEngine: React.FC<LessonEngineProps> = ({ lessonId, onComplete
     setLastResult(result);
     setShowFeedback(true);
     submitAnswer(attempt);
+
+    // Track item attempt
+    analytics.track({
+      type: 'item.attempted',
+      itemId: currentItem.id,
+      result: result.correct ? 'correct' : 'incorrect',
+      msToAnswer: result.msToAnswer,
+      exerciseType: currentItem.type
+    });
+
+    // Show quick feedback animation and play sound
+    setQuickFeedbackType(result.correct ? 'correct' : 'incorrect');
+    setShowQuickFeedback(true);
+    
+    // Play appropriate audio feedback
+    if (result.correct) {
+      audio.playCorrectAnswer();
+    } else {
+      audio.playIncorrectAnswer();
+    }
+    
+    // Hide quick feedback after delay
+    setTimeout(() => {
+      setShowQuickFeedback(false);
+    }, 1200);
 
     // Animate feedback
     Animated.sequence([
@@ -211,10 +252,42 @@ export const LessonEngine: React.FC<LessonEngineProps> = ({ lessonId, onComplete
   const completeLesson = () => {
     const results = endSession();
     
-    // Navigate to results screen (will be handled by parent component)
-    if (onComplete) {
-      onComplete(results);
+    // Calculate score and show appropriate animation
+    const score = Math.round((results.correctCount / results.totalCount) * 100);
+    const xpAwarded = 50 + (score > 90 ? 25 : 0); // Bonus XP for high scores
+    
+    // Track lesson completion
+    analytics.track({
+      type: 'lesson.complete',
+      lessonId,
+      durationMs: results.durationMs || 0,
+      itemsAttempted: results.totalCount,
+      correctCount: results.correctCount
+    });
+    
+    // Track XP awarded
+    if (xpAwarded > 0) {
+      analytics.track({
+        type: 'progress.xpAwarded',
+        amount: xpAwarded
+      });
     }
+    
+    completionAnimation.showLessonComplete(score, xpAwarded);
+    
+    // Play appropriate completion sound
+    if (score === 100) {
+      audio.playPerfectScore();
+    } else {
+      audio.playLessonComplete();
+    }
+    
+    // Handle completion after animation
+    setTimeout(() => {
+      if (onComplete) {
+        onComplete(results);
+      }
+    }, 3500); // Let animation play
   };
 
   const handleOutOfLives = () => {
@@ -483,6 +556,23 @@ export const LessonEngine: React.FC<LessonEngineProps> = ({ lessonId, onComplete
           </View>
         </Animated.View>
       )}
+
+      {/* Quick Feedback Animation */}
+      <QuickFeedbackAnimation
+        type={quickFeedbackType}
+        visible={showQuickFeedback}
+        onComplete={() => setShowQuickFeedback(false)}
+      />
+
+      {/* Completion Animation */}
+      <CompletionAnimation
+        type={completionAnimation.type}
+        visible={completionAnimation.isVisible}
+        onComplete={completionAnimation.hideAnimation}
+        message={completionAnimation.message}
+        xpAwarded={completionAnimation.xpAwarded}
+        score={completionAnimation.score}
+      />
     </View>
   );
 };
