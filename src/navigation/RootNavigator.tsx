@@ -12,6 +12,15 @@ import BrandScreen from '../screens/BrandScreen';
 import BarThemeScreen from '../screens/BarThemeScreen';
 import BarDetailsScreen from '../screens/BarDetailsScreen';
 import UntitledLoungeScreen from '../screens/bars/UntitledLoungeScreen';
+import TheAlchemistScreen from '../screens/bars/TheAlchemistScreen';
+import TheVelvetCurtainScreen from '../screens/bars/TheVelvetCurtainScreen';
+import TheGildedLilyScreen from '../screens/bars/TheGildedLilyScreen';
+import TheIronFlaskScreen from '../screens/bars/TheIronFlaskScreen';
+import TheVelvetNoteScreen from '../screens/bars/TheVelvetNoteScreen';
+import SkylineLoungeScreen from '../screens/bars/SkylineLoungeScreen';
+import TheTikiHutScreen from '../screens/bars/TheTikiHutScreen';
+import TheWineCellarScreen from '../screens/bars/TheWineCellarScreen';
+import TheHiddenFlaskScreen from '../screens/bars/TheHiddenFlaskScreen';
 import KingsCupScreen from '../screens/KingsCupScreen';
 import GameDetailsScreen from '../screens/GameDetailsScreen';
 import GarnishCompetitionScreen from '../screens/GarnishCompetitionScreen';
@@ -50,6 +59,7 @@ import FollowersListScreen from '../screens/FollowersListScreen';
 import GroupDiscoveryScreen from '../screens/GroupDiscoveryScreen';
 import GroupProfileScreen from '../screens/GroupProfileScreen';
 import FeaturedBarsScreen from '../screens/FeaturedBarsScreen';
+import MapsDemo from '../screens/MapsDemo';
 // Onboarding screens
 import WelcomeScreen from '../screens/onboarding/WelcomeScreen';
 import ConsentScreen from '../screens/onboarding/ConsentScreen';
@@ -76,6 +86,15 @@ export type RootStackParamList = {
   BarTheme: { theme: string };
   BarDetails: { name: string; subtitle: string; image: string; city?: string; address?: string };
   UntitledLounge: undefined;
+  TheAlchemist: undefined;
+  TheVelvetCurtain: undefined;
+  TheGildedLily: undefined;
+  TheIronFlask: undefined;
+  TheVelvetNote: undefined;
+  SkylineLounge: undefined;
+  TheTikiHut: undefined;
+  TheWineCellar: undefined;
+  TheHiddenFlask: undefined;
   KingsCup: undefined;
   GameDetails: { id: string };
   AccountSetup: undefined;
@@ -114,6 +133,7 @@ export type RootStackParamList = {
   GroupDiscovery: undefined;
   GroupProfile: { groupId: string };
   FeaturedBar: { barId: string };
+  MapsDemo: undefined;
   // Onboarding screens
   Welcome: undefined;
   Consent: undefined;
@@ -171,6 +191,87 @@ export default function RootNavigator() {
             <Ionicons name="bookmark-outline" size={24} color={colors.headerText} />
           </Pressable>
         ),
+      })} />
+      <Stack.Screen name="TheAlchemist" component={TheAlchemistScreen} options={({ navigation }) => ({ 
+        headerShown: true, 
+        title: 'The Alchemist',
+        headerStyle: components.header,
+        headerTintColor: colors.headerText,
+        headerTitleStyle: components.headerText,
+        headerShadowVisible: false,
+        headerLeft: () => null,
+      })} />
+      <Stack.Screen name="TheVelvetCurtain" component={TheVelvetCurtainScreen} options={({ navigation }) => ({ 
+        headerShown: true, 
+        title: 'The Velvet Curtain',
+        headerStyle: components.header,
+        headerTintColor: colors.headerText,
+        headerTitleStyle: components.headerText,
+        headerShadowVisible: false,
+        headerLeft: () => null,
+      })} />
+      <Stack.Screen name="TheGildedLily" component={TheGildedLilyScreen} options={({ navigation }) => ({ 
+        headerShown: true, 
+        title: 'The Gilded Lily',
+        headerStyle: components.header,
+        headerTintColor: colors.headerText,
+        headerTitleStyle: components.headerText,
+        headerShadowVisible: false,
+        headerLeft: () => null,
+      })} />
+      <Stack.Screen name="TheIronFlask" component={TheIronFlaskScreen} options={({ navigation }) => ({ 
+        headerShown: true, 
+        title: 'The Iron Flask',
+        headerStyle: components.header,
+        headerTintColor: colors.headerText,
+        headerTitleStyle: components.headerText,
+        headerShadowVisible: false,
+        headerLeft: () => null,
+      })} />
+      <Stack.Screen name="TheVelvetNote" component={TheVelvetNoteScreen} options={({ navigation }) => ({ 
+        headerShown: true, 
+        title: 'The Velvet Note',
+        headerStyle: components.header,
+        headerTintColor: colors.headerText,
+        headerTitleStyle: components.headerText,
+        headerShadowVisible: false,
+        headerLeft: () => null,
+      })} />
+      <Stack.Screen name="SkylineLounge" component={SkylineLoungeScreen} options={({ navigation }) => ({ 
+        headerShown: true, 
+        title: 'Skyline Lounge',
+        headerStyle: components.header,
+        headerTintColor: colors.headerText,
+        headerTitleStyle: components.headerText,
+        headerShadowVisible: false,
+        headerLeft: () => null,
+      })} />
+      <Stack.Screen name="TheTikiHut" component={TheTikiHutScreen} options={({ navigation }) => ({ 
+        headerShown: true, 
+        title: 'The Tiki Hut',
+        headerStyle: components.header,
+        headerTintColor: colors.headerText,
+        headerTitleStyle: components.headerText,
+        headerShadowVisible: false,
+        headerLeft: () => null,
+      })} />
+      <Stack.Screen name="TheWineCellar" component={TheWineCellarScreen} options={({ navigation }) => ({ 
+        headerShown: true, 
+        title: 'The Wine Cellar',
+        headerStyle: components.header,
+        headerTintColor: colors.headerText,
+        headerTitleStyle: components.headerText,
+        headerShadowVisible: false,
+        headerLeft: () => null,
+      })} />
+      <Stack.Screen name="TheHiddenFlask" component={TheHiddenFlaskScreen} options={({ navigation }) => ({ 
+        headerShown: true, 
+        title: 'The Hidden Flask',
+        headerStyle: components.header,
+        headerTintColor: colors.headerText,
+        headerTitleStyle: components.headerText,
+        headerShadowVisible: false,
+        headerLeft: () => null,
       })} />
       <Stack.Screen name="KingsCup" component={KingsCupScreen} options={({ navigation }) => ({ 
         headerShown: true, 
@@ -261,6 +362,7 @@ export default function RootNavigator() {
     <Stack.Screen name="GroupDiscovery" component={GroupDiscoveryScreen} options={{ headerShown: true, title: 'Discover Groups' }} />
     <Stack.Screen name="GroupProfile" component={GroupProfileScreen} options={{ headerShown: true, title: 'Group' }} />
     <Stack.Screen name="FeaturedBar" component={FeaturedBarsScreen} options={{ headerShown: true, title: 'Featured Bar' }} />
+    <Stack.Screen name="MapsDemo" component={MapsDemo} options={{ headerShown: true, title: 'Maps Demo' }} />
     {/* Onboarding screens */}
     <Stack.Screen name="Welcome" component={WelcomeScreen} options={{ headerShown: false }} />
     <Stack.Screen name="Consent" component={ConsentScreen} options={{ headerShown: false }} />

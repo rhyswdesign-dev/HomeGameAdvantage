@@ -26,6 +26,7 @@ import Section from '../../components/ui/Section';
 import Avatar from '../../components/ui/Avatar';
 import Icon from '../../components/ui/Icon';
 import BarVibesSection from '../../components/bar/BarVibesSection';
+import { LocationMap } from '../../components/ui';
 
 const { width } = Dimensions.get('window');
 
@@ -188,6 +189,17 @@ const UntitledLoungeScreen: React.FC = () => {
                 </View>
               )}
             </View>
+          </Section>
+        )}
+
+        {/* Location */}
+        {bar.location && (
+          <Section title="Location & Contact">
+            <LocationMap
+              location={bar.location}
+              height={220}
+              onMarkerPress={(location) => console.log('Bar location pressed:', location.name)}
+            />
           </Section>
         )}
 

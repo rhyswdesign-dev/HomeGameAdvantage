@@ -16,6 +16,7 @@ import { SearchableItem, FilterOptions } from '../services/searchService';
 import SearchModal from '../components/SearchModal';
 import FilterDrawer from '../components/FilterDrawer';
 import CreateRecipeModal from '../components/CreateRecipeModal';
+import { useScreenTracking } from '../context/AnalyticsContext';
 
 const chips: Array<{ key: string; label: string }> = [
   { key: 'Home', label: 'Home' },
@@ -121,6 +122,9 @@ export default function FeaturedScreen() {
   const { toggleSavedCocktail, isCocktailSaved } = useSavedItems();
   const { toggleFollow, isFollowing } = useSocialData();
   const scrollViewRef = useRef<ScrollView>(null);
+  
+  // Track screen view
+  useScreenTracking('FeaturedScreen');
 
   // Modal states
   const [searchModalVisible, setSearchModalVisible] = useState(false);

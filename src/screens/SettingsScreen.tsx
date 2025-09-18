@@ -38,6 +38,10 @@ export default function SettingsScreen() {
     nav.navigate('HelpSupport');
   };
 
+  const handleMapsDemo = () => {
+    nav.navigate('MapsDemo');
+  };
+
   const handleAccountInfo = () => {
     Alert.alert(
       'Account Information',
@@ -214,6 +218,18 @@ export default function SettingsScreen() {
             <View style={styles.settingItemLeft}>
               <Ionicons name="help-circle-outline" size={24} color={colors.text} />
               <Text style={styles.settingItemText}>Help & Support</Text>
+            </View>
+            <Ionicons name="chevron-forward" size={20} color={colors.subtext} />
+          </TouchableOpacity>
+
+          <TouchableOpacity 
+            style={styles.settingItem}
+            onPress={handleMapsDemo}
+            activeOpacity={0.7}
+          >
+            <View style={styles.settingItemLeft}>
+              <Ionicons name="map-outline" size={24} color={colors.text} />
+              <Text style={styles.settingItemText}>Maps Demo</Text>
             </View>
             <Ionicons name="chevron-forward" size={20} color={colors.subtext} />
           </TouchableOpacity>

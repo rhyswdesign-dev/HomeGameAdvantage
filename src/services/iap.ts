@@ -148,33 +148,46 @@ export class StubIAPService implements IAPService {
  * Real IAP Service (platform-specific implementation)
  */
 export class PlatformIAPService implements IAPService {
+  private isInitialized = false;
+
   async initialize(): Promise<void> {
     try {
-      // TODO: Initialize platform-specific IAP libraries
-      // 
-      // For iOS:
-      // import { initConnection } from 'react-native-iap';
-      // await initConnection();
-      //
-      // For Android:
-      // await initConnection();
+      const { initConnection } = require('react-native-iap');
+      const result = await initConnection();
       
-      console.log('Platform IAP Service would initialize here');
+      this.isInitialized = result;
+      console.log('Platform IAP Service initialized:', result);
     } catch (error) {
       console.error('IAP initialization failed:', error);
+      this.isInitialized = false;
       throw error;
     }
   }
 
   async getProducts(productIds: string[]): Promise<IAPProduct[]> {
+    if (!this.isInitialized) {
+      throw new Error('IAP not initialized');
+    }
+
     try {
-      // TODO: Get products from platform store
-      // 
-      // import { getProducts } from 'react-native-iap';
-      // const products = await getProducts({ skus: productIds });
-      // return products.map(mapToIAPProduct);
+      const { getProducts, getSubscriptions } = require('react-native-iap');
       
-      throw new Error('Platform IAP not implemented');
+      const [products, subscriptions] = await Promise.all([
+        getProducts({ skus: productIds }),
+        getSubscriptions({ skus: productIds })
+      ]);
+      
+      const allProducts = [...products, ...subscriptions];
+      
+      return allProducts.map(product => ({
+        id: product.productId,
+        title: product.title,
+        description: product.description,
+        price: product.price,
+        localizedPrice: product.localizedPrice,
+        currency: product.currency,
+        type: product.type === 'iap' ? 'consumable' : 'subscription'
+      }));
     } catch (error) {
       console.error('Get products failed:', error);
       throw error;
@@ -182,14 +195,29 @@ export class PlatformIAPService implements IAPService {
   }
 
   async purchaseProduct(productId: string): Promise<IAPPurchase> {
+    if (!this.isInitialized) {
+      throw new Error('IAP not initialized');
+    }
+
     try {
-      // TODO: Initiate platform purchase
-      // 
-      // import { requestPurchase } from 'react-native-iap';
-      // const purchase = await requestPurchase({ sku: productId });
-      // return mapToIAPPurchase(purchase);
+      const { requestPurchase, requestSubscription } = require('react-native-iap');
       
-      throw new Error('Platform IAP not implemented');
+      // Try consumable purchase first
+      let purchase;
+      try {
+        purchase = await requestPurchase({ sku: productId, andDangerouslyFinishTransactionAutomaticallyIOS: false });
+      } catch {
+        // If consumable fails, try subscription
+        purchase = await requestSubscription({ sku: productId });
+      }
+      
+      return {
+        transactionId: purchase.transactionId,
+        productId: purchase.productId,
+        purchaseTime: purchase.purchaseTime || Date.now(),
+        purchaseState: 'purchased',
+        receipt: purchase.transactionReceipt
+      };
     } catch (error) {
       console.error('Purchase failed:', error);
       throw error;
@@ -197,14 +225,21 @@ export class PlatformIAPService implements IAPService {
   }
 
   async restorePurchases(): Promise<IAPPurchase[]> {
+    if (!this.isInitialized) {
+      throw new Error('IAP not initialized');
+    }
+
     try {
-      // TODO: Restore platform purchases
-      // 
-      // import { getAvailablePurchases } from 'react-native-iap';
-      // const purchases = await getAvailablePurchases();
-      // return purchases.map(mapToIAPPurchase);
+      const { getAvailablePurchases } = require('react-native-iap');
+      const purchases = await getAvailablePurchases();
       
-      throw new Error('Platform IAP not implemented');
+      return purchases.map(purchase => ({
+        transactionId: purchase.transactionId,
+        productId: purchase.productId,
+        purchaseTime: purchase.purchaseTime || Date.now(),
+        purchaseState: 'purchased',
+        receipt: purchase.transactionReceipt
+      }));
     } catch (error) {
       console.error('Restore purchases failed:', error);
       throw error;
@@ -212,13 +247,20 @@ export class PlatformIAPService implements IAPService {
   }
 
   async finishTransaction(transactionId: string): Promise<void> {
+    if (!this.isInitialized) {
+      throw new Error('IAP not initialized');
+    }
+
     try {
-      // TODO: Finish platform transaction
-      // 
-      // import { finishTransaction } from 'react-native-iap';
-      // await finishTransaction({ purchase: { transactionId } });
+      const { finishTransaction, isIosStorekit2 } = require('react-native-iap');
       
-      console.log('Platform transaction finish not implemented');
+      if (isIosStorekit2()) {
+        await finishTransaction({ purchase: { transactionId }, isConsumable: true });
+      } else {
+        await finishTransaction({ purchase: { transactionId } });
+      }
+      
+      console.log('Transaction finished:', transactionId);
     } catch (error) {
       console.error('Finish transaction failed:', error);
       throw error;
@@ -227,13 +269,10 @@ export class PlatformIAPService implements IAPService {
 
   async isAvailable(): Promise<boolean> {
     try {
-      // TODO: Check platform IAP availability
-      // 
-      // import { initConnection } from 'react-native-iap';
-      // await initConnection();
-      // return true;
-      
-      return false; // Not implemented yet
+      if (!this.isInitialized) {
+        await this.initialize();
+      }
+      return this.isInitialized;
     } catch (error) {
       console.error('IAP availability check failed:', error);
       return false;

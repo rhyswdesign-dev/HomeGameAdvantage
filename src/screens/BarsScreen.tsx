@@ -24,6 +24,7 @@ import FilterDrawer from '../components/FilterDrawer';
 import CreateRecipeModal from '../components/CreateRecipeModal';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '../navigation/RootNavigator';
+import { BARS as REAL_BARS } from '../data/bars';
 
 type Nav = NativeStackNavigationProp<RootStackParamList>;
 const { width } = Dimensions.get('window');
@@ -352,6 +353,40 @@ export default function BarsScreen() {
     // Could navigate to the entry or competitions section
   };
 
+  const handleBarPress = (barId: string) => {
+    // Map bar IDs to their individual screens
+    const barScreenMap: Record<string, keyof RootStackParamList> = {
+      'the_alchemist': 'TheAlchemist',
+      'the_velvet_curtain': 'TheVelvetCurtain',
+      'the_gilded_lily': 'TheGildedLily',
+      'the_iron_flask': 'TheIronFlask',
+      'the_velvet_note': 'TheVelvetNote',
+      'skyline_lounge': 'SkylineLounge',
+      'the_tiki_hut': 'TheTikiHut',
+      'the_wine_cellar': 'TheWineCellar',
+      'the_hidden_flask': 'TheHiddenFlask',
+      'untitled_champagne_lounge': 'UntitledLounge',
+    };
+
+    const screenName = barScreenMap[barId];
+    
+    if (screenName) {
+      navigation.navigate(screenName);
+    } else {
+      // Fallback to generic BarDetails for bars without individual screens
+      const bar = REAL_BARS[barId];
+      if (bar) {
+        navigation.navigate('BarDetails', {
+          name: bar.name,
+          subtitle: bar.quickInfo?.vibe || bar.hero?.location || 'Bar',
+          image: bar.hero.image,
+          city: bar.location?.city,
+          address: bar.location?.address
+        });
+      }
+    }
+  };
+
   const goto = (key: string) => {
     setActive(key);
     try { 
@@ -394,7 +429,7 @@ export default function BarsScreen() {
       item={item}
       onPress={() => {
         if (item.id) {
-          navigation.navigate('FeaturedBar', { barId: item.id });
+          handleBarPress(item.id);
         } else {
           navigation.navigate('BarDetails', {
             name: item.name,
@@ -461,9 +496,7 @@ export default function BarsScreen() {
 
             {/* bar of the month: 3-image carousel */}
             <HeroCarousel
-              onOpen={() =>
-                navigation.navigate('FeaturedBar', { barId: BOM.id })
-              }
+              onOpen={() => handleBarPress(BOM.id)}
             />
 
             {/* Featured Bar Picks (with Velvet Curtain spotlight in gold) */}
@@ -475,7 +508,7 @@ export default function BarsScreen() {
                   item={b}
                   onPress={() => {
                     if (b.id) {
-                      navigation.navigate('FeaturedBar', { barId: b.id });
+                      handleBarPress(b.id);
                     } else {
                       navigation.navigate('BarDetails', {
                         name: b.name,

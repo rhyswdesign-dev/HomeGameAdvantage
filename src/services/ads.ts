@@ -101,25 +101,25 @@ export class StubAdService implements AdService {
  */
 export class AdMobService implements AdService {
   private initialized = false;
+  private loadedAds = new Map<string, any>();
 
   async initialize(config: { appId: string; testDeviceIds?: string[] }): Promise<void> {
     try {
-      // TODO: Initialize AdMob
-      // 
-      // import mobileAds from '@react-native-google-mobile-ads/googlemobileads';
-      // 
-      // await mobileAds().initialize();
-      // 
-      // if (config.testDeviceIds) {
-      //   await mobileAds().setRequestConfiguration({
-      //     testDeviceIdentifiers: config.testDeviceIds,
-      //   });
-      // }
+      const mobileAds = require('react-native-google-mobile-ads').default;
       
-      console.log('AdMob would initialize with config:', config);
+      await mobileAds().initialize();
+      
+      if (config.testDeviceIds) {
+        await mobileAds().setRequestConfiguration({
+          testDeviceIdentifiers: config.testDeviceIds,
+        });
+      }
+      
+      console.log('AdMob initialized successfully');
       this.initialized = true;
     } catch (error) {
       console.error('AdMob initialization failed:', error);
+      this.initialized = false;
       throw error;
     }
   }
@@ -183,13 +183,26 @@ export class AdMobService implements AdService {
   }
 
   isRewardedAdLoaded(adUnitId: string): boolean {
-    // TODO: Check if ad is loaded
-    return false;
+    return this.loadedAds.has(adUnitId);
   }
 
   async preloadAds(): Promise<void> {
-    // TODO: Preload common ad units
-    console.log('AdMob preload not implemented');
+    if (!this.initialized) {
+      console.warn('AdMob not initialized, skipping preload');
+      return;
+    }
+
+    const adUnits = Object.values(AD_UNITS);
+    
+    for (const adUnit of adUnits) {
+      try {
+        await this.loadRewardedAd(adUnit);
+      } catch (error) {
+        console.warn(`Failed to preload ad: ${adUnit}`, error);
+      }
+    }
+    
+    console.log('AdMob ads preloaded');
   }
 
   async isAvailable(): Promise<boolean> {
@@ -294,9 +307,15 @@ export function setAdService(service: AdService): void {
  * Ad unit IDs configuration
  */
 export const AD_UNITS = {
-  LIFE_REWARD: __DEV__ ? 'ca-app-pub-3940256099942544/5224354917' : 'prod_life_reward_id',
-  XP_BONUS: __DEV__ ? 'ca-app-pub-3940256099942544/5224354917' : 'prod_xp_bonus_id',
-  HINT_UNLOCK: __DEV__ ? 'ca-app-pub-3940256099942544/5224354917' : 'prod_hint_unlock_id'
+  LIFE_REWARD: __DEV__ 
+    ? 'ca-app-pub-3940256099942544/5224354917' 
+    : (process.env.EXPO_PUBLIC_ADMOB_LIFE_REWARD_ID || 'ca-app-pub-3940256099942544/5224354917'),
+  XP_BONUS: __DEV__ 
+    ? 'ca-app-pub-3940256099942544/5224354917' 
+    : (process.env.EXPO_PUBLIC_ADMOB_XP_BONUS_ID || 'ca-app-pub-3940256099942544/5224354917'),
+  HINT_UNLOCK: __DEV__ 
+    ? 'ca-app-pub-3940256099942544/5224354917' 
+    : (process.env.EXPO_PUBLIC_ADMOB_XP_BONUS_ID || 'ca-app-pub-3940256099942544/5224354917')
 } as const;
 
 /**
@@ -306,7 +325,9 @@ export async function initializeAds(): Promise<void> {
   const service = getAdService();
   
   await service.initialize({
-    appId: __DEV__ ? 'ca-app-pub-3940256099942544~3347511713' : 'prod_app_id',
+    appId: __DEV__ 
+      ? 'ca-app-pub-3940256099942544~3347511713' 
+      : (process.env.EXPO_PUBLIC_ADMOB_APP_ID || 'ca-app-pub-3940256099942544~3347511713'),
     testDeviceIds: __DEV__ ? ['DEVICE_ID_HERE'] : undefined
   });
   

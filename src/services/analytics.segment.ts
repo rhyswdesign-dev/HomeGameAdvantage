@@ -13,19 +13,17 @@ export class SegmentAdapter implements AnalyticsSink {
     this.config = cfg;
     
     try {
-      // TODO: Uncomment when Segment is available
-      // const { createClient } = require('@segment/analytics-react-native');
-      // 
-      // this.client = createClient({
-      //   writeKey: cfg.writeKey,
-      //   debug: __DEV__,
-      //   trackAppLifecycleEvents: false,
-      // });
-      //
-      // console.log('Segment initialized successfully');
+      const { createClient } = require('@segment/analytics-react-native');
       
-      // For now, just log
-      console.log('Segment would initialize with writeKey:', cfg.writeKey);
+      this.client = createClient({
+        writeKey: cfg.writeKey,
+        debug: __DEV__,
+        trackAppLifecycleEvents: false,
+        flushAt: 5, // Flush after 5 events
+        flushInterval: 30000, // Flush every 30 seconds
+      });
+
+      console.log('Segment initialized successfully');
       
     } catch (error) {
       console.warn('Segment initialization failed - falling back to console logging:', error);
@@ -45,9 +43,7 @@ export class SegmentAdapter implements AnalyticsSink {
       const properties = { ...ev };
       delete (properties as any).type;
 
-      // TODO: Uncomment when Segment is available
-      // this.client.track(ev.type, properties);
-      
+      this.client.track(ev.type, properties);
       console.log('[Segment]', ev.type, properties);
       
     } catch (error) {
@@ -58,8 +54,7 @@ export class SegmentAdapter implements AnalyticsSink {
   async flush(): Promise<void> {
     if (this.client?.flush) {
       try {
-        // TODO: Uncomment when Segment is available
-        // await this.client.flush();
+        await this.client.flush();
         console.log('Segment flush completed');
       } catch (error) {
         console.error('Segment flush error:', error);
@@ -72,8 +67,7 @@ export class SegmentAdapter implements AnalyticsSink {
     if (!this.client) return;
 
     try {
-      // TODO: Uncomment when Segment is available
-      // this.client.identify(userId, traits);
+      this.client.identify(userId, traits);
       console.log('[Segment] Identify:', userId, traits);
     } catch (error) {
       console.error('Segment identify error:', error);
@@ -85,8 +79,7 @@ export class SegmentAdapter implements AnalyticsSink {
     if (!this.client) return;
 
     try {
-      // TODO: Uncomment when Segment is available
-      // this.client.screen(name, properties);
+      this.client.screen(name, properties);
       console.log('[Segment] Screen:', name, properties);
     } catch (error) {
       console.error('Segment screen error:', error);
@@ -98,8 +91,7 @@ export class SegmentAdapter implements AnalyticsSink {
     if (!this.client) return;
 
     try {
-      // TODO: Uncomment when Segment is available
-      // this.client.group(groupId, traits);
+      this.client.group(groupId, traits);
       console.log('[Segment] Group:', groupId, traits);
     } catch (error) {
       console.error('Segment group error:', error);
