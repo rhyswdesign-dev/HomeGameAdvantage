@@ -5,7 +5,7 @@
 
 import { ContentRepository } from '../interfaces';
 import { Module, Lesson, Item } from '../../types/domain';
-import { seedModules, seedLessons, seedItems } from './seedData';
+import curriculumData from '../../../curriculum-data.json';
 
 export class MemoryContentRepository implements ContentRepository {
   private modules: Map<string, Module> = new Map();
@@ -17,10 +17,52 @@ export class MemoryContentRepository implements ContentRepository {
   }
 
   private initializeData(): void {
-    // Load seed data
-    seedModules.forEach(module => this.modules.set(module.id, module));
-    seedLessons.forEach(lesson => this.lessons.set(lesson.id, lesson));
-    seedItems.forEach(item => this.items.set(item.id, item));
+    // Load data from curriculum JSON
+    console.log('Initializing content repository with curriculum data:', curriculumData);
+    curriculumData.modules.forEach(module => {
+      const moduleData: Module = {
+        id: module.id,
+        title: module.title,
+        chapterIndex: module.chapterIndex,
+        description: module.title, // Using title as description for now
+        prerequisiteIds: [],
+        estimatedMinutes: module.estimatedMinutes,
+        tags: module.tags
+      };
+      this.modules.set(module.id, moduleData);
+    });
+
+    curriculumData.lessons.forEach(lesson => {
+      const lessonData: Lesson = {
+        id: lesson.id,
+        moduleId: lesson.moduleId,
+        title: lesson.title,
+        itemIds: lesson.itemIds,
+        estimatedMinutes: lesson.estimatedMinutes,
+        prerequisiteIds: lesson.prereqs || []
+      };
+      this.lessons.set(lesson.id, lessonData);
+    });
+
+    curriculumData.items.forEach(item => {
+      const itemData: Item = {
+        id: item.id,
+        type: item.type as any,
+        prompt: item.prompt,
+        options: item.options || [],
+        answerIndex: item.answerIndex,
+        answerText: item.answerText,
+        acceptableAnswers: item.acceptableAnswers,
+        correct: item.correct,
+        roleplay: item.roleplay,
+        tags: item.tags,
+        conceptId: item.conceptId,
+        difficulty: item.difficulty,
+        xpAward: item.xpAward,
+        reviewWeight: item.reviewWeight
+      };
+      this.items.set(item.id, itemData);
+    });
   }
 
   async getModule(id: string): Promise<Module | null> {
@@ -28,6 +70,7 @@ export class MemoryContentRepository implements ContentRepository {
   }
 
   async getLesson(id: string): Promise<Lesson | null> {
+    console.log('Getting lesson:', id, 'Available lessons:', Array.from(this.lessons.keys()));
     return this.lessons.get(id) || null;
   }
 
@@ -37,12 +80,23 @@ export class MemoryContentRepository implements ContentRepository {
 
   async getItemsForLesson(lessonId: string): Promise<Item[]> {
     const lesson = await this.getLesson(lessonId);
-    if (!lesson) return [];
+    if (!lesson) {
+      console.log('No lesson found for:', lessonId);
+      return [];
+    }
 
+    console.log('Lesson found:', lesson, 'Looking for items:', lesson.itemIds);
+    console.log('Available items:', Array.from(this.items.keys()));
+    
     const items = lesson.itemIds
-      .map(id => this.items.get(id))
+      .map(id => {
+        const item = this.items.get(id);
+        console.log('Looking for item:', id, 'Found:', !!item);
+        return item;
+      })
       .filter((item): item is Item => item !== undefined);
 
+    console.log('Final items for lesson:', items);
     return items;
   }
 

@@ -32,30 +32,9 @@ export default function SurveyResultsScreen({ navigation, route }: SurveyResults
 
   const handleStartLearning = () => {
     if (placement) {
-      // Navigate to the first lesson based on placement
-      let lessonId = 'lesson-glassware'; // Default beginner lesson
-      
-      if (placement.level === 'intermediate') {
-        lessonId = 'lesson-shake-stir';
-      } else if (placement.level === 'advanced') {
-        lessonId = 'lesson-gin-basics'; // Start with spirit knowledge
-      }
-      
-      // Check if user selected specific spirits
-      if (placement.spirits.includes('gin')) {
-        lessonId = 'lesson-gin-basics';
-      }
-      
-      navigation.navigate('LessonEngine', { 
-        lessonId,
-        moduleId: placement.startModuleId,
-        isFirstLesson: true
-      });
+      // Navigate to the lessons tree where users can see their recommended starting point
+      navigation.navigate('Lessons');
     }
-  };
-
-  const handleRetakeSurvey = () => {
-    navigation.navigate('Survey');
   };
 
   if (!placement) {
@@ -150,15 +129,12 @@ export default function SurveyResultsScreen({ navigation, route }: SurveyResults
           style={styles.startButton}
           onPress={handleStartLearning}
         >
-          <Text style={styles.startButtonText}>Start Learning</Text>
+          <Text style={styles.startButtonText}>View Lessons Tree</Text>
         </Pressable>
         
-        <Pressable
-          style={styles.retakeButton}
-          onPress={handleRetakeSurvey}
-        >
-          <Text style={styles.retakeButtonText}>Retake Survey</Text>
-        </Pressable>
+        <Text style={styles.nextStepsText}>
+          Your personalized learning path is ready! Head to the lessons tree to start your bartending journey.
+        </Text>
       </View>
     </ScrollView>
   );
@@ -321,13 +297,12 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: '600',
   },
-  retakeButton: {
-    padding: 16,
-    alignItems: 'center',
-  },
-  retakeButtonText: {
-    color: '#666',
+  nextStepsText: {
     fontSize: 16,
+    color: '#666',
+    textAlign: 'center',
+    lineHeight: 22,
+    paddingHorizontal: 16,
   },
   loadingText: {
     fontSize: 18,

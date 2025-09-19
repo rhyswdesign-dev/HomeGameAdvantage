@@ -92,8 +92,8 @@
       "moduleId": "ch1-basics",
       "title": "Great Bartender Traits",
       "types": ["mcq", "checkbox", "short", "roleplay"],
-      "itemIds": ["item-001", "item-002", "item-003", "item-004", "item-005", "item-006", "item-007"],
-      "estimatedMinutes": 4,
+      "itemIds": ["item-001", "item-002", "item-003", "item-004", "item-005", "item-006", "item-007", "item-008", "item-009", "item-010"],
+      "estimatedMinutes": 6,
       "prereqs": []
     },
     {
@@ -293,6 +293,69 @@
       },
       "tags": ["confidence", "hosting", "roleplay", "mindset"],
       "conceptId": "bartender.confidence",
+      "difficulty": 0.4,
+      "xpAward": 15,
+      "reviewWeight": 0.6
+    },
+    {
+      "id": "item-006",
+      "type": "mcq",
+      "prompt": "What's the most important thing when learning bartending?",
+      "options": ["Perfect every drink", "Focus on fundamentals first", "Buy expensive equipment", "Learn 100 recipes"],
+      "answerIndex": 1,
+      "tags": ["fundamentals", "learning", "mindset"],
+      "conceptId": "learning.fundamentals",
+      "difficulty": 0.2,
+      "xpAward": 10,
+      "reviewWeight": 0.8
+    },
+    {
+      "id": "item-007",
+      "type": "checkbox",
+      "prompt": "Which are core bartending fundamentals? (Select all that apply)",
+      "options": ["Proper measuring", "Clean workspace", "Understanding spirits", "Fancy flair tricks", "Consistent technique", "Speed over accuracy"],
+      "correct": ["Proper measuring", "Clean workspace", "Understanding spirits", "Consistent technique"],
+      "tags": ["fundamentals", "skills", "basics"],
+      "conceptId": "bartending.core.skills",
+      "difficulty": 0.3,
+      "xpAward": 15,
+      "reviewWeight": 0.9
+    },
+    {
+      "id": "item-008",
+      "type": "short",
+      "prompt": "In bartending, accuracy is more important than ______ when you're learning.",
+      "answerText": "speed",
+      "acceptableAnswers": ["speed", "fast", "quick", "rushing"],
+      "tags": ["fundamentals", "accuracy", "learning"],
+      "conceptId": "accuracy.over.speed",
+      "difficulty": 0.2,
+      "xpAward": 10,
+      "reviewWeight": 0.7
+    },
+    {
+      "id": "item-009",
+      "type": "mcq",
+      "prompt": "What makes a home bar different from a professional bar?",
+      "options": ["Home bars are less important", "Home bars focus on fun and creativity", "Home bars don't need good technique", "Home bars only serve wine"],
+      "answerIndex": 1,
+      "tags": ["homebar", "philosophy", "creativity"],
+      "conceptId": "homebar.difference",
+      "difficulty": 0.3,
+      "xpAward": 12,
+      "reviewWeight": 0.8
+    },
+    {
+      "id": "item-010",
+      "type": "roleplay",
+      "prompt": "A guest asks for a drink you've never made. What's your confident response?",
+      "roleplay": {
+        "context": "Guest requests an unfamiliar cocktail at your home bar",
+        "task": "Handle the situation with confidence",
+        "choices": ["'I don't know that one, sorry'", "'Let me look that up and make it perfectly for you'", "'I'll make you something better instead'", "'I'm not a real bartender, so...'"]
+      },
+      "tags": ["confidence", "problem-solving", "guest-service"],
+      "conceptId": "confident.problem.solving",
       "difficulty": 0.4,
       "xpAward": 15,
       "reviewWeight": 0.6

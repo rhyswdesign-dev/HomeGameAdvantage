@@ -90,10 +90,10 @@
     {
       "id": "lesson-ch1-001",
       "moduleId": "ch1-basics",
-      "title": "Great Bartender Traits",
-      "types": ["mcq", "checkbox", "short", "roleplay"],
-      "itemIds": ["item-001", "item-002", "item-003", "item-004", "item-005", "item-006", "item-007"],
-      "estimatedMinutes": 4,
+      "title": "Lesson 1: Bartending Basics",
+      "types": ["mcq", "order", "match", "short", "checkbox"],
+      "itemIds": ["q1","q2","q3","q4","q5","q6","q7","q8","q9","q10"],
+      "estimatedMinutes": 5,
       "prereqs": []
     },
     {
@@ -235,91 +235,118 @@
 
   "items": [
     {
-      "id": "item-001",
+      "id": "q1",
       "type": "mcq",
-      "prompt": "Which trait separates great bartenders from good ones?",
-      "options": ["Confidence", "Loudness", "Speed over precision", "Expensive tools"],
-      "answerIndex": 0,
-      "tags": ["traits", "mindset", "confidence"],
-      "conceptId": "bartender.confidence",
-      "difficulty": 0.2,
-      "xpAward": 10,
-      "reviewWeight": 0.8
+      "prompt": "Which of these traits are key for a great bartender?",
+      "options": ["Confidence", "Cleanliness", "Precision + Speed", "Curiosity", "All of the above"],
+      "answerIndex": 4,
+      "tags": ["traits"],
+      "conceptId": "traits.core",
+      "difficulty": 0,
+      "xpAward": 10
     },
     {
-      "id": "item-002",
+      "id": "q2",
+      "type": "order",
+      "prompt": "Put the tasting steps in the correct order.",
+      "orderTarget": ["Smell", "Sip", "Break it down", "Adjust"],
+      "tags": ["tasting"],
+      "conceptId": "tasting.4step",
+      "difficulty": 0,
+      "xpAward": 10
+    },
+    {
+      "id": "q3",
+      "type": "match",
+      "prompt": "Match the citrus to its flavor vibe.",
+      "pairs": [
+        {"left":"Lemon","right":"Bright, floral"},
+        {"left":"Lime","right":"Punchy, tart"},
+        {"left":"Orange","right":"Soft, juicy"}
+      ],
+      "tags": ["citrus"],
+      "conceptId": "flavor.citrus",
+      "difficulty": 0,
+      "xpAward": 15
+    },
+    {
+      "id": "q4",
+      "type": "short",
+      "prompt": "What should you never shake?",
+      "answerText": "fizzy drinks",
+      "acceptableAnswers": ["fizzy drinks","soda","sparkling","carbonated"],
+      "tags": ["safety"],
+      "conceptId": "safety.noshakefizz",
+      "difficulty": 0,
+      "xpAward": 10
+    },
+    {
+      "id": "q5",
       "type": "checkbox",
-      "prompt": "Select ALL the traits of a great bartender:",
-      "options": ["Confidence", "Cleanliness", "Precision + Speed", "Curiosity", "Showing off", "Rushing"],
-      "correct": ["Confidence", "Cleanliness", "Precision + Speed", "Curiosity"],
-      "tags": ["traits", "fundamentals", "checklist"],
-      "conceptId": "bartender.core.traits",
-      "difficulty": 0.3,
-      "xpAward": 15,
-      "reviewWeight": 0.9
+      "prompt": "Select the 5 core spirits every home bar should start with.",
+      "options": ["Vodka","Gin","Rum","Tequila","Whiskey","Brandy","Liqueurs"],
+      "correct": ["Vodka","Gin","Rum","Tequila","Whiskey"],
+      "tags": ["spirits"],
+      "conceptId": "spirits.core5",
+      "difficulty": 0,
+      "xpAward": 10
     },
     {
-      "id": "item-003",
-      "type": "short",
-      "prompt": "Complete this HomeGame mantra: 'Own your ____'",
-      "answerText": "space",
-      "acceptableAnswers": ["space", "bar", "station", "area"],
-      "tags": ["mindset", "homegame", "mantra"],
-      "conceptId": "homegame.own.space",
-      "difficulty": 0.2,
-      "xpAward": 10,
-      "reviewWeight": 0.7
-    },
-    {
-      "id": "item-004",
+      "id": "q6",
       "type": "mcq",
-      "prompt": "The HomeGame mentality is built on four pillars. Which describes them best?",
-      "options": ["Fast and flashy", "Precision, playful, confident, creative", "Expensive and exclusive", "Traditional and rigid"],
+      "prompt": "Which tool measures accuracy and consistency?",
+      "options": ["Shaker","Jigger","Bar Spoon","Muddler"],
       "answerIndex": 1,
-      "tags": ["homegame", "mindset", "pillars"],
-      "conceptId": "homegame.four.pillars",
-      "difficulty": 0.3,
-      "xpAward": 12,
-      "reviewWeight": 0.8
+      "tags": ["tools"],
+      "conceptId": "tools.jigger",
+      "difficulty": 0,
+      "xpAward": 10
     },
     {
-      "id": "item-005",
-      "type": "roleplay",
-      "prompt": "Friends arrive for cocktails at your home bar. How do you embody confident bartender energy?",
-      "roleplay": {
-        "context": "Your first time hosting friends at your new home bar setup",
-        "task": "Show confident bartender presence",
-        "choices": ["Welcome warmly, move with purpose, start making drinks", "Apologize that you're not a 'real' bartender", "Hide behind complicated techniques", "Rush nervously through everything"]
-      },
-      "tags": ["confidence", "hosting", "roleplay", "mindset"],
-      "conceptId": "bartender.confidence",
-      "difficulty": 0.4,
-      "xpAward": 15,
-      "reviewWeight": 0.6
-    },
-    {
-      "id": "item-006",
-      "type": "mcq",
-      "prompt": "Why is curiosity crucial for bartenders?",
-      "options": ["To gossip about guests", "To continuously learn and improve", "To question every single recipe", "To seem intellectual"],
-      "answerIndex": 1,
-      "tags": ["traits", "learning", "curiosity"],
-      "conceptId": "bartender.curiosity",
-      "difficulty": 0.3,
-      "xpAward": 10,
-      "reviewWeight": 0.5
-    },
-    {
-      "id": "item-007",
+      "id": "q7",
       "type": "short",
-      "prompt": "What does 'precision + speed' mean in bartending?",
-      "answerText": "accurate but efficient",
-      "acceptableAnswers": ["accurate but efficient", "precise and fast", "quality with speed", "exact measurements quickly"],
-      "tags": ["traits", "precision", "speed"],
-      "conceptId": "bartender.precision.speed",
-      "difficulty": 0.4,
-      "xpAward": 12,
-      "reviewWeight": 0.6
+      "prompt": "Name one fresh good every bar should always have on hand.",
+      "answerText": "citrus",
+      "acceptableAnswers": ["lemon","lime","orange","mint","basil","fresh juice","citrus"],
+      "tags": ["fresh"],
+      "conceptId": "ingredients.fresh",
+      "difficulty": 0,
+      "xpAward": 10
+    },
+    {
+      "id": "q8",
+      "type": "mcq",
+      "prompt": "Fun one: Which cocktail famously uses a sugar cube, bitters, and whiskey?",
+      "options": ["Margarita","Daiquiri","Old Fashioned","Martini"],
+      "answerIndex": 2,
+      "tags": ["recipes"],
+      "conceptId": "cocktail.oldfashioned",
+      "difficulty": 0,
+      "xpAward": 15
+    },
+    {
+      "id": "q9",
+      "type": "order",
+      "prompt": "Order the setup zones correctly: Mix → Pour → Serve.",
+      "orderTarget": ["Mix","Pour","Serve"],
+      "tags": ["organization"],
+      "conceptId": "bar.zones",
+      "difficulty": 0,
+      "xpAward": 10
+    },
+    {
+      "id": "q10",
+      "type": "match",
+      "prompt": "Match the tool to its use.",
+      "pairs": [
+        {"left":"Shaker","right":"For sours & citrus builds"},
+        {"left":"Bar Spoon","right":"For stirred cocktails"},
+        {"left":"Muddler","right":"Unlock fresh herbs & fruit"}
+      ],
+      "tags": ["tools"],
+      "conceptId": "tools.basics",
+      "difficulty": 0,
+      "xpAward": 15
     }
   ]
 }

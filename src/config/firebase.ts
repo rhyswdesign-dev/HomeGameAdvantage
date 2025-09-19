@@ -4,7 +4,7 @@
  */
 
 import { initializeApp, getApps, getApp } from 'firebase/app';
-import { getFirestore, connectFirestoreEmulator } from 'firebase/firestore';
+import { getFirestore, connectFirestoreEmulator, enableNetwork, disableNetwork } from 'firebase/firestore';
 import { getAuth, initializeAuth, getReactNativePersistence, connectAuthEmulator } from 'firebase/auth';
 import { getFunctions, connectFunctionsEmulator } from 'firebase/functions';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -105,9 +105,9 @@ export const checkFirebaseConnection = async (retries = 3): Promise<{
     try {
       const start = Date.now();
       
-      // Simple Firestore read to test connection
+      // Simple Firestore read to test connection with source option
       const { doc, getDoc } = await import('firebase/firestore');
-      await getDoc(doc(db, '_health', 'check'));
+      await getDoc(doc(db, '_health', 'check'), { source: 'server' });
       
       const latency = Date.now() - start;
       return { connected: true, latency };
@@ -115,16 +115,28 @@ export const checkFirebaseConnection = async (retries = 3): Promise<{
     } catch (error) {
       lastError = error instanceof Error ? error : new Error('Unknown error');
       
-      // If this isn't the last attempt, wait before retrying
-      if (attempt < retries) {
+      // Don't log offline errors as warnings - they're expected
+      if (isNetworkError(lastError)) {
+        console.log(`🔥 Firebase offline (attempt ${attempt}/${retries})`);
+      } else {
+        console.warn(`🔥 Firebase connection attempt ${attempt} failed:`, lastError.message);
+      }
+      
+      // If this isn't the last attempt and it's not a persistent offline error, wait before retrying
+      if (attempt < retries && !isNetworkError(lastError)) {
         const delay = Math.min(1000 * Math.pow(2, attempt - 1), 5000); // Exponential backoff, max 5s
-        console.warn(`🔥 Firebase connection attempt ${attempt} failed, retrying in ${delay}ms...`);
         await new Promise(resolve => setTimeout(resolve, delay));
       }
     }
   }
   
-  console.error('🔥 Firebase connection failed after all retries:', lastError);
+  // Don't log offline errors as errors - they're expected behavior
+  if (isNetworkError(lastError)) {
+    console.log('🔥 Firebase is offline');
+  } else {
+    console.error('🔥 Firebase connection failed after all retries:', lastError);
+  }
+  
   return { 
     connected: false, 
     error: lastError?.message || 'Connection failed'
@@ -184,4 +196,34 @@ export const getUserFriendlyErrorMessage = (error: any): string => {
     default:
       return 'Something went wrong. Please try again later.';
   }
+};
+
+// Safe Firestore operation wrapper
+export const safeFirestoreOperation = async <T>(
+  operation: () => Promise<T>,
+  fallback?: T,
+  silentOfflineErrors = true
+): Promise<T | undefined> => {
+  try {
+    return await operation();
+  } catch (error) {
+    if (silentOfflineErrors && isNetworkError(error)) {
+      // Silently fail for offline errors
+      return fallback;
+    }
+    
+    // Log other errors normally
+    console.error('Firestore operation failed:', error);
+    throw error;
+  }
+};
+
+// Enhanced error logging that filters offline errors
+export const logFirebaseError = (operation: string, error: any): void => {
+  if (isNetworkError(error)) {
+    // Don't spam logs with offline errors
+    return;
+  }
+  
+  console.error(`Firebase ${operation} failed:`, error);
 };

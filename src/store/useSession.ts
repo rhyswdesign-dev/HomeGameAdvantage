@@ -56,6 +56,8 @@ export const useSession = create<SessionState>((set, get) => ({
 
   // Actions
   startSession: (lessonId: string, items: Item[]) => {
+    console.log('🔧 Session: Starting session with', lessonId, 'and', items.length, 'items');
+    console.log('🔧 Session: Items:', items);
     set({
       lessonId,
       items,
