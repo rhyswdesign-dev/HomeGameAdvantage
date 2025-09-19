@@ -29,6 +29,7 @@ export const colors = {
   gold:          '#D7A15E', // primary accent
   goldText:      '#0D0906', // text on gold
   accent:        '#E4933E', // secondary accent
+  accentDark:    '#B7742A', // darker accent for gradients
   accentText:    '#E4933E', // accent text color
   accentLight:   '#F2D59A', // light accent for icons
   
@@ -39,7 +40,10 @@ export const colors = {
   shadow:        'rgba(0,0,0,0.35)',
   error:         '#F44336', // error/danger color
   success:       '#4CAF50', // success color
+  successDark:   '#388E3C', // darker success for gradients
+  warning:       '#FF9800', // warning color
   destructive:   '#F44336', // destructive action color
+  cardBg:        '#2B1B12', // card background (alias to card)
   
   // Avatar/Profile
   avatar:        '#2A241F', // avatar background
@@ -78,6 +82,7 @@ export const fonts = {
   body: 16,
   small: 13,
   caption: 12,
+  micro: 10,
 };
 
 // Global Text Styles

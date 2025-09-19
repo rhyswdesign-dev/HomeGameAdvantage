@@ -10,13 +10,19 @@ import { Survey } from '../../components/onboarding/Survey';
 import { SurveyAnswers } from '../../services/placement';
 
 type SurveyScreenProps = {
-  navigation: NativeStackNavigationProp<RootStackParamList, 'Survey'>;
+  navigation?: NativeStackNavigationProp<RootStackParamList, 'Survey'>;
+  onComplete?: () => void;
 };
 
-export default function SurveyScreen({ navigation }: SurveyScreenProps) {
+export default function SurveyScreen({ navigation, onComplete }: SurveyScreenProps) {
   const handleSurveyComplete = (answers: SurveyAnswers) => {
-    // Navigate to results screen with answers
-    navigation.navigate('SurveyResults', { answers });
+    if (navigation) {
+      // Navigate to results screen with answers (when used within navigation)
+      navigation.navigate('SurveyResults', { answers });
+    } else if (onComplete) {
+      // Call onComplete when used in onboarding flow
+      onComplete();
+    }
   };
 
   return (

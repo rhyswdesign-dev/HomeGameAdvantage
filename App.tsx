@@ -6,15 +6,43 @@ import BartendingWelcomeScreen from './src/screens/BartendingWelcomeScreen';
 import AccountSetupScreen from './src/screens/AccountSetupScreen';
 import XPReminderScreen from './src/screens/XPReminderScreen';
 import WelcomeCarouselScreen from './src/screens/WelcomeCarouselScreen';
+import SurveyScreen from './src/screens/onboarding/SurveyScreen';
 import { useSimpleOnboarding as useOnboarding } from './src/hooks/useSimpleOnboarding';
 import { UserProvider } from './src/contexts/UserContext';
 import { VaultProvider } from './src/contexts/VaultContext';
 import { FirebaseProvider } from './src/context/FirebaseContext';
 import { AnalyticsProvider } from './src/context/AnalyticsContext';
 import { MonetizationProvider } from './src/context/MonetizationContext';
+import { isNetworkError } from './src/config/firebase';
+
+// Override console.error to filter out Firebase offline errors
+const originalConsoleError = console.error;
+console.error = (...args: any[]) => {
+  const message = args[0];
+  
+  // Filter out Firebase offline/network related errors
+  if (
+    typeof message === 'string' && (
+      message.includes('Failed to get document because the client is offline') ||
+      message.includes('Firebase connection failed') ||
+      message.includes('FirebaseError: Failed to get document because the client is offline')
+    )
+  ) {
+    // Silently ignore offline errors
+    return;
+  }
+  
+  // Check if it's a Firebase error object
+  if (args.length > 0 && isNetworkError(args[0])) {
+    return;
+  }
+  
+  // Log all other errors normally
+  originalConsoleError.apply(console, args);
+};
 
 export default function App() {
-  const { appState, handleSplashFinish, completeBartendingWelcome, completeWelcome, completeOnboarding, skipToXPReminder, completeXPReminder, goBackToOnboarding } = useOnboarding();
+  const { appState, handleSplashFinish, completeBartendingWelcome, completeWelcome, completeOnboarding, completeSurvey, skipToXPReminder, completeXPReminder, goBackToOnboarding } = useOnboarding();
   
   console.log('App state:', appState);
 
@@ -41,6 +69,11 @@ export default function App() {
   // Show XP reminder after skipping account setup
   if (appState === 'xp_reminder') {
     return <XPReminderScreen onComplete={completeXPReminder} onGoBack={goBackToOnboarding} />;
+  }
+
+  // Show survey before main app
+  if (appState === 'survey') {
+    return <SurveyScreen onComplete={completeSurvey} />;
   }
 
   // Show main app

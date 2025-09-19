@@ -1,13 +1,12 @@
 import { useState, useEffect } from 'react';
 
-type AppState = 'loading' | 'splash' | 'bartending_welcome' | 'welcome' | 'onboarding' | 'xp_reminder' | 'main';
+type AppState = 'loading' | 'splash' | 'bartending_welcome' | 'welcome' | 'onboarding' | 'survey' | 'xp_reminder' | 'main';
 
 export function useSimpleOnboarding() {
   const [appState, setAppState] = useState<AppState>('loading');
   
   useEffect(() => {
-    // For now, always show onboarding after splash
-    // You can add AsyncStorage later once we confirm this works
+    // Reset to splash for fresh testing
     setAppState('splash');
   }, []);
 
@@ -27,7 +26,12 @@ export function useSimpleOnboarding() {
   };
 
   const completeOnboarding = () => {
-    // After account setup, go to main app
+    // After account setup, show survey
+    setAppState('survey');
+  };
+
+  const completeSurvey = () => {
+    // After survey, go to main app
     setAppState('main');
   };
 
@@ -38,8 +42,8 @@ export function useSimpleOnboarding() {
   };
 
   const completeXPReminder = () => {
-    // After XP reminder, go to main app
-    setAppState('main');
+    // After XP reminder, show survey
+    setAppState('survey');
   };
 
   const goBackToOnboarding = () => {
@@ -57,6 +61,7 @@ export function useSimpleOnboarding() {
     completeBartendingWelcome,
     completeWelcome,
     completeOnboarding,
+    completeSurvey,
     skipToXPReminder,
     completeXPReminder,
     goBackToOnboarding,

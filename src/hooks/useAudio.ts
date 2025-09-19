@@ -36,7 +36,10 @@ export const useAudio = () => {
         
         setIsInitialized(true);
       } catch (error) {
-        console.error('Failed to initialize audio:', error);
+        console.warn('Audio initialization failed, continuing without audio:', error);
+        // Continue without audio - don't block the app
+        setIsInitialized(false);
+        setSettings(prev => ({ ...prev, enabled: false }));
       }
     };
 
@@ -44,7 +47,11 @@ export const useAudio = () => {
 
     // Cleanup on unmount
     return () => {
-      audioManager.cleanup();
+      try {
+        audioManager.cleanup();
+      } catch (error) {
+        console.warn('Audio cleanup failed:', error);
+      }
     };
   }, []);
 
@@ -61,38 +68,58 @@ export const useAudio = () => {
     try {
       await audioManager.playSound(soundType, options);
     } catch (error) {
-      console.error(`Failed to play sound ${soundType}:`, error);
+      console.warn(`Failed to play sound ${soundType}:`, error);
     }
   }, [isInitialized, settings.enabled]);
 
   const stopSound = useCallback(async (soundType: SoundType) => {
+    if (!isInitialized) return;
+    
     try {
       await audioManager.stopSound(soundType);
     } catch (error) {
-      console.error(`Failed to stop sound ${soundType}:`, error);
+      console.warn(`Failed to stop sound ${soundType}:`, error);
     }
-  }, []);
+  }, [isInitialized]);
 
   const setAudioEnabled = useCallback((enabled: boolean) => {
-    audioManager.setEnabled(enabled);
-    setSettings(prev => ({ ...prev, enabled }));
-  }, []);
+    try {
+      if (isInitialized) {
+        audioManager.setEnabled(enabled);
+      }
+      setSettings(prev => ({ ...prev, enabled }));
+    } catch (error) {
+      console.warn('Failed to set audio enabled:', error);
+    }
+  }, [isInitialized]);
 
   const setVolume = useCallback((volume: number) => {
-    const clampedVolume = Math.max(0, Math.min(1, volume));
-    audioManager.setMasterVolume(clampedVolume);
-    setSettings(prev => ({ ...prev, volume: clampedVolume }));
-  }, []);
+    try {
+      const clampedVolume = Math.max(0, Math.min(1, volume));
+      if (isInitialized) {
+        audioManager.setMasterVolume(clampedVolume);
+      }
+      setSettings(prev => ({ ...prev, volume: clampedVolume }));
+    } catch (error) {
+      console.warn('Failed to set volume:', error);
+    }
+  }, [isInitialized]);
 
   const setAudioMode = useCallback((mode: 'education' | 'ambient' | 'silent') => {
-    audioManager.setAudioMode(mode);
-    setSettings(prev => ({ 
-      ...prev, 
-      mode,
-      enabled: mode !== 'silent',
-      volume: audioManager.getMasterVolume()
-    }));
-  }, []);
+    try {
+      if (isInitialized) {
+        audioManager.setAudioMode(mode);
+      }
+      setSettings(prev => ({ 
+        ...prev, 
+        mode,
+        enabled: mode !== 'silent',
+        volume: isInitialized ? audioManager.getMasterVolume() : prev.volume
+      }));
+    } catch (error) {
+      console.warn('Failed to set audio mode:', error);
+    }
+  }, [isInitialized]);
 
   // Convenience methods for common interactions
   const playCorrectAnswer = useCallback(() => playSound('answer_correct'), [playSound]);

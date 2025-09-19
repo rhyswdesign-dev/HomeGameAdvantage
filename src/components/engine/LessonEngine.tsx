@@ -137,7 +137,9 @@ export const LessonEngine: React.FC<LessonEngineProps> = ({ lessonId, onComplete
   const loadLesson = async () => {
     try {
       setLoading(true);
+      console.log('🔧 LessonEngine: Loading lesson:', lessonId);
       const lesson = await contentRepo.getLesson(lessonId);
+      console.log('🔧 LessonEngine: Found lesson:', lesson);
       
       if (!lesson) {
         setError('Lesson not found');
@@ -145,6 +147,7 @@ export const LessonEngine: React.FC<LessonEngineProps> = ({ lessonId, onComplete
       }
 
       const lessonItems = await contentRepo.getItemsForLesson(lessonId);
+      console.log('🔧 LessonEngine: Found lesson items:', lessonItems.length, lessonItems);
       
       if (lessonItems.length === 0) {
         setError('No items found for this lesson');

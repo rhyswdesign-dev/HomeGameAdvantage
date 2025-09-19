@@ -48,7 +48,7 @@ export const useFirestore = () => {
       // If we came back online and were previously disconnected, try to reconnect
       if (isOnline && !state.isConnected) {
         console.log('📶 Network restored, attempting to reconnect to Firebase...');
-        initializeFirestore();
+        setTimeout(() => initializeFirestore(), 1000); // Small delay to ensure network is stable
       }
     });
 
@@ -82,11 +82,17 @@ export const useFirestore = () => {
         return;
       }
 
-      // Test connection with retries
-      const connectionResult = await checkFirebaseConnection(3);
+      // Test connection with fewer retries to avoid spam
+      const connectionResult = await checkFirebaseConnection(1);
       
       if (!connectionResult.connected) {
         const errorType = getErrorType({ message: connectionResult.error });
+        
+        // Only log non-network errors
+        if (errorType !== 'network') {
+          console.warn('Firebase connection failed:', connectionResult.error);
+        }
+        
         setState(prev => ({
           ...prev,
           error: connectionResult.error,
@@ -96,7 +102,7 @@ export const useFirestore = () => {
           isInitialized: true
         }));
         
-        // Schedule automatic retry for network errors
+        // Schedule automatic retry for network errors only
         if (errorType === 'network') {
           scheduleRetry();
         }
@@ -122,8 +128,13 @@ export const useFirestore = () => {
       }
 
     } catch (error) {
-      console.error('Firestore initialization failed:', error);
       const errorType = getErrorType(error);
+      
+      // Only log non-network errors as errors
+      if (errorType !== 'network') {
+        console.error('Firestore initialization failed:', error);
+      }
+      
       setState(prev => ({
         ...prev,
         error: error instanceof Error ? error.message : 'Unknown error',

@@ -19,7 +19,7 @@ import {
 
 // Firebase Firestore imports
 import { doc, updateDoc, increment, arrayUnion, getDoc, setDoc, addDoc, collection } from 'firebase/firestore';
-import { db } from '../config/firebase';
+import { db, safeFirestoreOperation, logFirebaseError } from '../config/firebase';
 
 // Mock Stripe imports (replace with actual Stripe imports)
 // import { StripeProvider, useStripe } from '@stripe/stripe-react-native';
@@ -369,10 +369,10 @@ class VaultService {
       }
 
       const cartRef = doc(db, 'vaultCarts', userId);
-      const cartDoc = await getDoc(cartRef);
+      const cartDoc = await safeFirestoreOperation(() => getDoc(cartRef));
       
       let cart: VaultCart;
-      if (cartDoc.exists()) {
+      if (cartDoc && cartDoc.exists()) {
         cart = cartDoc.data() as VaultCart;
       } else {
         cart = {
@@ -501,9 +501,9 @@ class VaultService {
   async getUserVaultProfile(userId: string): Promise<UserVaultProfile | null> {
     try {
       const docRef = doc(db, 'userVaultProfiles', userId);
-      const docSnap = await getDoc(docRef);
+      const docSnap = await safeFirestoreOperation(() => getDoc(docRef));
       
-      if (docSnap.exists()) {
+      if (docSnap && docSnap.exists()) {
         return docSnap.data() as UserVaultProfile;
       }
       
@@ -523,7 +523,7 @@ class VaultService {
       await setDoc(docRef, defaultProfile);
       return defaultProfile;
     } catch (error) {
-      console.error('Failed to get user vault profile:', error);
+      logFirebaseError('get user vault profile', error);
       return null;
     }
   }
@@ -544,7 +544,7 @@ class VaultService {
       const { vaultItems } = await import('../data/vaultData');
       return vaultItems.find(item => item.id === itemId) || null;
     } catch (error) {
-      console.error('Failed to get vault item:', error);
+      logFirebaseError('get vault item', error);
       return null;
     }
   }
@@ -565,7 +565,7 @@ class VaultService {
       const { monetizationItems } = await import('../data/vaultData');
       return monetizationItems.find(item => item.id === itemId) || null;
     } catch (error) {
-      console.error('Failed to get monetization item:', error);
+      logFirebaseError('get monetization item', error);
       return null;
     }
   }
