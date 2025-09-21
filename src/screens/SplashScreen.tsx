@@ -1,5 +1,6 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, Animated, Dimensions } from 'react-native';
+import { Video, ResizeMode } from 'expo-av';
 import theme from '../theme/safeTheme';
 
 const { colors, spacing } = theme;
@@ -9,116 +10,32 @@ interface SplashScreenProps {
   onFinish: () => void;
 }
 
-// Simple Bubble Animation Component
-function AnimatedBubble({ delay, size, left }: { delay: number; size: number; left: number }) {
-  const translateY = React.useRef(new Animated.Value(height + 50)).current;
-  const opacity = React.useRef(new Animated.Value(0)).current;
-  const scale = React.useRef(new Animated.Value(0)).current;
-
-  useEffect(() => {
-    const startAnimation = () => {
-      // Reset values
-      translateY.setValue(height + 50);
-      opacity.setValue(0);
-      scale.setValue(0);
-
-      // Start animations
-      Animated.parallel([
-        // Float up animation
-        Animated.timing(translateY, {
-          toValue: -100,
-          duration: 4000 + Math.random() * 2000, // Variable duration
-          useNativeDriver: true,
-        }),
-        // Fade in then out
-        Animated.sequence([
-          Animated.timing(opacity, {
-            toValue: 0.6,
-            duration: 500,
-            useNativeDriver: true,
-          }),
-          Animated.timing(opacity, {
-            toValue: 0.3,
-            duration: 3000,
-            useNativeDriver: true,
-          }),
-          Animated.timing(opacity, {
-            toValue: 0,
-            duration: 500,
-            useNativeDriver: true,
-          }),
-        ]),
-        // Scale animation
-        Animated.sequence([
-          Animated.timing(scale, {
-            toValue: 1,
-            duration: 300,
-            useNativeDriver: true,
-          }),
-          Animated.timing(scale, {
-            toValue: 1.2,
-            duration: 3700,
-            useNativeDriver: true,
-          }),
-        ]),
-      ]).start(() => {
-        // Restart animation
-        setTimeout(startAnimation, 500 + Math.random() * 1000);
-      });
-    };
-
-    // Start first animation with delay
-    const timer = setTimeout(startAnimation, delay);
-    return () => clearTimeout(timer);
-  }, [translateY, opacity, scale, delay]);
-
-  return (
-    <Animated.View
-      style={[
-        styles.bubble,
-        {
-          width: size,
-          height: size,
-          borderRadius: size / 2,
-          left: left,
-          transform: [{ translateY }, { scale }],
-          opacity,
-        },
-      ]}
-    />
-  );
-}
-
-// Floating Bubbles Component
-function FloatingBubbles() {
-  const bubbles = [
-    { delay: 0, size: 20, left: width * 0.1 },
-    { delay: 500, size: 15, left: width * 0.8 },
-    { delay: 1000, size: 25, left: width * 0.3 },
-    { delay: 1500, size: 18, left: width * 0.7 },
-    { delay: 2000, size: 12, left: width * 0.5 },
-    { delay: 800, size: 22, left: width * 0.15 },
-    { delay: 1800, size: 16, left: width * 0.85 },
-    { delay: 600, size: 14, left: width * 0.6 },
-  ];
-
-  return (
-    <View style={styles.bubbleContainer} pointerEvents="none">
-      {bubbles.map((bubble, index) => (
-        <AnimatedBubble
-          key={index}
-          delay={bubble.delay}
-          size={bubble.size}
-          left={bubble.left}
-        />
-      ))}
-    </View>
-  );
-}
 
 export default function SplashScreen({ onFinish }: SplashScreenProps) {
   const fadeAnim = React.useRef(new Animated.Value(0)).current;
   const scaleAnim = React.useRef(new Animated.Value(0.8)).current;
+  const [isVideoLoaded, setIsVideoLoaded] = useState(false);
+
+  // Array of video sources - all your bartending segments
+  const videoSources = [
+    require('../../assets/videos/bartending-splash.mov'),      // Video 1: Original MixedMindStudios video (30MB)
+    require('../../assets/videos/bartending-splash-2.mov'),    // Video 2: Second MixedMindStudios video (12MB)
+    require('../../assets/videos/bartending-splash-3.mov'),    // Video 3: Screen Recording 1 (12MB)
+    require('../../assets/videos/bartending-splash-4.mov'),    // Video 4: Screen Recording 2 (9.4MB)
+    require('../../assets/videos/bartending-splash-5.mov'),    // Video 5: Screen Recording 3 (8.0MB)
+    require('../../assets/videos/bartending-splash-6.mov'),    // Video 6: Screen Recording 4 (13MB)
+    require('../../assets/videos/bartending-splash-7.mov'),    // Video 7: Screen Recording 5 (10MB)
+    require('../../assets/videos/bartending-splash-8.mov'),    // Video 8: Screen Recording 6 (8.0MB)
+    require('../../assets/videos/bartending-splash-9.mov'),    // Video 9: Video 1780 display (13MB)
+  ];
+
+  // Randomly select a video each time the splash screen loads
+  const [selectedVideo] = useState(() => {
+    const randomIndex = Math.floor(Math.random() * videoSources.length);
+    const selectedVideoFile = videoSources[randomIndex];
+    console.log(`🎬 Splash Screen: Playing bartending video ${randomIndex + 1} of ${videoSources.length}`);
+    return selectedVideoFile;
+  });
 
   useEffect(() => {
     // Fade in animation
@@ -135,16 +52,31 @@ export default function SplashScreen({ onFinish }: SplashScreenProps) {
       }),
     ]).start();
 
-    // Auto-finish after 2.5 seconds
-    const timer = setTimeout(onFinish, 2500);
+    // Auto-finish after 5 seconds (longer to appreciate the video)
+    const timer = setTimeout(onFinish, 5000);
     return () => clearTimeout(timer);
   }, [fadeAnim, scaleAnim, onFinish]);
 
   return (
     <View style={styles.container}>
-      {/* Floating Bubbles Background */}
-      <FloatingBubbles />
-      
+      {/* Video Background */}
+      <Video
+        style={styles.backgroundVideo}
+        source={selectedVideo}
+        shouldPlay
+        isLooping
+        isMuted
+        resizeMode={ResizeMode.COVER}
+        onLoad={() => setIsVideoLoaded(true)}
+        onError={(error) => {
+          console.log('Video error:', error);
+          setIsVideoLoaded(false);
+        }}
+      />
+
+      {/* Video overlay for better text contrast */}
+      <View style={styles.videoOverlay} />
+
       <Animated.View
         style={[
           styles.content,
@@ -154,13 +86,8 @@ export default function SplashScreen({ onFinish }: SplashScreenProps) {
           },
         ]}
       >
-        {/* App Logo/Icon placeholder */}
-        <View style={styles.logo}>
-          <Text style={styles.logoText}>🥃🍸</Text>
-        </View>
-        
         {/* App Name */}
-        <Text style={styles.appName}>Home Game Advantage</Text>
+        <Text style={styles.appName}>MixedMindStudios</Text>
         <Text style={styles.tagline}>Your ultimate bar & spirits companion</Text>
       </Animated.View>
 
@@ -183,72 +110,77 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  backgroundVideo: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    bottom: 0,
+    right: 0,
+    width: '100%',
+    height: '100%',
+    minWidth: width,
+    minHeight: height,
+  },
+  videoOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    bottom: 0,
+    right: 0,
+    backgroundColor: 'rgba(0, 0, 0, 0.4)', // Slightly darker overlay for better text contrast
+  },
   content: {
     alignItems: 'center',
     flex: 1,
     justifyContent: 'center',
-  },
-  logo: {
-    width: 120,
-    height: 120,
-    borderRadius: 60,
-    backgroundColor: colors.accent,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: spacing(3),
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.3,
-    shadowRadius: 12,
-    elevation: 8,
-  },
-  logoText: {
-    fontSize: 48,
+    zIndex: 10, // Ensure content is above video
   },
   appName: {
-    fontSize: 28,
+    fontSize: 36,
     fontWeight: '900',
-    color: colors.text,
+    color: 'rgba(255, 255, 255, 0.15)',
     textAlign: 'center',
-    marginBottom: spacing(1),
+    marginBottom: spacing(2),
+    letterSpacing: 2,
+    textShadowColor: 'rgba(255, 255, 255, 0.8)',
+    textShadowOffset: { width: 0, height: 0 },
+    textShadowRadius: 8,
+    shadowColor: 'rgba(0, 0, 0, 0.9)',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.8,
+    shadowRadius: 12,
+    elevation: 15,
   },
   tagline: {
-    fontSize: 16,
-    color: colors.subtext,
+    fontSize: 18,
+    color: '#FFFFFF',
     textAlign: 'center',
-    maxWidth: 280,
-    lineHeight: 22,
+    maxWidth: 320,
+    lineHeight: 24,
+    textShadowColor: 'rgba(0, 0, 0, 0.8)',
+    textShadowOffset: { width: 0, height: 2 },
+    textShadowRadius: 4,
+    opacity: 0.95,
   },
   footer: {
     position: 'absolute',
     bottom: spacing(8),
     alignItems: 'center',
+    zIndex: 10,
   },
   loadingDots: {
     flexDirection: 'row',
-    gap: 8,
+    gap: 10,
   },
   dot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: colors.accent,
-  },
-  bubbleContainer: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-  },
-  bubble: {
-    position: 'absolute',
-    backgroundColor: colors.accent,
-    opacity: 0.3,
-    shadowColor: colors.accent,
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+    backgroundColor: '#FFFFFF',
+    shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.3,
+    shadowOpacity: 0.7,
     shadowRadius: 4,
-    elevation: 3,
+    elevation: 5,
   },
 });
