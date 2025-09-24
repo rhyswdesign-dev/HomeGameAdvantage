@@ -60,6 +60,13 @@ import GroupDiscoveryScreen from '../screens/GroupDiscoveryScreen';
 import GroupProfileScreen from '../screens/GroupProfileScreen';
 import FeaturedBarsScreen from '../screens/FeaturedBarsScreen';
 import MapsDemo from '../screens/MapsDemo';
+import CopperMoonScreen from '../screens/CopperMoonScreen';
+import NeonNightsScreen from '../screens/NeonNightsScreen';
+import WhiskeyDenScreen from '../screens/WhiskeyDenScreen';
+import CrystalPalaceScreen from '../screens/CrystalPalaceScreen';
+import SunsetTerraceScreen from '../screens/SunsetTerraceScreen';
+import MidnightLoungeScreen from '../screens/MidnightLoungeScreen';
+import GoldenEraScreen from '../screens/GoldenEraScreen';
 // Onboarding screens
 import WelcomeScreen from '../screens/onboarding/WelcomeScreen';
 import ConsentScreen from '../screens/onboarding/ConsentScreen';
@@ -70,15 +77,18 @@ import LessonEngineScreen from '../screens/lessons/LessonEngineScreen';
 import LessonSummaryScreen from '../screens/lessons/LessonSummaryScreen';
 // Commerce screens
 import PricingScreen from '../screens/commerce/PricingScreen';
+// Auth screens
+import ProfileScreen from '../screens/ProfileScreen';
+import RecipeDetailScreen from '../screens/RecipeDetailScreen';
 import CartScreen from '../screens/commerce/CartScreen';
 import CheckoutScreen from '../screens/commerce/CheckoutScreen';
 import OrderConfirmationScreen from '../screens/commerce/OrderConfirmationScreen';
 import OrderHistoryScreen from '../screens/commerce/OrderHistoryScreen';
+import AddRecipeScreen from '../screens/AddRecipeScreen';
 
 export type RootStackParamList = {
   Main: undefined;
   Bars: undefined;
-  Spirits: undefined;
   Events: undefined;
   Games: undefined;
   GamesScreen: undefined;
@@ -95,6 +105,13 @@ export type RootStackParamList = {
   TheTikiHut: undefined;
   TheWineCellar: undefined;
   TheHiddenFlask: undefined;
+  CopperMoon: undefined;
+  NeonNights: undefined;
+  WhiskeyDen: undefined;
+  CrystalPalace: undefined;
+  SunsetTerrace: undefined;
+  MidnightLounge: undefined;
+  GoldenEra: undefined;
   KingsCup: undefined;
   GameDetails: { id: string };
   AccountSetup: undefined;
@@ -113,9 +130,10 @@ export type RootStackParamList = {
   CocktailDetail: { cocktailId: string };
   SavedItems: { category: 'bars' | 'spirits' | 'cocktails' | 'events' | 'communities' };
   EditProfile: undefined;
+  Profile: undefined;
   NonAlcoholic: undefined;
   Vault: undefined;
-  VaultStore: undefined;
+  VaultStore: { tab?: string };
   VaultCart: undefined;
   VaultCheckout: undefined;
   VaultPaymentMethods: undefined;
@@ -139,9 +157,6 @@ export type RootStackParamList = {
   Consent: undefined;
   Survey: undefined;
   SurveyResults: { answers: any };
-  // Lesson screens
-  LessonEngine: { moduleId?: string; lessonId?: string; isFirstLesson?: boolean };
-  LessonSummary: { xpAwarded: number; correctCount: number; totalCount: number; masteryDelta: number; moduleId?: string; lessonId?: string; isFirstLesson?: boolean };
   // Commerce screens
   Pricing: undefined;
   Cart: undefined;
@@ -153,6 +168,8 @@ export type RootStackParamList = {
   OrderHistory: undefined;
   Billing: undefined;
   AddAddress: { addressId?: string };
+  AddRecipe: undefined;
+  RecipeDetail: { recipe: any };
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -172,7 +189,6 @@ export default function RootNavigator() {
     >
       <Stack.Screen name="Main" component={Tabs} />
       <Stack.Screen name="Bars" component={BarsScreen} options={{ headerShown: true, title: 'Featured Bars' }} />
-      <Stack.Screen name="Spirits" component={SpiritsScreen} options={{ headerShown: true, title: 'Featured Spirits' }} />
       <Stack.Screen name="Events" component={EventsScreen} options={{ headerShown: true, title: 'Events' }} />
       <Stack.Screen name="Games" component={GamesScreen} options={{ headerShown: true, title: 'Games' }} />
       <Stack.Screen name="Brand" component={BrandScreen} options={({ route }) => ({ headerShown: true, title: route.params.brand })} />
@@ -264,8 +280,8 @@ export default function RootNavigator() {
         headerShadowVisible: false,
         headerLeft: () => null,
       })} />
-      <Stack.Screen name="TheHiddenFlask" component={TheHiddenFlaskScreen} options={({ navigation }) => ({ 
-        headerShown: true, 
+      <Stack.Screen name="TheHiddenFlask" component={TheHiddenFlaskScreen} options={({ navigation }) => ({
+        headerShown: true,
         title: 'The Hidden Flask',
         headerStyle: components.header,
         headerTintColor: colors.headerText,
@@ -273,6 +289,13 @@ export default function RootNavigator() {
         headerShadowVisible: false,
         headerLeft: () => null,
       })} />
+      <Stack.Screen name="CopperMoon" component={CopperMoonScreen} options={{ headerShown: false }} />
+      <Stack.Screen name="NeonNights" component={NeonNightsScreen} options={{ headerShown: false }} />
+      <Stack.Screen name="WhiskeyDen" component={WhiskeyDenScreen} options={{ headerShown: false }} />
+      <Stack.Screen name="CrystalPalace" component={CrystalPalaceScreen} options={{ headerShown: false }} />
+      <Stack.Screen name="SunsetTerrace" component={SunsetTerraceScreen} options={{ headerShown: false }} />
+      <Stack.Screen name="MidnightLounge" component={MidnightLoungeScreen} options={{ headerShown: false }} />
+      <Stack.Screen name="GoldenEra" component={GoldenEraScreen} options={{ headerShown: false }} />
       <Stack.Screen name="KingsCup" component={KingsCupScreen} options={({ navigation }) => ({ 
         headerShown: true, 
         title: "King's Cup",
@@ -341,6 +364,7 @@ export default function RootNavigator() {
       <Stack.Screen name="CocktailDetail" component={CocktailDetailScreen} options={{ headerShown: true, title: 'Cocktail' }} />
       <Stack.Screen name="SavedItems" component={SavedItemsScreen} options={{ headerShown: true, title: 'Saved Items' }} />
       <Stack.Screen name="EditProfile" component={EditProfileScreen} options={{ headerShown: true, title: 'Edit Profile' }} />
+      <Stack.Screen name="Profile" component={ProfileScreen} options={{ headerShown: true, title: 'Profile' }} />
       <Stack.Screen name="NonAlcoholic" component={NonAlcoholicScreen} options={{ headerShown: true, title: 'Non-Alcoholic' }} />
     <Stack.Screen name="Vault" component={VaultScreen} options={{ headerShown: true, title: 'Vault' }} />
     {/* Vault Economy Screens */}
@@ -369,14 +393,14 @@ export default function RootNavigator() {
     <Stack.Screen name="Survey" component={SurveyScreen} options={{ headerShown: false }} />
     <Stack.Screen name="SurveyResults" component={SurveyResultsScreen} options={{ headerShown: false }} />
     {/* Lesson screens */}
-    <Stack.Screen name="LessonEngine" component={LessonEngineScreen} options={{ headerShown: false }} />
-    <Stack.Screen name="LessonSummary" component={LessonSummaryScreen} options={{ headerShown: false }} />
     {/* Commerce screens */}
     <Stack.Screen name="Pricing" component={PricingScreen} options={{ headerShown: true, title: 'Premium' }} />
     <Stack.Screen name="Cart" component={CartScreen} options={{ headerShown: true, title: 'Cart' }} />
     <Stack.Screen name="Checkout" component={CheckoutScreen} options={{ headerShown: true, title: 'Checkout' }} />
     <Stack.Screen name="OrderConfirmation" component={OrderConfirmationScreen} options={{ headerShown: true, title: 'Order Confirmed' }} />
     <Stack.Screen name="OrderHistory" component={OrderHistoryScreen} options={{ headerShown: true, title: 'Order History' }} />
+    <Stack.Screen name="AddRecipe" component={AddRecipeScreen} options={{ headerShown: true, title: 'Add Recipe' }} />
+    <Stack.Screen name="RecipeDetail" component={RecipeDetailScreen} options={{ headerShown: true, title: 'Recipe' }} />
 </Stack.Navigator>
   );
 }

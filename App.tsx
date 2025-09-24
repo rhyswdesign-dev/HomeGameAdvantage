@@ -3,13 +3,15 @@ import { NavigationContainer } from '@react-navigation/native';
 import RootNavigator from './src/navigation/RootNavigator';
 import SplashScreen from './src/screens/SplashScreen';
 import BartendingWelcomeScreen from './src/screens/BartendingWelcomeScreen';
-import AccountSetupScreen from './src/screens/AccountSetupScreen';
+import AuthScreen from './src/screens/AuthScreen';
 import XPReminderScreen from './src/screens/XPReminderScreen';
 import WelcomeCarouselScreen from './src/screens/WelcomeCarouselScreen';
 import SurveyScreen from './src/screens/onboarding/SurveyScreen';
 import { useSimpleOnboarding as useOnboarding } from './src/hooks/useSimpleOnboarding';
 import { UserProvider } from './src/contexts/UserContext';
 import { VaultProvider } from './src/contexts/VaultContext';
+import { PostsProvider } from './src/contexts/PostsContext';
+import { AuthProvider } from './src/contexts/AuthContext';
 import { FirebaseProvider } from './src/context/FirebaseContext';
 import { AnalyticsProvider } from './src/context/AnalyticsContext';
 import { MonetizationProvider } from './src/context/MonetizationContext';
@@ -61,9 +63,9 @@ export default function App() {
     return <WelcomeCarouselScreen onComplete={completeWelcome} />;
   }
 
-  // Show account setup after welcome carousel
+  // Show sign-up screen after welcome carousel
   if (appState === 'onboarding') {
-    return <AccountSetupScreen onComplete={completeOnboarding} onSkip={skipToXPReminder} />;
+    return <AuthScreen onComplete={completeOnboarding} onSkip={skipToXPReminder} />;
   }
 
   // Show XP reminder after skipping account setup
@@ -79,17 +81,21 @@ export default function App() {
   // Show main app
   return (
     <AnalyticsProvider>
-      <FirebaseProvider>
-        <MonetizationProvider>
-          <UserProvider>
-            <VaultProvider>
-              <NavigationContainer>
-                <RootNavigator />
-              </NavigationContainer>
-            </VaultProvider>
-          </UserProvider>
-        </MonetizationProvider>
-      </FirebaseProvider>
+      <AuthProvider>
+        <FirebaseProvider>
+          <MonetizationProvider>
+            <UserProvider>
+              <VaultProvider>
+                <PostsProvider>
+                  <NavigationContainer>
+                    <RootNavigator />
+                  </NavigationContainer>
+                </PostsProvider>
+              </VaultProvider>
+            </UserProvider>
+          </MonetizationProvider>
+        </FirebaseProvider>
+      </AuthProvider>
     </AnalyticsProvider>
   );
 }
