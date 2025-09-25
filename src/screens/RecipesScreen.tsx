@@ -17,7 +17,7 @@ import { useNavigation, useRoute, useFocusEffect } from '@react-navigation/nativ
 import type { NativeStackNavigationProp, NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '../navigation/RootNavigator';
 import { useSavedItems } from '../hooks/useSavedItems';
-import { getUserRecipes, Recipe } from '../lib/firestore';
+import { getUserRecipes, Recipe, deleteRecipe } from '../lib/firestore';
 import { auth } from '../config/firebase';
 
 const chips: Array<{ key: string; label: string }> = [
@@ -28,38 +28,92 @@ const chips: Array<{ key: string; label: string }> = [
   { key: 'My Recipes', label: 'My Recipes' },
 ];
 
-const sampleRecipes = [
+const classicCocktails = [
   {
-    id: '1',
-    name: 'Classic Martini',
+    id: 'old-fashioned',
+    name: 'Old Fashioned',
+    title: 'Old Fashioned',
+    subtitle: 'Classic • Whiskey-based',
     category: 'Cocktails',
-    image: 'https://images.unsplash.com/photo-1541976076758-347942db1978?q=80&w=1200&auto=format&fit=crop',
+    image: 'https://images.unsplash.com/photo-1536935338788-846bb9981813?auto=format&fit=crop&w=1200&q=60',
+    img: 'https://images.unsplash.com/photo-1536935338788-846bb9981813?auto=format&fit=crop&w=1200&q=60',
+    difficulty: 'Easy',
+    time: '3 min',
+    rating: 4.7,
+    ingredients: ['2 oz Whiskey', '1/4 oz Simple Syrup', '2 dashes Angostura Bitters', 'Orange Peel'],
+    description: 'A timeless cocktail made with whiskey, sugar, bitters, and an orange twist.',
+  },
+  {
+    id: 'manhattan',
+    name: 'Manhattan',
+    title: 'Manhattan',
+    subtitle: 'Classic • Whiskey-based',
+    category: 'Cocktails',
+    image: 'https://images.unsplash.com/photo-1578662996442-48f60103fc96?auto=format&fit=crop&w=1200&q=60',
+    img: 'https://images.unsplash.com/photo-1578662996442-48f60103fc96?auto=format&fit=crop&w=1200&q=60',
     difficulty: 'Easy',
     time: '2 min',
     rating: 4.8,
-    ingredients: ['Gin', 'Dry Vermouth', 'Olive', 'Lemon Twist'],
-    description: 'A timeless classic cocktail with gin and dry vermouth.',
+    ingredients: ['2 oz Rye Whiskey', '1 oz Sweet Vermouth', '2 dashes Angostura Bitters', 'Maraschino Cherry'],
+    description: 'An elegant mix of whiskey, sweet vermouth, and bitters, garnished with a cherry.',
   },
   {
-    id: '2',
-    name: 'Old Fashioned',
+    id: 'negroni',
+    name: 'Negroni',
+    title: 'Negroni',
+    subtitle: 'Classic • Gin-based',
     category: 'Cocktails',
-    image: 'https://images.unsplash.com/photo-1541542684-4c7b4916e66e?q=80&w=1200&auto=format&fit=crop',
-    difficulty: 'Medium',
-    time: '3 min',
-    rating: 4.9,
-    ingredients: ['Bourbon', 'Sugar', 'Angostura Bitters', 'Orange Peel'],
-    description: 'The original cocktail, simple and sophisticated.',
-  },
-  {
-    id: '3',
-    name: 'Virgin Mojito',
-    category: 'Mocktails',
-    image: 'https://images.unsplash.com/photo-1497534547324-0ebb3f052e88?q=80&w=1200&auto=format&fit=crop',
+    image: 'https://images.unsplash.com/photo-1541745537411-b8046dc6d66c?auto=format&fit=crop&w=1200&q=60',
+    img: 'https://images.unsplash.com/photo-1541745537411-b8046dc6d66c?auto=format&fit=crop&w=1200&q=60',
     difficulty: 'Easy',
     time: '2 min',
     rating: 4.6,
-    ingredients: ['Lime', 'Mint', 'Sugar', 'Soda Water'],
+    ingredients: ['1 oz Gin', '1 oz Campari', '1 oz Sweet Vermouth', 'Orange Peel'],
+    description: 'A bitter and sweet Italian cocktail with gin, Campari, and sweet vermouth.',
+  },
+  {
+    id: 'espresso-martini',
+    name: 'Espresso Martini',
+    title: 'Espresso Martini',
+    subtitle: 'Modern • Vodka-based',
+    category: 'Cocktails',
+    image: 'https://images.unsplash.com/photo-1609951651556-5334e2706168?auto=format&fit=crop&w=1200&q=60',
+    img: 'https://images.unsplash.com/photo-1609951651556-5334e2706168?auto=format&fit=crop&w=1200&q=60',
+    difficulty: 'Medium',
+    time: '5 min',
+    rating: 4.9,
+    ingredients: ['2 oz Vodka', '1/2 oz Coffee Liqueur', '1 shot Fresh Espresso', '1/4 oz Simple Syrup'],
+    description: 'A sophisticated coffee cocktail with vodka, coffee liqueur, and fresh espresso.',
+  },
+];
+
+const sampleRecipes = [
+  {
+    id: 'classic-martini',
+    name: 'Classic Martini',
+    title: 'Classic Martini',
+    subtitle: 'Classic • Gin-based',
+    category: 'Cocktails',
+    image: 'https://images.unsplash.com/photo-1541976076758-347942db1978?q=80&w=1200&auto=format&fit=crop',
+    img: 'https://images.unsplash.com/photo-1541976076758-347942db1978?q=80&w=1200&auto=format&fit=crop',
+    difficulty: 'Easy',
+    time: '2 min',
+    rating: 4.8,
+    ingredients: ['2 oz Gin', '1/2 oz Dry Vermouth', 'Olive or Lemon Twist'],
+    description: 'A timeless classic cocktail with gin and dry vermouth.',
+  },
+  {
+    id: 'virgin-mojito',
+    name: 'Virgin Mojito',
+    title: 'Virgin Mojito',
+    subtitle: 'Non-Alcoholic • Refreshing',
+    category: 'Mocktails',
+    image: 'https://images.unsplash.com/photo-1497534547324-0ebb3f052e88?q=80&w=1200&auto=format&fit=crop',
+    img: 'https://images.unsplash.com/photo-1497534547324-0ebb3f052e88?q=80&w=1200&auto=format&fit=crop',
+    difficulty: 'Easy',
+    time: '2 min',
+    rating: 4.6,
+    ingredients: ['Fresh Lime Juice', 'Mint Leaves', 'Simple Syrup', 'Soda Water'],
     description: 'Refreshing non-alcoholic version of the classic mojito.',
   },
 ];
@@ -68,7 +122,7 @@ export default function RecipesScreen() {
   const nav = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const route = useRoute();
   const [active, setActive] = useState<string>((route.params as any)?.activeTab || 'All');
-  const { toggleSavedSpirit, isSpiritSaved } = useSavedItems();
+  const { toggleSavedCocktail, isCocktailSaved } = useSavedItems();
   const [userRecipes, setUserRecipes] = useState<Recipe[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -124,7 +178,32 @@ export default function RecipesScreen() {
     }
   };
 
-  const allRecipes = [...sampleRecipes];
+  const handleDeleteRecipe = async (recipe: any) => {
+    if (!recipe.id) return;
+
+    Alert.alert(
+      'Delete Recipe',
+      `Are you sure you want to delete "${recipe.name || recipe.title}"?`,
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Delete',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              await deleteRecipe(recipe.id);
+              await loadUserRecipes(); // Refresh the list
+              Alert.alert('Success', 'Recipe deleted successfully');
+            } catch (error: any) {
+              Alert.alert('Error', error.message || 'Failed to delete recipe');
+            }
+          },
+        },
+      ]
+    );
+  };
+
+  const allRecipes = [...sampleRecipes, ...classicCocktails];
 
   let filteredRecipes;
   if (active === 'My Recipes') {
@@ -134,11 +213,19 @@ export default function RecipesScreen() {
       name: recipe.title || 'Untitled Recipe',
       category: 'My Recipes',
       image: recipe.imageUrl || 'https://images.unsplash.com/photo-1497534547324-0ebb3f052e88?q=80&w=1200&auto=format&fit=crop',
-      difficulty: 'Unknown',
-      time: 'N/A',
+      difficulty: 'Custom',
+      time: '5 min',
       rating: 0,
       ingredients: recipe.tags || [],
-      description: recipe.sourceUrl ? `Source: ${recipe.sourceUrl}` : 'User-created recipe',
+      description: recipe.sourceUrl ?
+        (() => {
+          try {
+            return `From: ${new URL(recipe.sourceUrl).hostname}`;
+          } catch {
+            return `Source: ${recipe.sourceUrl}`;
+          }
+        })()
+        : 'Custom recipe',
     }));
   } else {
     filteredRecipes = active === 'All'
@@ -170,7 +257,7 @@ export default function RecipesScreen() {
           })}
         </ScrollView>
 
-        {/* Recipes Grid */}
+        {/* Recipes Section */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>
             {active === 'All' ? 'All Recipes' : active}
@@ -179,56 +266,68 @@ export default function RecipesScreen() {
             {filteredRecipes.length} recipe{filteredRecipes.length !== 1 ? 's' : ''} available
           </Text>
 
-          {filteredRecipes.map((recipe) => (
-            <TouchableOpacity
-              key={recipe.id}
-              style={styles.recipeCard}
-              onPress={() => nav.navigate('RecipeDetail', { recipe })}
-              activeOpacity={0.8}
-            >
-              <Image source={{ uri: recipe.image }} style={styles.recipeImage} />
-              <View style={styles.recipeContent}>
-                <View style={styles.recipeHeader}>
-                  <Text style={styles.recipeName}>{recipe.name}</Text>
-                  <TouchableOpacity
-                    onPress={() => handleShare(recipe)}
-                    style={styles.shareButton}
-                  >
-                    <Ionicons name="share-outline" size={20} color={colors.subtext} />
-                  </TouchableOpacity>
-                </View>
-
-                <Text style={styles.recipeDescription}>{recipe.description}</Text>
-
-                <View style={styles.recipeStats}>
-                  <View style={styles.statItem}>
-                    <Ionicons name="time-outline" size={16} color={colors.accent} />
-                    <Text style={styles.statText}>{recipe.time}</Text>
-                  </View>
-                  <View style={styles.statItem}>
-                    <Ionicons name="bar-chart-outline" size={16} color={colors.accent} />
-                    <Text style={styles.statText}>{recipe.difficulty}</Text>
-                  </View>
-                  <View style={styles.statItem}>
-                    <Ionicons name="star" size={16} color={colors.gold} />
-                    <Text style={styles.statText}>{recipe.rating}</Text>
+          <View style={styles.verticalGrid}>
+            {filteredRecipes.map((recipe) => (
+              <TouchableOpacity
+                key={recipe.id}
+                style={styles.verticalCard}
+                onPress={() => nav.navigate('CocktailDetail', { cocktailId: recipe.id })}
+                activeOpacity={0.8}
+              >
+                <Image source={{ uri: recipe.image }} style={styles.cocktailImage} />
+                <View style={styles.cocktailInfo}>
+                  <Text style={styles.cardTitle}>{recipe.name}</Text>
+                  <Text style={styles.cardSub}>{recipe.subtitle || recipe.description}</Text>
+                  <View style={styles.cocktailMeta}>
+                    <Text style={styles.cocktailDifficulty}>{recipe.difficulty}</Text>
+                    <Text style={styles.cocktailTime}>{recipe.time}</Text>
                   </View>
                 </View>
 
-                <View style={styles.ingredientsList}>
-                  <Text style={styles.ingredientsLabel}>Ingredients:</Text>
-                  <Text style={styles.ingredientsText}>
-                    {recipe.ingredients.join(', ')}
-                  </Text>
-                </View>
-              </View>
-            </TouchableOpacity>
-          ))}
+                {/* Save button */}
+                <TouchableOpacity
+                  style={styles.saveButton}
+                  activeOpacity={0.7}
+                  onPress={() => toggleSavedCocktail({
+                    id: recipe.id,
+                    name: recipe.name,
+                    subtitle: recipe.description,
+                    image: recipe.image
+                  })}
+                >
+                  <Ionicons
+                    name={isCocktailSaved(recipe.id) ? "bookmark" : "bookmark-outline"}
+                    size={20}
+                    color={isCocktailSaved(recipe.id) ? colors.accent : colors.text}
+                  />
+                </TouchableOpacity>
+
+                {/* Additional actions for My Recipes */}
+                {active === 'My Recipes' && recipe.id && (
+                  <View style={styles.additionalActions}>
+                    <TouchableOpacity
+                      onPress={() => handleShare(recipe)}
+                      style={styles.additionalActionButton}
+                    >
+                      <Ionicons name="share-outline" size={16} color={colors.white} />
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      onPress={() => handleDeleteRecipe(recipe)}
+                      style={styles.additionalActionButton}
+                    >
+                      <Ionicons name="trash-outline" size={16} color={colors.white} />
+                    </TouchableOpacity>
+                  </View>
+                )}
+              </TouchableOpacity>
+            ))}
+          </View>
         </View>
       </ScrollView>
     </View>
   );
 }
+
 
 const styles = StyleSheet.create({
   // Navigation chips
@@ -245,7 +344,7 @@ const styles = StyleSheet.create({
   // Section
   section: {
     paddingHorizontal: spacing(2),
-    marginTop: spacing(3)
+    marginTop: spacing(2)
   },
   sectionTitle: {
     color: colors.text,
@@ -258,70 +357,78 @@ const styles = StyleSheet.create({
     marginBottom: spacing(3),
   },
 
-  // Recipe Cards
-  recipeCard: {
+  // Vertical Grid
+  verticalGrid: {
+    gap: spacing(2),
+    paddingHorizontal: spacing(2),
+  },
+
+  // Vertical Cards - Full width for Recipe tab
+  verticalCard: {
     backgroundColor: colors.card,
     borderRadius: radii.lg,
-    marginBottom: spacing(3),
     borderWidth: 1,
     borderColor: colors.line,
     overflow: 'hidden',
+    position: 'relative',
   },
-  recipeImage: {
+  cocktailImage: {
     width: '100%',
-    height: 200,
+    height: 160,
   },
-  recipeContent: {
-    padding: spacing(2.5),
+  cocktailInfo: {
+    padding: spacing(2),
   },
-  recipeHeader: {
+  cocktailMeta: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: spacing(1),
-  },
-  recipeName: {
-    fontSize: 18,
-    fontWeight: '700',
-    color: colors.text,
-    flex: 1,
-  },
-  shareButton: {
-    padding: spacing(0.5),
-  },
-  recipeDescription: {
-    fontSize: 14,
-    color: colors.subtext,
-    marginBottom: spacing(2),
-    lineHeight: 20,
-  },
-  recipeStats: {
-    flexDirection: 'row',
-    marginBottom: spacing(2),
     gap: spacing(2),
+    marginTop: spacing(1),
   },
-  statItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing(0.5),
+  cocktailDifficulty: {
+    fontSize: 12,
+    color: colors.accent,
+    fontWeight: '600',
   },
-  statText: {
+  cocktailTime: {
     fontSize: 12,
     color: colors.subtext,
     fontWeight: '600',
   },
-  ingredientsList: {
-    marginTop: spacing(1),
+  saveButton: {
+    position: 'absolute',
+    top: spacing(1),
+    right: spacing(1),
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
-  ingredientsLabel: {
-    fontSize: 14,
-    fontWeight: '600',
+  additionalActions: {
+    position: 'absolute',
+    top: spacing(1),
+    right: spacing(5.5),
+    flexDirection: 'row',
+    gap: spacing(0.5),
+  },
+  additionalActionButton: {
+    width: 30,
+    height: 30,
+    borderRadius: 15,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+
+  // Text styles matching featured page
+  cardTitle: {
     color: colors.text,
-    marginBottom: spacing(0.5),
+    fontWeight: '800',
+    fontSize: fonts.h3,
   },
-  ingredientsText: {
-    fontSize: 14,
-    color: colors.subtext,
-    lineHeight: 20,
+  cardSub: {
+    color: colors.muted,
+    marginTop: 2,
   },
 });
