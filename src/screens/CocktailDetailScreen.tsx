@@ -575,6 +575,65 @@ const cocktailData = {
     glassware: 'Coupe Glass',
     kitAvailable: true,
     kitPrice: 39.99
+  },
+  'classic-martini': {
+    id: 'classic-martini',
+    title: 'Classic Martini',
+    subtitle: 'Classic • Gin-based',
+    description: 'A timeless classic cocktail with gin and dry vermouth. The epitome of cocktail elegance and sophistication.',
+    img: 'https://images.unsplash.com/photo-1541976076758-347942db1978?q=80&w=1200&auto=format&fit=crop',
+    difficulty: 'Easy',
+    time: '2 min',
+    ingredients: [
+      { name: '2 oz Gin', note: 'London Dry preferred' },
+      { name: '1/2 oz Dry Vermouth', note: 'Quality matters' },
+      { name: 'Olive or Lemon Twist', note: 'For garnish' }
+    ],
+    instructions: [
+      'Add gin and vermouth to mixing glass with ice',
+      'Stir for 30 seconds until well chilled',
+      'Strain into chilled coupe glass',
+      'Garnish with olive or lemon twist'
+    ],
+    tips: [
+      'Stir, don\'t shake for clarity',
+      'Chill your glass beforehand',
+      'Less vermouth for a drier martini'
+    ],
+    glassware: 'Coupe Glass',
+    kitAvailable: true,
+    kitPrice: 44.99
+  },
+  'virgin-mojito': {
+    id: 'virgin-mojito',
+    title: 'Virgin Mojito',
+    subtitle: 'Non-Alcoholic • Refreshing',
+    description: 'Refreshing non-alcoholic version of the classic mojito with fresh mint, lime, and sparkling water.',
+    img: 'https://images.unsplash.com/photo-1497534547324-0ebb3f052e88?q=80&w=1200&auto=format&fit=crop',
+    difficulty: 'Easy',
+    time: '2 min',
+    ingredients: [
+      { name: 'Fresh Lime Juice', note: '1 oz freshly squeezed' },
+      { name: 'Mint Leaves', note: '8-10 fresh leaves' },
+      { name: 'Simple Syrup', note: '1/2 oz to taste' },
+      { name: 'Soda Water', note: '4 oz chilled' },
+      { name: 'Ice', note: 'Crushed preferred' }
+    ],
+    instructions: [
+      'Muddle mint leaves gently in glass',
+      'Add lime juice and simple syrup',
+      'Fill glass with crushed ice',
+      'Top with soda water',
+      'Stir gently and garnish with mint sprig'
+    ],
+    tips: [
+      'Don\'t over-muddle the mint',
+      'Use fresh lime juice only',
+      'Adjust sweetness to taste'
+    ],
+    glassware: 'Highball Glass',
+    kitAvailable: false,
+    kitPrice: 0
   }
 };
 
