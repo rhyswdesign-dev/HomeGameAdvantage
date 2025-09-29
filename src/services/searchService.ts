@@ -1,3 +1,5 @@
+import { searchHistoryService, SearchSuggestion } from './searchHistoryService';
+
 export interface SearchableItem {
   id: string;
   title: string;
@@ -18,8 +20,13 @@ export interface FilterOptions {
   difficulties: string[];
   abvRange: [number, number];
   timeRange: [number, number];
+  ingredients: string[];
+  equipment: string[];
+  tags: string[];
   sortBy: 'relevance' | 'popularity' | 'recent' | 'difficulty' | 'time' | 'abv';
   sortOrder: 'asc' | 'desc';
+  showOnlyFavorites: boolean;
+  showOnlyCompleted: boolean;
 }
 
 class SearchService {
@@ -127,16 +134,23 @@ class SearchService {
   }
 
   // Search with query
-  search(query: string, filters?: Partial<FilterOptions>): SearchableItem[] {
-    if (!query.trim() && !filters) {
+  async search(query: string, filters?: Partial<FilterOptions>): Promise<SearchableItem[]> {
+    const trimmedQuery = query.trim();
+
+    // Record search in history if query is provided
+    if (trimmedQuery) {
+      await searchHistoryService.addSearch(trimmedQuery);
+    }
+
+    if (!trimmedQuery && !filters) {
       return this.searchIndex.slice(0, 20); // Return top 20 by popularity
     }
 
     let results = this.searchIndex;
 
-    // Apply text search
-    if (query.trim()) {
-      const searchTerms = query.toLowerCase().split(' ');
+    // Apply text search with enhanced relevance scoring
+    if (trimmedQuery) {
+      const searchTerms = trimmedQuery.toLowerCase().split(' ');
       results = results.filter(item => {
         const searchableText = [
           item.title,
@@ -145,7 +159,28 @@ class SearchService {
           ...item.tags
         ].join(' ').toLowerCase();
 
+        // Check if any search term matches
         return searchTerms.some(term => searchableText.includes(term));
+      });
+
+      // Add relevance scores
+      results = results.map(item => {
+        let relevanceScore = 0;
+        const titleLower = item.title.toLowerCase();
+        const searchLower = trimmedQuery.toLowerCase();
+
+        // Exact title match gets highest score
+        if (titleLower === searchLower) relevanceScore += 100;
+        // Title starts with query gets high score
+        else if (titleLower.startsWith(searchLower)) relevanceScore += 80;
+        // Title contains query gets medium score
+        else if (titleLower.includes(searchLower)) relevanceScore += 60;
+        // Tag matches get lower score
+        else if (item.tags.some(tag => tag.toLowerCase().includes(searchLower))) relevanceScore += 40;
+        // Description match gets lowest score
+        else if (item.description?.toLowerCase().includes(searchLower)) relevanceScore += 20;
+
+        return { ...item, relevanceScore };
       });
     }
 
@@ -157,9 +192,30 @@ class SearchService {
     // Apply sorting
     const sortBy = filters?.sortBy || 'relevance';
     const sortOrder = filters?.sortOrder || 'desc';
-    results = this.sortResults(results, sortBy, sortOrder, query);
+    results = this.sortResults(results, sortBy, sortOrder, trimmedQuery);
+
+    // Record result count
+    if (trimmedQuery) {
+      // Update search history with result count (simplified - you'd track the specific search)
+      // This could be enhanced to update the specific search entry
+    }
 
     return results.slice(0, 50); // Limit to 50 results
+  }
+
+  // Get search suggestions
+  getSearchSuggestions(query: string): SearchSuggestion[] {
+    return searchHistoryService.getSearchSuggestions(query);
+  }
+
+  // Get recent searches
+  getRecentSearches(): string[] {
+    return searchHistoryService.getRecentSearches();
+  }
+
+  // Get trending searches
+  getTrendingSearches() {
+    return searchHistoryService.getTrendingSearches();
   }
 
   private applyFilters(items: SearchableItem[], filters: Partial<FilterOptions>): SearchableItem[] {
@@ -170,23 +226,76 @@ class SearchService {
     }
 
     if (filters.difficulties && filters.difficulties.length > 0) {
-      filtered = filtered.filter(item => 
+      filtered = filtered.filter(item =>
         item.difficulty && filters.difficulties!.includes(item.difficulty)
       );
     }
 
     if (filters.abvRange) {
       const [min, max] = filters.abvRange;
-      filtered = filtered.filter(item => 
+      filtered = filtered.filter(item =>
         item.abv !== undefined && item.abv >= min && item.abv <= max
       );
     }
 
     if (filters.timeRange) {
       const [min, max] = filters.timeRange;
-      filtered = filtered.filter(item => 
+      filtered = filtered.filter(item =>
         item.time !== undefined && item.time >= min && item.time <= max
       );
+    }
+
+    // Filter by ingredients
+    if (filters.ingredients && filters.ingredients.length > 0) {
+      filtered = filtered.filter(item => {
+        const itemIngredients = item.data?.ingredients || [];
+        return filters.ingredients!.some(ingredient =>
+          itemIngredients.some((itemIng: string) =>
+            itemIng.toLowerCase().includes(ingredient.toLowerCase())
+          )
+        );
+      });
+    }
+
+    // Filter by equipment
+    if (filters.equipment && filters.equipment.length > 0) {
+      filtered = filtered.filter(item => {
+        const itemEquipment = item.data?.equipment || [];
+        return filters.equipment!.some(equipment =>
+          itemEquipment.some((itemEq: string) =>
+            itemEq.toLowerCase().includes(equipment.toLowerCase())
+          )
+        );
+      });
+    }
+
+    // Filter by tags
+    if (filters.tags && filters.tags.length > 0) {
+      filtered = filtered.filter(item =>
+        filters.tags!.some(tag =>
+          item.tags.some(itemTag =>
+            itemTag.toLowerCase().includes(tag.toLowerCase())
+          )
+        )
+      );
+    }
+
+    // Filter favorites only (mock implementation)
+    if (filters.showOnlyFavorites) {
+      filtered = filtered.filter(item => {
+        // In a real app, this would check user's favorites
+        // For demo, we'll assume high popularity items are "favorites"
+        return (item.popularity || 0) > 85;
+      });
+    }
+
+    // Filter completed only (mock implementation)
+    if (filters.showOnlyCompleted) {
+      filtered = filtered.filter(item => {
+        // In a real app, this would check user's completed recipes
+        // For demo, we'll use a mock completion status
+        return item.data?.completed === true || (item.popularity || 0) > 90;
+      });
     }
 
     return filtered;
