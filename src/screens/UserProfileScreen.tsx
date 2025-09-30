@@ -7,6 +7,8 @@ import {
   Pressable,
   Image,
   FlatList,
+  Modal,
+  TouchableOpacity,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
@@ -15,6 +17,7 @@ import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '../navigation/RootNavigator';
 import { useSocialData, User, Post, Recipe, Achievement } from '../hooks/useSocialData';
+import { usePosts } from '../contexts/PostsContext';
 
 type UserProfileRouteProp = RouteProp<RootStackParamList, 'UserProfile'>;
 
@@ -33,10 +36,12 @@ const tabs: TabOption[] = [
 
 export default function UserProfileScreen() {
   const [activeTab, setActiveTab] = useState<'posts' | 'recipes' | 'achievements' | 'about'>('posts');
+  const [qrModalVisible, setQrModalVisible] = useState(false);
   const nav = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const route = useRoute<UserProfileRouteProp>();
   const { userId, isOwnProfile = false } = route.params;
   const { socialData, toggleFollow, isFollowing } = useSocialData();
+  const { userPosts } = usePosts();
 
   // Get user data - if it's own profile, use current user, otherwise find from suggested users
   const user = isOwnProfile 
@@ -44,6 +49,46 @@ export default function UserProfileScreen() {
     : socialData.suggestedUsers.find(u => u.id === userId) || socialData.currentUser;
 
   const isUserFollowing = isFollowing(user.id);
+
+  // Generate QR code data with user's favorite spirits and recommendations
+  const generateQRData = () => {
+    const favoriteSpirits = ['Gin', 'Whiskey', 'Rum']; // Mock data - would come from user profile
+    const recommendations = [
+      'Try a classic Negroni',
+      'Hendricks Gin would be perfect for your collection',
+      'Consider adding a quality bourbon like Buffalo Trace'
+    ];
+
+    return {
+      userId: user.id,
+      username: user.username,
+      favoriteSpirits,
+      recommendations,
+      profile: `https://app.homegameadvantage.com/profile/${user.id}`
+    };
+  };
+
+  const getPostTypeColor = (type: string) => {
+    switch (type) {
+      case 'general': return colors.accent;
+      case 'review': return '#FF6B35';
+      case 'discovery': return '#8B5CF6';
+      case 'achievement': return '#F59E0B';
+      case 'event': return '#10B981';
+      default: return colors.accent;
+    }
+  };
+
+  const getPostTypeIcon = (type: string): any => {
+    switch (type) {
+      case 'general': return 'chatbubble';
+      case 'review': return 'star';
+      case 'discovery': return 'compass';
+      case 'achievement': return 'trophy';
+      case 'event': return 'calendar';
+      default: return 'chatbubble';
+    }
+  };
 
   useLayoutEffect(() => {
     nav.setOptions({
@@ -111,9 +156,69 @@ export default function UserProfileScreen() {
   const renderTabContent = () => {
     switch (activeTab) {
       case 'posts':
+        // Only show user posts for own profile
+        const postsToShow = isOwnProfile ? userPosts : [];
+
         return (
-          <View style={styles.tabContent}>
-            <Text style={styles.emptyStateText}>Posts coming soon</Text>
+          <View style={styles.tabContentScroll}>
+            {postsToShow.length > 0 ? (
+              <View style={styles.postsContainer}>
+                {postsToShow.map(post => (
+                  <View key={post.id} style={styles.postCard}>
+                    <View style={styles.postHeader}>
+                      <Image source={{ uri: post.author.avatar }} style={styles.postAvatar} />
+                      <View style={styles.postAuthorInfo}>
+                        <View style={styles.authorNameRow}>
+                          <Text style={styles.authorName}>{post.author.name}</Text>
+                          {post.author.isVerified && <Ionicons name="checkmark-circle" size={16} color={colors.accent} />}
+                        </View>
+                        <Text style={styles.authorUsername}>@{post.author.username} • {post.timestamp}</Text>
+                      </View>
+                      <View style={[styles.postTypeBadge, { backgroundColor: getPostTypeColor(post.type) + '20' }]}>
+                        <Ionicons name={getPostTypeIcon(post.type)} size={14} color={getPostTypeColor(post.type)} />
+                        <Text style={[styles.postTypeText, { color: getPostTypeColor(post.type) }]}>
+                          {post.type.charAt(0).toUpperCase() + post.type.slice(1)}
+                        </Text>
+                      </View>
+                    </View>
+
+                    <Text style={styles.postContent}>{post.content}</Text>
+                    {post.image && <Image source={{ uri: post.image }} style={styles.postImage} />}
+
+                    <View style={styles.postActions}>
+                      <View style={styles.actionButton}>
+                        <Ionicons name="heart-outline" size={20} color={colors.subtext} />
+                        <Text style={styles.actionText}>{post.likes}</Text>
+                      </View>
+                      <View style={styles.actionButton}>
+                        <Ionicons name="chatbubble-outline" size={20} color={colors.subtext} />
+                        <Text style={styles.actionText}>{post.comments}</Text>
+                      </View>
+                      <View style={styles.actionButton}>
+                        <Ionicons name="arrow-redo-outline" size={20} color={colors.subtext} />
+                      </View>
+                      <View style={styles.actionButton}>
+                        <Ionicons name="bookmark-outline" size={20} color={colors.subtext} />
+                      </View>
+                    </View>
+                  </View>
+                ))}
+              </View>
+            ) : (
+              <View style={styles.tabContent}>
+                <Ionicons name="document-text-outline" size={48} color={colors.subtext} />
+                {isOwnProfile ? (
+                  <>
+                    <Text style={styles.emptyStateText}>No posts yet</Text>
+                    <Text style={styles.emptyStateSubtext}>
+                      Share your first post in the Community tab to see it here
+                    </Text>
+                  </>
+                ) : (
+                  <Text style={styles.emptyStateText}>No posts to show</Text>
+                )}
+              </View>
+            )}
           </View>
         );
       case 'recipes':
@@ -243,6 +348,18 @@ export default function UserProfileScreen() {
             {renderStatItem('Recipes', user.stats.recipes)}
           </View>
 
+          {/* QR Code Section */}
+          <View style={styles.qrSection}>
+            <TouchableOpacity
+              style={styles.qrButton}
+              onPress={() => setQrModalVisible(true)}
+            >
+              <Ionicons name="qr-code" size={20} color={colors.accent} />
+              <Text style={styles.qrButtonText}>Share Profile & Preferences</Text>
+            </TouchableOpacity>
+            <Text style={styles.qrSubtext}>Let friends see your spirit preferences</Text>
+          </View>
+
           {/* Action Buttons */}
           {!isOwnProfile && (
             <View style={styles.actionButtons}>
@@ -290,6 +407,64 @@ export default function UserProfileScreen() {
         {/* Tab Content */}
         {renderTabContent()}
       </ScrollView>
+
+      {/* QR Code Modal */}
+      <Modal
+        visible={qrModalVisible}
+        animationType="slide"
+        presentationStyle="pageSheet"
+        onRequestClose={() => setQrModalVisible(false)}
+      >
+        <SafeAreaView style={styles.modalContainer}>
+          <View style={styles.modalHeader}>
+            <TouchableOpacity onPress={() => setQrModalVisible(false)}>
+              <Ionicons name="close" size={24} color={colors.text} />
+            </TouchableOpacity>
+            <Text style={styles.modalTitle}>Share Your Profile</Text>
+            <View style={{ width: 24 }} />
+          </View>
+
+          <View style={styles.modalContent}>
+            {/* Mock QR Code */}
+            <View style={styles.qrCodeContainer}>
+              <View style={styles.qrCode}>
+                <Text style={styles.qrCodeText}>QR</Text>
+                <Text style={styles.qrCodeSubtext}>Code</Text>
+              </View>
+            </View>
+
+            <Text style={styles.qrDescription}>
+              Friends can scan this code to see your spirit preferences and get gift recommendations
+            </Text>
+
+            {/* User Info */}
+            <View style={styles.userInfoCard}>
+              <Image source={{ uri: user.avatar }} style={styles.modalAvatar} />
+              <View style={styles.userInfoText}>
+                <Text style={styles.modalUsername}>@{user.username}</Text>
+                <Text style={styles.modalDisplayName}>{user.name}</Text>
+              </View>
+            </View>
+
+            {/* Preferences Preview */}
+            <View style={styles.preferencesCard}>
+              <Text style={styles.preferencesTitle}>Spirit Preferences</Text>
+              <View style={styles.preferencesGrid}>
+                {generateQRData().favoriteSpirits.map((spirit, index) => (
+                  <View key={index} style={styles.spiritTag}>
+                    <Text style={styles.spiritTagText}>{spirit}</Text>
+                  </View>
+                ))}
+              </View>
+            </View>
+
+            <TouchableOpacity style={styles.shareButton}>
+              <Ionicons name="share" size={20} color={colors.bg} />
+              <Text style={styles.shareButtonText}>Share QR Code</Text>
+            </TouchableOpacity>
+          </View>
+        </SafeAreaView>
+      </Modal>
     </SafeAreaView>
   );
 }
@@ -581,5 +756,256 @@ const styles = StyleSheet.create({
     color: colors.subtext,
     fontWeight: '600',
     minWidth: 30,
+  },
+  postsContainer: {
+    paddingHorizontal: spacing(3),
+    gap: spacing(2),
+  },
+  postCard: {
+    backgroundColor: colors.card,
+    borderRadius: radii.lg,
+    padding: spacing(2.5),
+    borderWidth: 1,
+    borderColor: colors.line,
+  },
+  postHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: spacing(2),
+  },
+  postAvatar: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    marginRight: spacing(1.5),
+  },
+  postAuthorInfo: {
+    flex: 1,
+  },
+  authorNameRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing(0.5),
+  },
+  authorName: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: colors.text,
+  },
+  authorUsername: {
+    fontSize: 12,
+    color: colors.subtext,
+  },
+  postTypeBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: spacing(1),
+    paddingVertical: spacing(0.5),
+    borderRadius: radii.sm,
+    gap: spacing(0.5),
+  },
+  postTypeText: {
+    fontSize: 11,
+    fontWeight: '600',
+  },
+  postContent: {
+    fontSize: 14,
+    color: colors.text,
+    lineHeight: 20,
+    marginBottom: spacing(1.5),
+  },
+  postImage: {
+    width: '100%',
+    height: 150,
+    borderRadius: radii.md,
+    marginBottom: spacing(1.5),
+  },
+  postActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingTop: spacing(1.5),
+    borderTopWidth: 1,
+    borderTopColor: colors.line,
+  },
+  actionButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing(0.5),
+    flex: 1,
+  },
+  actionText: {
+    fontSize: 12,
+    color: colors.subtext,
+    fontWeight: '600',
+  },
+  emptyStateSubtext: {
+    fontSize: 14,
+    color: colors.subtext,
+    textAlign: 'center',
+    marginTop: spacing(1),
+    opacity: 0.7,
+  },
+  tabContentScroll: {
+    paddingBottom: spacing(6),
+  },
+  // QR Code styles
+  qrSection: {
+    alignItems: 'center',
+    marginBottom: spacing(3),
+  },
+  qrButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: colors.accent + '20',
+    paddingHorizontal: spacing(3),
+    paddingVertical: spacing(2),
+    borderRadius: radii.md,
+    borderWidth: 1,
+    borderColor: colors.accent + '40',
+    gap: spacing(1),
+    marginBottom: spacing(1),
+  },
+  qrButtonText: {
+    color: colors.accent,
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  qrSubtext: {
+    fontSize: 12,
+    color: colors.subtext,
+    textAlign: 'center',
+  },
+  // Modal styles
+  modalContainer: {
+    flex: 1,
+    backgroundColor: colors.bg,
+  },
+  modalHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: spacing(3),
+    paddingVertical: spacing(2),
+    borderBottomWidth: 1,
+    borderBottomColor: colors.line,
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: colors.text,
+  },
+  modalContent: {
+    flex: 1,
+    padding: spacing(3),
+    alignItems: 'center',
+  },
+  qrCodeContainer: {
+    alignItems: 'center',
+    marginBottom: spacing(3),
+  },
+  qrCode: {
+    width: 200,
+    height: 200,
+    backgroundColor: colors.card,
+    borderRadius: radii.lg,
+    borderWidth: 2,
+    borderColor: colors.line,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: spacing(2),
+  },
+  qrCodeText: {
+    fontSize: 32,
+    fontWeight: '800',
+    color: colors.text,
+  },
+  qrCodeSubtext: {
+    fontSize: 16,
+    color: colors.subtext,
+  },
+  qrDescription: {
+    fontSize: 14,
+    color: colors.subtext,
+    textAlign: 'center',
+    lineHeight: 20,
+    marginBottom: spacing(4),
+  },
+  userInfoCard: {
+    flexDirection: 'row',
+    backgroundColor: colors.card,
+    padding: spacing(3),
+    borderRadius: radii.md,
+    borderWidth: 1,
+    borderColor: colors.line,
+    width: '100%',
+    marginBottom: spacing(3),
+    alignItems: 'center',
+    gap: spacing(2),
+  },
+  modalAvatar: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+  },
+  userInfoText: {
+    flex: 1,
+  },
+  modalUsername: {
+    fontSize: 14,
+    color: colors.subtext,
+    marginBottom: spacing(0.5),
+  },
+  modalDisplayName: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: colors.text,
+  },
+  preferencesCard: {
+    backgroundColor: colors.card,
+    padding: spacing(3),
+    borderRadius: radii.md,
+    borderWidth: 1,
+    borderColor: colors.line,
+    width: '100%',
+    marginBottom: spacing(4),
+  },
+  preferencesTitle: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: colors.text,
+    marginBottom: spacing(2),
+  },
+  preferencesGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: spacing(1.5),
+  },
+  spiritTag: {
+    backgroundColor: colors.accent + '20',
+    paddingHorizontal: spacing(2),
+    paddingVertical: spacing(1),
+    borderRadius: radii.sm,
+    borderWidth: 1,
+    borderColor: colors.accent + '40',
+  },
+  spiritTagText: {
+    fontSize: 12,
+    color: colors.accent,
+    fontWeight: '600',
+  },
+  shareButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: colors.accent,
+    paddingHorizontal: spacing(4),
+    paddingVertical: spacing(2.5),
+    borderRadius: radii.md,
+    gap: spacing(1),
+  },
+  shareButtonText: {
+    color: colors.bg,
+    fontSize: 16,
+    fontWeight: '600',
   },
 });

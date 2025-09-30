@@ -1,718 +1,716 @@
 /**
- * Lessons Screen - Luxury bartending education experience
+ * Lessons Screen - Professional bartending curriculum
  */
 
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, Pressable, ScrollView, Dimensions } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, Pressable, ScrollView, Alert, SafeAreaView, useWindowDimensions } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../navigation/RootNavigator';
-import { colors, fonts, spacing, radii } from '../theme/tokens';
-import { Ionicons } from '@expo/vector-icons';
-import { LinearGradient } from 'expo-linear-gradient';
+import { colors, spacing, radii } from '../theme/tokens';
+import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
+import { TabView, SceneMap, TabBar } from 'react-native-tab-view';
 import curriculumData from '../../curriculum-data.json';
+import { useUser } from '../store/useUser';
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
 
-const { width } = Dimensions.get('window');
+// Challenges component
+function ChallengesView() {
+  const { lives, xp, level, streak } = useUser();
 
-// New user experience - starting fresh
-const mockUser = {
-  name: 'Alex',
-  level: 1,
-  xp: 0,
-  streak: 0,
-  avatar: '🍸',
-  membershipTier: 'Premium'
-};
-
-// Fresh start - no progress yet
-const mockProgress = {
-  'lesson-ch1-001': { completed: false, locked: false, progress: 0, rating: 0, mastery: null },
-  'lesson-ch1-002': { completed: false, locked: true, progress: 0, rating: 0, mastery: null },
-  'lesson-ch1-003': { completed: false, locked: true, progress: 0, rating: 0, mastery: null },
-  'lesson-ch1-004': { completed: false, locked: true, progress: 0, rating: 0, mastery: null },
-  'lesson-ch1-005': { completed: false, locked: true, progress: 0, rating: 0, mastery: null },
-  'lesson-ch1-006': { completed: false, locked: true, progress: 0, rating: 0, mastery: null },
-  'lesson-ch1-007': { completed: false, locked: true, progress: 0, rating: 0, mastery: null },
-  'lesson-ch1-008': { completed: false, locked: true, progress: 0, rating: 0, mastery: null },
-  'lesson-ch1-009': { completed: false, locked: true, progress: 0, rating: 0, mastery: null },
-  'lesson-ch1-checkpoint': { completed: false, locked: true, progress: 0, rating: 0, mastery: null },
-};
-
-export default function LessonsScreen() {
-  const navigation = useNavigation<NavigationProp>();
-  const [selectedModule, setSelectedModule] = useState('ch1-basics');
-  
-  const currentModule = curriculumData.modules.find(m => m.id === selectedModule);
-  const moduleLessons = curriculumData.lessons.filter(l => l.moduleId === selectedModule);
-  
-  const getLessonProgress = (lessonId: string) => {
-    return mockProgress[lessonId] || { completed: false, locked: true, progress: 0, rating: 0 };
-  };
-
-  const getLessonIcon = (lesson: any, progress: any) => {
-    if (lesson.id.includes('checkpoint')) {
-      return progress.completed ? 'trophy' : progress.locked ? 'lock-closed' : 'trophy-outline';
-    }
-    return progress.completed ? 'checkmark-circle' : progress.locked ? 'lock-closed' : 'play-circle';
-  };
-
-  const getLessonColors = (progress: any) => {
-    if (progress.completed) return [colors.success, colors.successDark];
-    if (progress.locked) return ['#4A5568', '#2D3748'];
-    return [colors.accent, colors.accentDark];
-  };
-
-  // Fresh start learning journey
-  const masterclassModules = [
-    { 
-      title: 'Foundations of Excellence', 
-      icon: '🎯', 
-      progress: 0,
-      xpEarned: 0,
-      difficulty: 'Essential',
-      estimatedTime: '2 hours',
-      completed: false,
-      rating: 0,
-      skills: ['Fundamentals', 'Precision', 'Technique']
-    },
-    { 
-      title: 'Spirit Mastery', 
-      icon: '🥃', 
-      progress: 0,
-      xpEarned: 0,
-      difficulty: 'Intermediate',
-      estimatedTime: '3 hours',
-      completed: false,
-      rating: 0,
-      skills: ['Whiskey', 'Gin', 'Rum', 'Vodka']
-    },
-    { 
-      title: 'Mixology Artistry', 
-      icon: '🎨', 
-      progress: 0,
-      xpEarned: 0,
-      difficulty: 'Advanced',
-      estimatedTime: '4 hours',
-      completed: false,
-      rating: 0,
-      skills: ['Creativity', 'Innovation', 'Presentation']
-    },
-    { 
-      title: 'Professional Service', 
-      icon: '⭐', 
-      progress: 0,
-      xpEarned: 0,
-      difficulty: 'Expert',
-      estimatedTime: '3 hours',
-      completed: false,
-      rating: 0,
-      skills: ['Hospitality', 'Speed', 'Grace']
-    }
+  const challenges = [
+    { id: 1, title: 'Speed Mixing', description: 'Mix 5 cocktails in under 3 minutes', reward: '50 XP', difficulty: 'Easy', completed: false },
+    { id: 2, title: 'Perfect Pour', description: 'Pour 10 perfect shots without spillage', reward: '75 XP', difficulty: 'Medium', completed: true },
+    { id: 3, title: 'Memory Master', description: 'Recite 20 cocktail recipes from memory', reward: '100 XP', difficulty: 'Hard', completed: false },
+    { id: 4, title: 'Garnish Artist', description: 'Create 15 unique garnish combinations', reward: '60 XP', difficulty: 'Medium', completed: false },
   ];
 
-  const renderMasterclassModule = (module: any, index: number) => (
-    <Pressable key={index} style={styles.masterclassCard}>
-      <LinearGradient
-        colors={module.completed ? [colors.gold, '#E5B567'] : module.progress > 0 ? [colors.accent, colors.accentDark] : ['#3A2A1F', '#2A1F16']}
-        style={styles.moduleGradient}
-      >
-        <View style={styles.moduleHeader}>
-          <View style={styles.moduleIconContainer}>
-            <Text style={styles.moduleIcon}>{module.icon}</Text>
-          </View>
-          <View style={styles.moduleInfo}>
-            <Text style={styles.moduleTitle}>{module.title}</Text>
-            <Text style={styles.moduleDifficulty}>{module.difficulty}</Text>
-          </View>
-          <View style={styles.moduleStats}>
-            <Text style={styles.moduleTime}>{module.estimatedTime}</Text>
-            {module.xpEarned > 0 && (
-              <Text style={styles.moduleXP}>+{module.xpEarned} XP</Text>
-            )}
-          </View>
-        </View>
-        
-        <View style={styles.moduleProgress}>
-          <View style={styles.progressTrack}>
-            <View style={[styles.progressFill, { width: `${module.progress}%` }]} />
-          </View>
-          <Text style={styles.progressText}>{module.progress}%</Text>
-        </View>
-        
-        <View style={styles.moduleSkills}>
-          {module.skills.map((skill: string, skillIndex: number) => (
-            <View key={skillIndex} style={styles.skillTag}>
-              <Text style={styles.skillText}>{skill}</Text>
+  return (
+    <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>Daily Challenges</Text>
+        <Text style={styles.sectionSubtitle}>
+          Complete challenges to earn extra XP and improve your skills
+        </Text>
+
+        {challenges.map(challenge => (
+          <Pressable
+            key={challenge.id}
+            style={[styles.challengeCard, challenge.completed && styles.challengeCardCompleted]}
+          >
+            <View style={styles.challengeContent}>
+              <View style={styles.challengeHeader}>
+                <Text style={[styles.challengeTitle, challenge.completed && styles.completedText]}>
+                  {challenge.title}
+                </Text>
+                <Text style={[styles.challengeDifficulty, challenge.completed && styles.completedText]}>
+                  {challenge.difficulty}
+                </Text>
+              </View>
+              <Text style={[styles.challengeDescription, challenge.completed && styles.completedText]}>
+                {challenge.description}
+              </Text>
+              <Text style={[styles.challengeReward, challenge.completed && styles.completedText]}>
+                Reward: {challenge.reward}
+              </Text>
             </View>
-          ))}
+            <View style={styles.challengeStatus}>
+              {challenge.completed ? (
+                <MaterialCommunityIcons name="check-circle" size={24} color={colors.accent} />
+              ) : (
+                <Ionicons name="play-circle" size={24} color={colors.accent} />
+              )}
+            </View>
+          </Pressable>
+        ))}
+      </View>
+    </ScrollView>
+  );
+}
+
+// Lessons component (extracted from main component)
+function LessonsView() {
+  const navigation = useNavigation<NavigationProp>();
+  const { lives, xp, level, streak, completedLessons, checkLifeRefresh } = useUser();
+  const [modules, setModules] = useState<any[]>([]);
+  const [selectedModule, setSelectedModule] = useState<any | null>(null);
+  const [moduleLessons, setModuleLessons] = useState<any[]>([]);
+
+  useEffect(() => {
+    // Check for life refresh on screen load
+    checkLifeRefresh();
+
+    // Load actual curriculum modules
+    const sortedModules = curriculumData.modules
+      .sort((a, b) => a.chapterIndex - b.chapterIndex)
+      .map(module => ({
+        ...module,
+        completed: false, // Calculate based on completed lessons
+        locked: module.chapterIndex > 1 // Lock modules after first
+      }));
+
+    setModules(sortedModules);
+  }, [checkLifeRefresh]);
+
+  const handleModulePress = (module: any) => {
+    if (module.locked) return;
+
+    // Load lessons for selected module
+    const lessons = curriculumData.lessons.filter(lesson => lesson.moduleId === module.id);
+    setSelectedModule(module);
+    setModuleLessons(lessons);
+  };
+
+  const handleBackToModules = () => {
+    setSelectedModule(null);
+    setModuleLessons([]);
+  };
+
+  const handleHeartsPress = () => {
+    // Navigate to vault store hearts section
+    console.log('🔧 LessonsScreen: Navigating to VaultStore with hearts tab');
+    navigation.navigate('VaultStore', { tab: 'hearts' });
+  };
+
+  const handleProfilePress = () => {
+    // Navigate to profile tab
+    console.log('🔧 LessonsScreen: Navigating to Profile tab');
+    navigation.navigate('Profile');
+  };
+
+
+  const handleLessonPress = (lesson: any) => {
+    console.log('🔧 LessonsScreen: Navigating to lesson:', lesson.id, lesson.title);
+    navigation.navigate('LessonEngine', {
+      lessonId: lesson.id,
+      isFirstLesson: false
+    });
+  };
+
+  const renderModule = (module: any, index: number) => (
+    <Pressable
+      key={module.id}
+      style={[styles.moduleCard, module.locked && styles.moduleCardLocked]}
+      disabled={module.locked}
+      onPress={() => handleModulePress(module)}
+    >
+      <View style={styles.moduleHeader}>
+        <View style={styles.moduleIndex}>
+          <Text style={styles.moduleIndexText}>{module.chapterIndex}</Text>
         </View>
-      </LinearGradient>
+        <View style={styles.moduleInfo}>
+          <Text style={[styles.moduleTitle, module.locked && styles.lockedText]}>
+            {module.title}
+          </Text>
+          <Text style={[styles.moduleTime, module.locked && styles.lockedText]}>
+            {module.estimatedMinutes} min • {module.tags.join(', ')}
+          </Text>
+        </View>
+        <View style={styles.moduleActions}>
+          {module.locked && (
+            <Ionicons name="lock-closed" size={20} color={colors.subtext} />
+          )}
+          {module.completed && (
+            <MaterialCommunityIcons name="check-circle" size={20} color={colors.accent} />
+          )}
+          {!module.locked && !module.completed && (
+            <Ionicons name="chevron-forward" size={20} color={colors.subtext} />
+          )}
+        </View>
+      </View>
     </Pressable>
   );
 
   const renderLesson = (lesson: any, index: number) => {
-    const progress = getLessonProgress(lesson.id);
-    const isCheckpoint = lesson.id.includes('checkpoint');
-    const lessonColors = getLessonColors(progress);
-    const position = index % 2 === 0 ? 'left' : 'right';
-    
+    const isCompleted = completedLessons.includes(lesson.id);
+    // First lesson is always unlocked, subsequent lessons unlock when previous is completed
+    const isLocked = index > 0 && !completedLessons.includes(moduleLessons[index - 1]?.id);
+    const outOfLives = lives <= 0;
+
     return (
-      <View key={lesson.id} style={[
-        styles.lessonContainer,
-        position === 'right' && styles.lessonContainerRight
-      ]}>
-        <Pressable
-          style={[
-            styles.lessonButton,
-            { opacity: progress.locked ? 0.6 : 1 }
-          ]}
-          onPress={() => {
-            if (!progress.locked) {
-              console.log('🔧 LessonsScreen: Navigating to lesson:', lesson.id, lesson.title);
-              navigation.navigate('LessonEngine', {
-                lessonId: lesson.id,
-                isFirstLesson: false
-              });
-            }
-          }}
-          disabled={progress.locked}
-        >
-          <LinearGradient
-            colors={lessonColors}
-            style={[
-              styles.lessonCircle,
-              isCheckpoint && styles.checkpointCircle
-            ]}
-          >
-            <Ionicons 
-              name={getLessonIcon(lesson, progress)} 
-              size={isCheckpoint ? 28 : 24} 
-              color={progress.locked ? colors.muted : colors.white} 
-            />
-          </LinearGradient>
-          
-          {progress.progress > 0 && progress.progress < 1 && (
-            <View style={styles.progressRing}>
-              <View style={[
-                styles.progressArc,
-                { 
-                  borderColor: colors.warning,
-                  transform: [{ rotate: `${-90 + (progress.progress * 360)}deg` }]
-                }
-              ]} />
-            </View>
+      <Pressable
+        key={lesson.id}
+        style={[
+          styles.lessonCard,
+          isLocked && styles.lessonCardLocked,
+          outOfLives && styles.lessonCardOutOfLives
+        ]}
+        onPress={() => {
+          if (isLocked) return;
+          handleLessonPress(lesson);
+        }}
+        disabled={isLocked}
+      >
+        <View style={styles.lessonContent}>
+          <View style={styles.lessonHeader}>
+            <Text style={[
+              styles.lessonTitle,
+              isLocked && styles.lockedText,
+              outOfLives && styles.outOfLivesText
+            ]}>
+              {lesson.title}
+            </Text>
+            <Text style={[
+              styles.lessonTime,
+              isLocked && styles.lockedText,
+              outOfLives && styles.outOfLivesText
+            ]}>
+              {lesson.estimatedMinutes} min
+            </Text>
+          </View>
+          <View style={styles.lessonTypes}>
+            {lesson.types.slice(0, 3).map((type: string, i: number) => (
+              <View key={i} style={[styles.typeTag, outOfLives && styles.typeTagDisabled]}>
+                <Text style={[styles.typeText, outOfLives && styles.typeTextDisabled]}>{type}</Text>
+              </View>
+            ))}
+          </View>
+
+          {/* Show unlock requirement for locked lessons */}
+          {isLocked && index > 0 && (
+            <Text style={styles.unlockRequirement}>
+              Complete "{moduleLessons[index - 1]?.title}" to unlock
+            </Text>
           )}
-        </Pressable>
-        
-        <Text style={[
-          styles.lessonTitle,
-          { color: progress.locked ? colors.muted : colors.text }
-        ]}>
-          {lesson.title}
-        </Text>
-        
-        {/* Connection line to next lesson */}
-        {index < moduleLessons.length - 1 && (
-          <View style={[
-            styles.connectionPath,
-            position === 'left' ? styles.pathToRight : styles.pathToLeft
-          ]} />
-        )}
-      </View>
+
+          {/* Show out of lives message */}
+          {outOfLives && !isLocked && (
+            <Text style={styles.outOfLivesMessage}>
+              Out of lives! Tap hearts to get more
+            </Text>
+          )}
+        </View>
+        <View style={styles.lessonStatus}>
+          {isCompleted && (
+            <MaterialCommunityIcons name="check-circle" size={24} color={colors.accent} />
+          )}
+          {isLocked && (
+            <Ionicons name="lock-closed" size={20} color={colors.subtext} />
+          )}
+          {outOfLives && !isLocked && (
+            <MaterialCommunityIcons name="heart-broken" size={24} color="#FF6B6B" />
+          )}
+          {!isCompleted && !isLocked && !outOfLives && (
+            <Ionicons name="play-circle" size={24} color={colors.accent} />
+          )}
+        </View>
+      </Pressable>
     );
   };
 
   return (
-    <View style={styles.container}>
-      {/* Premium Header */}
-      <LinearGradient
-        colors={['#2A1F16', '#1F1712']}
-        style={styles.header}
-      >
-        <View style={styles.profileSection}>
-          <LinearGradient
-            colors={[colors.gold, '#E5B567']}
-            style={styles.avatarGradient}
-          >
-            <Text style={styles.avatarEmoji}>{mockUser.avatar}</Text>
-          </LinearGradient>
-          
-          <View style={styles.profileInfo}>
-            <View style={styles.userTitleRow}>
-              <Text style={styles.userName}>{mockUser.name}</Text>
-              <View style={styles.premiumBadge}>
-                <Ionicons name="diamond" size={12} color={colors.gold} />
-                <Text style={styles.premiumText}>{mockUser.membershipTier}</Text>
-              </View>
+    <SafeAreaView style={styles.container}>
+      {/* Header */}
+      <View style={styles.header}>
+        <View style={styles.headerContent}>
+          <View style={styles.statsRow}>
+            <View style={styles.statItem}>
+              <Text style={styles.statValue}>{xp}</Text>
+              <Text style={styles.statLabel}>XP</Text>
             </View>
-            <Text style={styles.userLevel}>Beginner Level {mockUser.level}</Text>
-            <View style={styles.userStatsRow}>
-              <View style={styles.statItem}>
-                <Ionicons name="flash" size={16} color={colors.warning} />
-                <Text style={styles.statText}>{mockUser.xp} XP</Text>
-              </View>
-              <View style={styles.statItem}>
-                <Ionicons name="flame" size={16} color={colors.muted} />
-                <Text style={styles.statText}>No streak yet</Text>
-              </View>
+
+            <View style={styles.statItem}>
+              <Text style={styles.statValue}>{streak}</Text>
+              <Text style={styles.statLabel}>Streak</Text>
             </View>
+
+            <Pressable style={styles.heartsContainer} onPress={handleHeartsPress}>
+              <MaterialCommunityIcons name="heart" size={20} color="#FF6B6B" />
+              <Text style={styles.heartsText}>{lives}</Text>
+            </Pressable>
+
+            <Pressable style={styles.profileContainer} onPress={handleProfilePress}>
+              <Ionicons name="person-circle" size={28} color={colors.accent} />
+            </Pressable>
           </View>
+
         </View>
-      </LinearGradient>
+      </View>
 
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
-        {/* Masterclass Modules */}
-        <View style={styles.masterclassSection}>
-          <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>Masterclass Journey</Text>
-            <Text style={styles.sectionSubtitle}>Premium curriculum designed by world-class bartenders</Text>
-          </View>
-          <View style={styles.modulesContainer}>
-            {masterclassModules.map(renderMasterclassModule)}
-          </View>
-        </View>
-
-        {/* Current Focus - Detailed Lessons */}
-        <View style={styles.focusSection}>
-          <View style={styles.focusHeader}>
-            <Text style={styles.focusTitle}>Current Focus</Text>
-            <Text style={styles.focusModule}>{currentModule?.title}</Text>
-          </View>
-          
-          <View style={styles.lessonsGrid}>
-            {moduleLessons.slice(0, 4).map((lesson, index) => {
-              const progress = getLessonProgress(lesson.id);
-              return (
-                <Pressable
-                  key={lesson.id}
-                  style={[
-                    styles.lessonCard,
-                    progress.locked && styles.lessonCardLocked
-                  ]}
-                  onPress={() => {
-                    if (!progress.locked) {
-                      navigation.navigate('LessonEngine', {
-                        lessonId: lesson.id,
-                        isFirstLesson: false
-                      });
-                    }
-                  }}
-                  disabled={progress.locked}
-                >
-                  <LinearGradient
-                    colors={progress.completed ? [colors.success, colors.successDark] : 
-                           progress.progress > 0 ? [colors.accent, colors.accentDark] :
-                           progress.locked ? ['#2A2A2A', '#1A1A1A'] : [colors.accent, colors.accentDark]}
-                    style={styles.lessonGradient}
-                  >
-                    <View style={styles.lessonContent}>
-                      <Text style={[styles.lessonTitle, progress.locked && styles.lessonTitleLocked]}>
-                        {lesson.title}
-                      </Text>
-                      {progress.locked && (
-                        <Ionicons 
-                          name="lock-closed" 
-                          size={16} 
-                          color={colors.muted} 
-                          style={styles.lockIcon}
-                        />
-                      )}
-                      {progress.progress > 0 && progress.progress < 1 && (
-                        <View style={styles.miniProgress}>
-                          <View style={[styles.miniProgressFill, { width: `${progress.progress * 100}%` }]} />
-                        </View>
-                      )}
-                      {progress.mastery && (
-                        <Text style={styles.masteryLevel}>{progress.mastery}</Text>
-                      )}
-                    </View>
-                  </LinearGradient>
-                </Pressable>
-              );
-            })}
-          </View>
-        </View>
-
-        {/* Pro Tip of the Day */}
-        <View style={styles.proTipSection}>
-          <LinearGradient
-            colors={['#2A1F16', '#3A2A1F']}
-            style={styles.proTipCard}
-          >
-            <View style={styles.proTipHeader}>
-              <LinearGradient
-                colors={[colors.gold, '#E5B567']}
-                style={styles.proTipIcon}
-              >
-                <Ionicons name="bulb" size={20} color={'#000'} />
-              </LinearGradient>
-              <Text style={styles.proTipTitle}>Pro Tip of the Day</Text>
-            </View>
-            <Text style={styles.proTipText}>
-              "The key to a perfect Old Fashioned isn't the whiskey—it's the quality of your ice. Large, clear cubes melt slower and maintain the drink's integrity."
+        {!selectedModule ? (
+          /* Show Chapters */
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Bartending Curriculum</Text>
+            <Text style={styles.sectionSubtitle}>
+              Professional bartending course designed by industry experts
             </Text>
-            <Text style={styles.proTipAuthor}>— James Beard Award Winner</Text>
-          </LinearGradient>
-        </View>
+            {modules.map(renderModule)}
+          </View>
+        ) : (
+          /* Show Lessons for Selected Chapter */
+          <View style={styles.section}>
+            <Pressable onPress={handleBackToModules} style={styles.backButton}>
+              <Ionicons name="arrow-back" size={20} color={colors.accent} />
+              <Text style={styles.backButtonText}>Back to Chapters</Text>
+            </Pressable>
+
+            <Text style={styles.sectionTitle}>{selectedModule.title}</Text>
+            <Text style={styles.sectionSubtitle}>
+              Chapter {selectedModule.chapterIndex} • {moduleLessons.length} lessons • {selectedModule.estimatedMinutes} min
+            </Text>
+            {moduleLessons.map(renderLesson)}
+          </View>
+        )}
       </ScrollView>
-    </View>
+    </SafeAreaView>
   );
 }
+
+export default function LessonsScreen() {
+  const layout = useWindowDimensions();
+  const { lives, xp, level, streak } = useUser();
+  const navigation = useNavigation<NavigationProp>();
+
+  const [index, setIndex] = useState(0);
+  const [routes] = useState([
+    { key: 'lessons', title: 'Lessons' },
+    { key: 'challenges', title: 'Challenges' },
+  ]);
+
+  const handleHeartsPress = () => {
+    console.log('🔧 LessonsScreen: Navigating to VaultStore with hearts tab');
+    navigation.navigate('VaultStore', { tab: 'hearts' });
+  };
+
+  const handleProfilePress = () => {
+    console.log('🔧 LessonsScreen: Navigating to Profile tab');
+    navigation.navigate('Profile');
+  };
+
+  const renderScene = SceneMap({
+    lessons: LessonsView,
+    challenges: ChallengesView,
+  });
+
+  const renderTabBar = (props: any) => (
+    <TabBar
+      {...props}
+      indicatorStyle={{ backgroundColor: colors.accent }}
+      style={{ backgroundColor: colors.bg }}
+      labelStyle={{ color: colors.text, fontWeight: '600' }}
+      activeColor={colors.accent}
+      inactiveColor={colors.subtext}
+    />
+  );
+
+  return (
+    <SafeAreaView style={styles.container}>
+      {/* Shared Header */}
+      <View style={styles.header}>
+        <View style={styles.headerContent}>
+        </View>
+      </View>
+
+      {/* Tab View */}
+      <TabView
+        navigationState={{ index, routes }}
+        renderScene={renderScene}
+        onIndexChange={setIndex}
+        initialLayout={{ width: layout.width }}
+        renderTabBar={renderTabBar}
+      />
+    </SafeAreaView>
+  );
+};
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: colors.bg,
   },
-  
-  // Premium Header Styles
+
+  // Header
   header: {
-    paddingTop: spacing(6),
-    paddingHorizontal: spacing(3),
-    paddingBottom: spacing(3),
+    paddingHorizontal: spacing(2.5),
+    paddingVertical: spacing(2),
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(213, 161, 94, 0.2)',
-  },
-  profileSection: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing(3),
-  },
-  avatarGradient: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    justifyContent: 'center',
-    alignItems: 'center',
-    shadowColor: colors.gold,
-    shadowOpacity: 0.3,
-    shadowOffset: { width: 0, height: 4 },
-    shadowRadius: 8,
-    elevation: 8,
-  },
-  avatarEmoji: {
-    fontSize: 36,
-  },
-  profileInfo: {
-    flex: 1,
-  },
-  userTitleRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing(2),
-    marginBottom: spacing(0.5),
-  },
-  userName: {
-    fontSize: fonts.h2,
-    fontWeight: '800',
-    color: colors.textLight,
-  },
-  premiumBadge: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: 'rgba(213, 161, 94, 0.15)',
-    paddingHorizontal: spacing(1.5),
-    paddingVertical: spacing(0.5),
-    borderRadius: radii.lg,
-    borderWidth: 1,
-    borderColor: 'rgba(213, 161, 94, 0.3)',
-    gap: spacing(0.5),
-  },
-  premiumText: {
-    fontSize: fonts.micro,
-    fontWeight: '700',
-    color: colors.gold,
-    textTransform: 'uppercase',
-  },
-  userLevel: {
-    fontSize: fonts.body,
-    fontWeight: '600',
-    color: colors.subtext,
-    marginBottom: spacing(1),
-  },
-  userStatsRow: {
-    flexDirection: 'row',
-    gap: spacing(3),
-  },
-  statItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing(0.5),
-  },
-  statText: {
-    fontSize: fonts.caption,
-    fontWeight: '600',
-    color: colors.subtle,
+    borderBottomColor: 'rgba(255, 255, 255, 0.06)',
+    backgroundColor: colors.bg,
   },
 
-  // Content Styles
+  headerContent: {
+    alignItems: 'center',
+    gap: spacing(2),
+  },
+
+  levelContainer: {
+    alignItems: 'center',
+  },
+
+  levelText: {
+    fontSize: 20,
+    fontWeight: '800',
+    color: colors.text,
+    letterSpacing: 0.5,
+  },
+
+  statsRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing(3),
+  },
+
+  statItem: {
+    alignItems: 'center',
+    minWidth: 50,
+  },
+
+  statValue: {
+    fontSize: 18,
+    fontWeight: '800',
+    color: colors.text,
+    marginBottom: spacing(0.25),
+  },
+
+  statLabel: {
+    fontSize: 12,
+    color: colors.subtext,
+    fontWeight: '600',
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+  },
+
+  heartsContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(255, 107, 107, 0.15)',
+    paddingHorizontal: spacing(2),
+    paddingVertical: spacing(1),
+    borderRadius: radii.lg,
+    gap: spacing(0.75),
+  },
+
+  heartsText: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: '#FF6B6B',
+  },
+  profileContainer: {
+    backgroundColor: 'rgba(139, 103, 67, 0.15)',
+    paddingHorizontal: spacing(1.5),
+    paddingVertical: spacing(1),
+    borderRadius: radii.lg,
+  },
+
+  // Content
   content: {
     flex: 1,
   },
 
-  // Masterclass Section
-  masterclassSection: {
-    paddingTop: spacing(4),
-    paddingHorizontal: spacing(3),
+  section: {
+    paddingHorizontal: spacing(2.5),
+    paddingTop: spacing(3),
   },
-  sectionHeader: {
-    marginBottom: spacing(3),
-  },
+
   sectionTitle: {
-    fontSize: fonts.h1,
+    fontSize: 22,
     fontWeight: '800',
-    color: colors.textLight,
-    marginBottom: spacing(0.5),
+    color: colors.text,
+    marginBottom: spacing(0.75),
+    letterSpacing: 0.4,
   },
+
   sectionSubtitle: {
-    fontSize: fonts.body,
-    color: colors.subtle,
+    fontSize: 15,
+    color: colors.subtext,
+    marginBottom: spacing(3),
     lineHeight: 22,
+    opacity: 0.8,
   },
-  modulesContainer: {
-    gap: spacing(2),
-  },
-  
-  // Masterclass Card Styles
-  masterclassCard: {
+
+  // Module Cards
+  moduleCard: {
+    backgroundColor: colors.card,
     borderRadius: radii.xl,
-    overflow: 'hidden',
-    shadowColor: colors.shadow,
-    shadowOpacity: 0.4,
-    shadowOffset: { width: 0, height: 8 },
-    shadowRadius: 16,
-    elevation: 12,
+    marginBottom: spacing(2),
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.06)',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 12,
+    elevation: 2,
   },
-  moduleGradient: {
-    padding: spacing(3),
-    borderRadius: radii.xl,
+
+  moduleCardLocked: {
+    opacity: 0.5,
+    backgroundColor: 'rgba(255, 255, 255, 0.02)',
   },
+
   moduleHeader: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: spacing(2),
+    padding: spacing(2.5),
   },
-  moduleIconContainer: {
-    width: 56,
-    height: 56,
-    borderRadius: 28,
-    backgroundColor: 'rgba(0,0,0,0.2)',
+
+  moduleIndex: {
+    width: 48,
+    height: 48,
+    borderRadius: 16,
+    backgroundColor: colors.accent,
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: spacing(2),
   },
-  moduleIcon: {
-    fontSize: 28,
+
+  moduleIndexText: {
+    fontSize: 18,
+    fontWeight: '800',
+    color: colors.white,
   },
+
   moduleInfo: {
     flex: 1,
   },
+
   moduleTitle: {
-    fontSize: fonts.h3,
+    fontSize: 17,
     fontWeight: '700',
-    color: colors.white,
-    marginBottom: spacing(0.25),
-  },
-  moduleDifficulty: {
-    fontSize: fonts.caption,
-    fontWeight: '600',
-    color: 'rgba(255,255,255,0.8)',
-    textTransform: 'uppercase',
-  },
-  moduleStats: {
-    alignItems: 'flex-end',
-  },
-  moduleTime: {
-    fontSize: fonts.caption,
-    color: 'rgba(255,255,255,0.9)',
-    marginBottom: spacing(0.25),
-  },
-  moduleXP: {
-    fontSize: fonts.caption,
-    fontWeight: '700',
-    color: colors.warning,
-  },
-  
-  // Progress Styles
-  moduleProgress: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: spacing(2),
-    gap: spacing(2),
-  },
-  progressTrack: {
-    flex: 1,
-    height: 8,
-    backgroundColor: 'rgba(0,0,0,0.3)',
-    borderRadius: 4,
-    overflow: 'hidden',
-  },
-  progressFill: {
-    height: '100%',
-    backgroundColor: colors.white,
-    borderRadius: 4,
-  },
-  progressText: {
-    fontSize: fonts.caption,
-    fontWeight: '700',
-    color: colors.white,
-    minWidth: 36,
-    textAlign: 'right',
-  },
-  
-  // Skills Tags
-  moduleSkills: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: spacing(1),
-  },
-  skillTag: {
-    backgroundColor: 'rgba(0,0,0,0.3)',
-    paddingHorizontal: spacing(1.5),
-    paddingVertical: spacing(0.5),
-    borderRadius: radii.lg,
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.2)',
-  },
-  skillText: {
-    fontSize: fonts.micro,
-    fontWeight: '600',
-    color: 'rgba(255,255,255,0.9)',
-  },
-
-  // Current Focus Section
-  focusSection: {
-    padding: spacing(3),
-    paddingTop: spacing(4),
-  },
-  focusHeader: {
-    marginBottom: spacing(3),
-  },
-  focusTitle: {
-    fontSize: fonts.h2,
-    fontWeight: '700',
-    color: colors.textLight,
+    color: colors.text,
     marginBottom: spacing(0.5),
-  },
-  focusModule: {
-    fontSize: fonts.body,
-    color: colors.subtle,
-  },
-  
-  // Lessons Grid
-  lessonsGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: spacing(2),
-    justifyContent: 'space-between',
-  },
-  lessonCard: {
-    width: (width - spacing(8)) / 2,
-    borderRadius: radii.lg,
-    overflow: 'hidden',
-    shadowColor: colors.shadow,
-    shadowOpacity: 0.3,
-    shadowOffset: { width: 0, height: 4 },
-    shadowRadius: 8,
-    elevation: 6,
-  },
-  lessonCardLocked: {
-    opacity: 0.6,
-  },
-  lessonGradient: {
-    padding: spacing(2.5),
-    minHeight: 120,
-    justifyContent: 'space-between',
-  },
-  lessonContent: {
-    alignItems: 'center',
-  },
-  lockIcon: {
-    marginTop: spacing(0.5),
-  },
-  lessonTitle: {
-    fontSize: fonts.caption,
-    fontWeight: '600',
-    color: colors.white,
-    textAlign: 'center',
-    marginTop: spacing(1),
-    marginBottom: spacing(1),
-    lineHeight: 16,
-  },
-  lessonTitleLocked: {
-    color: colors.muted,
-  },
-  
-  // Mini Progress
-  miniProgress: {
-    width: '80%',
-    height: 3,
-    backgroundColor: 'rgba(255,255,255,0.3)',
-    borderRadius: 2,
-    overflow: 'hidden',
-    marginTop: spacing(0.5),
-  },
-  miniProgressFill: {
-    height: '100%',
-    backgroundColor: colors.white,
-    borderRadius: 2,
-  },
-  masteryLevel: {
-    fontSize: fonts.micro,
-    fontWeight: '700',
-    color: colors.warning,
-    textTransform: 'uppercase',
-    marginTop: spacing(0.5),
+    letterSpacing: 0.2,
   },
 
-  // Pro Tip Section
-  proTipSection: {
-    padding: spacing(3),
-    paddingTop: spacing(2),
-    paddingBottom: spacing(6),
+  moduleTime: {
+    fontSize: 13,
+    color: colors.subtext,
+    opacity: 0.8,
   },
-  proTipCard: {
-    borderRadius: radii.xl,
-    padding: spacing(3),
-    borderWidth: 1,
-    borderColor: 'rgba(213, 161, 94, 0.2)',
-    shadowColor: colors.gold,
-    shadowOpacity: 0.1,
-    shadowOffset: { width: 0, height: 4 },
-    shadowRadius: 12,
-    elevation: 8,
-  },
-  proTipHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: spacing(2),
-    gap: spacing(2),
-  },
-  proTipIcon: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
+
+  moduleActions: {
     justifyContent: 'center',
     alignItems: 'center',
   },
-  proTipTitle: {
-    fontSize: fonts.h3,
-    fontWeight: '700',
-    color: colors.textLight,
+
+  // Back Button
+  backButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: spacing(3),
+    gap: spacing(1),
   },
-  proTipText: {
-    fontSize: fonts.body,
-    color: colors.text,
-    lineHeight: 24,
-    marginBottom: spacing(2),
-    fontStyle: 'italic',
-  },
-  proTipAuthor: {
-    fontSize: fonts.caption,
-    color: colors.gold,
+
+  backButtonText: {
+    fontSize: 16,
+    color: colors.accent,
     fontWeight: '600',
-    textAlign: 'right',
+  },
+
+  // Lesson Cards
+  lessonCard: {
+    backgroundColor: colors.card,
+    borderRadius: radii.lg,
+    marginBottom: spacing(1.5),
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.06)',
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: spacing(2),
+  },
+
+  lessonCardLocked: {
+    opacity: 0.4,
+  },
+
+  lessonCardOutOfLives: {
+    opacity: 0.6,
+    backgroundColor: 'rgba(255, 107, 107, 0.05)',
+    borderColor: 'rgba(255, 107, 107, 0.15)',
+  },
+
+  lessonContent: {
+    flex: 1,
+  },
+
+  lessonHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    marginBottom: spacing(1),
+  },
+
+  lessonTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: colors.text,
+    flex: 1,
+    marginRight: spacing(2),
+    letterSpacing: 0.1,
+  },
+
+  lessonTime: {
+    fontSize: 12,
+    color: colors.subtext,
+    opacity: 0.7,
+  },
+
+  lessonTypes: {
+    flexDirection: 'row',
+    gap: spacing(1),
+    flexWrap: 'wrap',
+  },
+
+  typeTag: {
+    backgroundColor: `${colors.accent}15`,
+    paddingHorizontal: spacing(1.5),
+    paddingVertical: spacing(0.5),
+    borderRadius: radii.sm,
+  },
+
+  typeText: {
+    fontSize: 11,
+    color: colors.accent,
+    fontWeight: '600',
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+  },
+
+  lessonStatus: {
+    marginLeft: spacing(2),
+  },
+
+  lockedText: {
+    color: colors.subtext,
+    opacity: 0.5,
+  },
+
+  unlockRequirement: {
+    fontSize: 11,
+    color: colors.subtext,
+    fontStyle: 'italic',
+    marginTop: spacing(0.5),
+    opacity: 0.7,
+  },
+
+  outOfLivesText: {
+    color: '#FF6B6B',
+    opacity: 0.7,
+  },
+
+  outOfLivesMessage: {
+    fontSize: 11,
+    color: '#FF6B6B',
+    fontStyle: 'italic',
+    marginTop: spacing(0.5),
+    opacity: 0.8,
+  },
+
+  typeTagDisabled: {
+    backgroundColor: 'rgba(255, 107, 107, 0.1)',
+    opacity: 0.6,
+  },
+
+  typeTextDisabled: {
+    color: '#FF6B6B',
+    opacity: 0.7,
+  },
+
+  // Challenge styles
+  challengeCard: {
+    backgroundColor: colors.card,
+    borderRadius: radii.lg,
+    borderWidth: 1,
+    borderColor: colors.line,
+    padding: spacing(2.5),
+    marginBottom: spacing(2),
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+
+  challengeCardCompleted: {
+    backgroundColor: 'rgba(139, 103, 67, 0.1)',
+    borderColor: colors.accent,
+  },
+
+  challengeContent: {
+    flex: 1,
+  },
+
+  challengeHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: spacing(1),
+  },
+
+  challengeTitle: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: colors.text,
+    flex: 1,
+  },
+
+  challengeDifficulty: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: colors.accent,
+    backgroundColor: 'rgba(139, 103, 67, 0.15)',
+    paddingHorizontal: spacing(1),
+    paddingVertical: spacing(0.5),
+    borderRadius: radii.sm,
+    marginLeft: spacing(1),
+  },
+
+  challengeDescription: {
+    fontSize: 14,
+    color: colors.subtext,
+    marginBottom: spacing(1),
+    lineHeight: 20,
+  },
+
+  challengeReward: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: colors.accent,
+  },
+
+  challengeStatus: {
+    marginLeft: spacing(2),
+  },
+
+  completedText: {
+    opacity: 0.7,
   },
 });

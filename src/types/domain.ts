@@ -19,29 +19,36 @@ export interface Lesson {
   moduleId: string;
   title: string;
   description?: string; // For Firestore compatibility
-  types: ExerciseType[];
+  types?: ExerciseType[];
   itemIds: string[];
   estimatedMinutes: number;
-  prereqs: string[];
+  prerequisiteIds: string[];
+  prereqs?: string[]; // For Firestore compatibility
   xpReward?: number; // For Firestore compatibility
   tags?: string[]; // For Firestore compatibility
 }
 
-export type ExerciseType = 'mcq' | 'order' | 'short';
+export type ExerciseType = 'mcq' | 'order' | 'short' | 'checkbox' | 'match';
 
 export interface Item {
   id: string;
   type: ExerciseType;
   prompt: string;
-  options?: string[]; // For MCQ
+  options?: string[]; // For MCQ and checkbox
   answerIndex?: number; // For MCQ
   orderTarget?: string[]; // For order exercises
   expectedOrder?: string[]; // For Firestore compatibility
   answerText?: string; // For short answer
   expectedAnswer?: string; // For Firestore compatibility
-  acceptableAnswers?: string[]; // For Firestore compatibility
+  acceptableAnswers?: string[]; // For short answer variations
+  correct?: string[]; // For checkbox exercises
+  pairs?: Array<{left: string; right: string}>; // For match exercises
+  roleplay?: any; // For roleplay exercises
   tags: string[];
+  conceptId?: string;
   difficulty: number; // 0-1 scale
+  xpAward?: number;
+  reviewWeight?: number;
 }
 
 export interface UserProfile {

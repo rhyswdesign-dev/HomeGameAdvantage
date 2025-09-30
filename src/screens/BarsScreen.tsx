@@ -25,6 +25,7 @@ import CreateRecipeModal from '../components/CreateRecipeModal';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '../navigation/RootNavigator';
 import { BARS as REAL_BARS } from '../data/bars';
+import { BAR_IMAGES, MOOD_IMAGES, EXTENDED_BAR_IMAGES, BAR_PAGE_HEADERS } from '../data/barImages';
 
 type Nav = NativeStackNavigationProp<RootStackParamList>;
 const { width } = Dimensions.get('window');
@@ -34,12 +35,12 @@ const GOLD = '#C9A15A'; // spotlight color
 /* ------------------------- DATA ------------------------- */
 
 const COLLAGE = [
-  'https://images.unsplash.com/photo-1542144582-1ba00456b5e9?q=80&w=1600&auto=format&fit=crop',
-  'https://images.unsplash.com/photo-1529180184529-78f99adb8e28?q=80&w=1600&auto=format&fit=crop',
-  'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?q=80&w=1600&auto=format&fit=crop',
-  'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?q=80&w=1600&auto=format&fit=crop',
-  'https://images.unsplash.com/photo-1554118811-1e0d58224f24?q=80&w=1600&auto=format&fit=crop',
-  'https://images.unsplash.com/photo-1520013576832-3f7b51f0f1b9?q=80&w=1600&auto=format&fit=crop',
+  BAR_IMAGES.aqua_lounge,
+  BAR_IMAGES.the_alchemist,
+  BAR_IMAGES.the_velvet_curtain,
+  BAR_IMAGES.the_gilded_lily,
+  BAR_IMAGES.the_iron_flask,
+  BAR_IMAGES.aqua_lounge,
 ];
 
 // Bar of the Month: 3-image carousel
@@ -48,99 +49,141 @@ const BOM = {
   subtitle: 'Bar of the Month',
   id: 'untitled_champagne_lounge',
   images: [
-    'https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?q=80&w=1600&auto=format&fit=crop',
-    'https://images.unsplash.com/photo-1470337458703-46ad1756a187?q=80&w=1600&auto=format&fit=crop',
-    'https://images.unsplash.com/photo-1551024506-0bccd828d307?q=80&w=1600&auto=format&fit=crop',
+    BAR_PAGE_HEADERS.depth_frame_header_24,
+    BAR_PAGE_HEADERS.depth_frame_header_25,
+    BAR_PAGE_HEADERS.depth_frame_header_26,
   ],
 };
 
-type Bar = { name: string; subtitle: string; image: string; id?: string };
+type Bar = { name: string; subtitle: string; image: any; id?: string };
 
 const FEATURED_PICKS: (Bar & { badge?: 'GOLD' | 'NEW' })[] = [
-  { 
+  {
     id: 'untitled_champagne_lounge',
-    name: 'Untitled Champagne Lounge', 
-    subtitle: 'Financial District', 
-    image: 'https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?q=80&w=1600&auto=format&fit=crop',
+    name: 'Untitled Champagne Lounge',
+    subtitle: 'Luxury Champagne Experience',
+    image: BAR_PAGE_HEADERS.depth_frame_header_24,
     badge: 'GOLD'
   },
 ];
 
 const MOODS = [
   { title: 'Relaxed & Intimate', subtitle: 'Perfect for Date Night',
-    image: 'https://images.unsplash.com/photo-1528605248644-14dd04022da1?q=80&w=1600&auto=format&fit=crop' },
+    image: MOOD_IMAGES.mood_slide_1 },
   { title: 'Vibrant & Lively', subtitle: 'Great for Groups',
-    image: 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?q=80&w=1600&auto=format&fit=crop' },
+    image: MOOD_IMAGES.vibrant_lively },
   { title: 'Speakeasy Vibes', subtitle: 'Low-key hideaways',
-    image: 'https://images.unsplash.com/photo-1543002588-bfa74002ed7e?q=80&w=1600&auto=format&fit=crop' },
-  { title: 'Rooftop Views', subtitle: 'Cityscapes & sunsets',
-    image: 'https://images.unsplash.com/photo-1521335629791-ce4aec67dd53?q=80&w=1600&auto=format&fit=crop' },
+    image: MOOD_IMAGES.speakeasy },
+  { title: 'Tiki Paradise', subtitle: 'Tropical escape',
+    image: MOOD_IMAGES.tiki },
   { title: 'Cozy Corners', subtitle: 'Warm wood & candles',
-    image: 'https://images.unsplash.com/photo-1484154218962-a197022b5858?q=80&w=1600&auto=format&fit=crop' },
+    image: MOOD_IMAGES.mood_slide_2 },
   { title: 'Craft Labs', subtitle: 'Experimental menus',
-    image: 'https://images.unsplash.com/photo-1519710164239-da123dc03ef4?q=80&w=1600&auto=format&fit=crop' },
+    image: MOOD_IMAGES.mood_slide_4 },
 ];
 
 const BARS: Bar[] = [
-  { 
-    id: 'untitled_champagne_lounge',
-    name: 'Untitled Champagne Lounge', 
-    subtitle: 'Financial District', 
-    image: 'https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?q=80&w=1600&auto=format&fit=crop' 
+  {
+    id: 'aqua_lounge',
+    name: 'Aqua Lounge',
+    subtitle: 'Refreshing Cocktails & Ocean Views',
+    image: BAR_IMAGES.aqua_lounge
   },
-  { 
+  {
     id: 'the_alchemist',
-    name: 'The Alchemist', 
-    subtitle: 'Distillery District', 
-    image: 'https://images.unsplash.com/photo-1572116469696-31de0f17cc34?q=80&w=1600&auto=format&fit=crop' 
+    name: 'The Alchemist',
+    subtitle: 'Craft Cocktails',
+    image: BAR_IMAGES.the_alchemist
   },
-  { 
+  {
     id: 'the_velvet_curtain',
-    name: 'The Velvet Curtain', 
-    subtitle: 'Yorkville', 
-    image: 'https://images.unsplash.com/photo-1559056199-641a0ac8b55e?q=80&w=1600&auto=format&fit=crop' 
+    name: 'The Velvet Curtain',
+    subtitle: 'Wine Bar',
+    image: BAR_IMAGES.the_velvet_curtain
   },
-  { 
+  {
     id: 'the_gilded_lily',
-    name: 'The Gilded Lily', 
-    subtitle: 'King Street West', 
-    image: 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?q=80&w=1600&auto=format&fit=crop' 
+    name: 'The Gilded Lily',
+    subtitle: 'Live Music',
+    image: BAR_IMAGES.the_gilded_lily
   },
-  { 
+  {
     id: 'the_iron_flask',
-    name: 'The Iron Flask', 
-    subtitle: 'Kensington Market', 
-    image: 'https://images.unsplash.com/photo-1569546913823-29ce4acc0c9a?q=80&w=1600&auto=format&fit=crop' 
+    name: 'The Iron Flask',
+    subtitle: 'Speakeasy',
+    image: BAR_IMAGES.the_iron_flask
   },
-  { 
-    id: 'the_velvet_note',
-    name: 'The Velvet Note', 
-    subtitle: 'The Danforth', 
-    image: 'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?q=80&w=1600&auto=format&fit=crop' 
+  {
+    id: 'copper_moon',
+    name: 'Copper Moon',
+    subtitle: 'Industrial Chic',
+    image: BAR_IMAGES.aqua_lounge
   },
-  { 
-    id: 'the_wine_cellar',
-    name: 'The Wine Cellar', 
-    subtitle: 'Harbourfront', 
-    image: 'https://images.unsplash.com/photo-1566147780353-6296ce0e127e?q=80&w=1600&auto=format&fit=crop' 
+  {
+    id: 'neon_nights',
+    name: 'Neon Nights',
+    subtitle: 'Electric Atmosphere',
+    image: BAR_IMAGES.the_alchemist
   },
-  { 
-    id: 'skyline_lounge',
-    name: 'Skyline Lounge', 
-    subtitle: 'CN Tower District', 
-    image: 'https://images.unsplash.com/photo-1551632811-561732d1e306?q=80&w=1600&auto=format&fit=crop' 
+  {
+    id: 'whiskey_den',
+    name: 'Whiskey Den',
+    subtitle: 'Premium Spirits',
+    image: BAR_IMAGES.the_velvet_curtain
   },
-  { 
-    id: 'the_hidden_flask',
-    name: 'The Hidden Flask', 
-    subtitle: 'Queen Street West', 
-    image: 'https://images.unsplash.com/photo-1572116469696-31de0f17cc34?q=80&w=1600&auto=format&fit=crop' 
+  {
+    id: 'crystal_palace',
+    name: 'Crystal Palace',
+    subtitle: 'Elegant Dining',
+    image: BAR_IMAGES.the_gilded_lily
   },
-  { 
-    id: 'the_tiki_hut',
-    name: 'The Tiki Hut', 
-    subtitle: 'Beaches', 
-    image: 'https://images.unsplash.com/photo-1544441892-794166f1e3be?q=80&w=1600&auto=format&fit=crop' 
+  {
+    id: 'sunset_terrace',
+    name: 'Sunset Terrace',
+    subtitle: 'Rooftop Views',
+    image: BAR_IMAGES.the_iron_flask
+  },
+  {
+    id: 'midnight_lounge',
+    name: 'Midnight Lounge',
+    subtitle: 'Late Night Vibes',
+    image: BAR_IMAGES.aqua_lounge
+  },
+  {
+    id: 'golden_era',
+    name: 'Golden Era',
+    subtitle: 'Vintage Cocktails',
+    image: BAR_IMAGES.the_alchemist
+  },
+  {
+    id: 'urban_oasis',
+    name: 'Urban Oasis',
+    subtitle: 'City Escape',
+    image: BAR_IMAGES.the_velvet_curtain
+  },
+  {
+    id: 'ruby_room',
+    name: 'Ruby Room',
+    subtitle: 'Intimate Setting',
+    image: BAR_IMAGES.the_gilded_lily
+  },
+  {
+    id: 'sapphire_sky',
+    name: 'Sapphire Sky',
+    subtitle: 'Sky High Drinks',
+    image: BAR_IMAGES.the_iron_flask
+  },
+  {
+    id: 'emerald_club',
+    name: 'Emerald Club',
+    subtitle: 'VIP Experience',
+    image: BAR_IMAGES.aqua_lounge
+  },
+  {
+    id: 'diamond_lounge',
+    name: 'Diamond Lounge',
+    subtitle: 'Luxury Bar',
+    image: BAR_IMAGES.the_alchemist
   },
 ];
 
@@ -171,18 +214,25 @@ function LocationRow({
 }
 
 function CollageGrid() {
+  const headerW = width - spacing(2) * 2;
+  const headerH = Math.round(headerW * 0.4);
   const cellW = (width - spacing(2) * 2 - GUTTER * 2) / 3;
   const cellH = Math.round(cellW * 0.75);
   return (
     <View style={{ paddingHorizontal: spacing(2), paddingTop: spacing(1.25), marginBottom: spacing(1) }}>
+      {/* Bars Header Page */}
+      <Image
+        source={EXTENDED_BAR_IMAGES.bar_header}
+        style={{ width: headerW, height: headerH, borderRadius: radii.lg, marginBottom: GUTTER }}
+      />
       <View style={{ flexDirection: 'row', marginBottom: GUTTER }}>
-        {COLLAGE.slice(0, 3).map((uri, i) => (
-          <Image key={uri + i} source={{ uri }} style={{ width: cellW, height: cellH, borderRadius: radii.md, marginRight: i < 2 ? GUTTER : 0 }} />
+        {COLLAGE.slice(0, 3).map((src, i) => (
+          <Image key={i} source={src} style={{ width: cellW, height: cellH, borderRadius: radii.md, marginRight: i < 2 ? GUTTER : 0 }} />
         ))}
       </View>
       <View style={{ flexDirection: 'row' }}>
-        {COLLAGE.slice(3, 6).map((uri, i) => (
-          <Image key={uri + i} source={{ uri }} style={{ width: cellW, height: cellH, borderRadius: radii.md, marginRight: i < 2 ? GUTTER : 0 }} />
+        {COLLAGE.slice(3, 6).map((src, i) => (
+          <Image key={i + 3} source={src} style={{ width: cellW, height: cellH, borderRadius: radii.md, marginRight: i < 2 ? GUTTER : 0 }} />
         ))}
       </View>
     </View>
@@ -201,9 +251,9 @@ function HeroCarousel({ onOpen }: { onOpen: () => void }) {
   return (
     <View style={{ marginHorizontal: spacing(2), borderRadius: radii.xl, overflow: 'hidden', backgroundColor: colors.card, marginBottom: spacing(1.5) }}>
       <ScrollView horizontal nestedScrollEnabled pagingEnabled showsHorizontalScrollIndicator={false} onScroll={onScroll} scrollEventThrottle={16}>
-        {BOM.images.map((uri) => (
-          <Pressable key={uri} onPress={onOpen} style={{ width: cardW, height: cardH }}>
-            <Image source={{ uri }} style={{ width: '100%', height: '100%' }} />
+        {BOM.images.map((src, index) => (
+          <Pressable key={index} onPress={onOpen} style={{ width: cardW, height: cardH }}>
+            <Image source={src} style={{ width: '100%', height: '100%' }} />
           </Pressable>
         ))}
       </ScrollView>
@@ -233,7 +283,7 @@ function FeaturedPickCard({ item, onPress, onSave, isSaved }: { item: (Bar & { b
   return (
     <Pressable onPress={onPress} style={{ width: w, marginRight: spacing(1.25) }}>
       <View style={{ position: 'relative' }}>
-        <Image source={{ uri: item.image }} style={{ width: '100%', height: h, borderRadius: radii.lg }} />
+        <Image source={item.image} style={{ width: '100%', height: h, borderRadius: radii.lg }} />
         <Pressable 
           style={{ position: 'absolute', top: 8, right: 8, backgroundColor: 'rgba(0,0,0,0.5)', borderRadius: 20, padding: 6 }} 
           onPress={() => onSave(item)}
@@ -259,12 +309,12 @@ function FeaturedPickCard({ item, onPress, onSave, isSaved }: { item: (Bar & { b
   );
 }
 
-function MoodCard({ title, image, subtitle, onPress }: { title: string; image: string; subtitle?: string; onPress?: () => void }) {
+function MoodCard({ title, image, subtitle, onPress }: { title: string; image: any; subtitle?: string; onPress?: () => void }) {
   const w = Math.min(0.78 * width, 300);
   const h = Math.round(w * 0.66);
   return (
     <Pressable onPress={onPress} style={{ width: w, marginRight: spacing(1.25) }}>
-      <Image source={{ uri: image }} style={{ width: '100%', height: h, borderRadius: radii.lg }} />
+      <Image source={image} style={{ width: '100%', height: h, borderRadius: radii.lg }} />
       <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 8 }}>
         <Text style={{ color: colors.text, fontWeight: '900', fontSize: 18 }}>{title}</Text>
         <Ionicons name="chevron-forward" size={16} color={colors.accent} style={{ marginLeft: 4 }} />
@@ -280,7 +330,7 @@ function BarCard({ item, onPress, onSave, isSaved }: { item: Bar; onPress: () =>
   return (
     <Pressable onPress={onPress} style={{ width: cardW, marginBottom: spacing(2) }}>
       <View style={{ position: 'relative' }}>
-        <Image source={{ uri: item.image }} style={{ width: '100%', height: imgH, borderRadius: radii.xl }} />
+        <Image source={item.image} style={{ width: '100%', height: imgH, borderRadius: radii.xl }} />
         <Pressable 
           style={{ position: 'absolute', top: 10, right: 10, backgroundColor: 'rgba(0,0,0,0.5)', borderRadius: 20, padding: 8 }} 
           onPress={() => onSave(item)}
@@ -366,6 +416,13 @@ export default function BarsScreen() {
       'the_wine_cellar': 'TheWineCellar',
       'the_hidden_flask': 'TheHiddenFlask',
       'untitled_champagne_lounge': 'UntitledLounge',
+      'copper_moon': 'CopperMoon',
+      'neon_nights': 'NeonNights',
+      'whiskey_den': 'WhiskeyDen',
+      'crystal_palace': 'CrystalPalace',
+      'sunset_terrace': 'SunsetTerrace',
+      'midnight_lounge': 'MidnightLounge',
+      'golden_era': 'GoldenEra',
     };
 
     const screenName = barScreenMap[barId];
@@ -461,7 +518,7 @@ export default function BarsScreen() {
         ListHeaderComponent={
           <View>
             {/* Navigation Chips */}
-            <ScrollView horizontal nestedScrollEnabled showsHorizontalScrollIndicator={false} style={{ paddingTop: spacing(2), paddingBottom: spacing(1) }} contentContainerStyle={{ flexDirection: 'row', paddingHorizontal: spacing(2), gap: spacing(1) }}>
+            <ScrollView horizontal nestedScrollEnabled showsHorizontalScrollIndicator={false} style={{ paddingTop: 30 + spacing(2), paddingBottom: spacing(1) }} contentContainerStyle={{ flexDirection: 'row', paddingHorizontal: spacing(2), gap: spacing(1) }}>
               {chips.map(c => {
                 const isActive = active === c.key;
                 return (
@@ -495,38 +552,12 @@ export default function BarsScreen() {
             <CollageGrid />
 
             {/* bar of the month: 3-image carousel */}
-            <HeroCarousel
-              onOpen={() => handleBarPress(BOM.id)}
-            />
+            <View style={{ marginTop: spacing(2) }}>
+              <HeroCarousel
+                onOpen={() => handleBarPress(BOM.id)}
+              />
+            </View>
 
-            {/* Featured Bar Picks (with Velvet Curtain spotlight in gold) */}
-            <SectionHeader title="Featured Bar Picks" />
-            <ScrollView horizontal nestedScrollEnabled showsHorizontalScrollIndicator={false} style={{ paddingLeft: spacing(2), marginBottom: spacing(2) }}>
-              {FEATURED_PICKS.map((b) => (
-                <FeaturedPickCard
-                  key={b.name}
-                  item={b}
-                  onPress={() => {
-                    if (b.id) {
-                      handleBarPress(b.id);
-                    } else {
-                      navigation.navigate('BarDetails', {
-                        name: b.name,
-                        subtitle: b.subtitle,
-                        image: b.image,
-                      });
-                    }
-                  }}
-                  onSave={(item) => toggleSavedBar({ 
-                    id: item.id || item.name, 
-                    name: item.name, 
-                    subtitle: item.subtitle, 
-                    image: item.image 
-                  })}
-                  isSaved={isBarSaved(b.id || b.name)}
-                />
-              ))}
-            </ScrollView>
 
             {/* Explore the Mood (expanded) */}
             <SectionHeader title="Explore the Mood" />

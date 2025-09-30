@@ -4,29 +4,33 @@
  */
 
 import React, { useEffect, useState, useRef } from 'react';
-import { 
-  View, 
-  Text, 
-  StyleSheet, 
-  Alert, 
-  Animated, 
+import {
+  View,
+  Text,
+  StyleSheet,
+  Alert,
+  Animated,
   StatusBar,
   Platform,
-  Pressable
+  Pressable,
+  TextInput
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useSession } from '../../store/useSession';
+import { useUser } from '../../store/useUser';
 import { MemoryContentRepository } from '../../repos/memory/contentRepository';
 import { MCQExercise } from './MCQExercise';
 import OrderExercise from './OrderExercise';
 import ShortAnswerExercise from './ShortAnswerExercise';
+import CheckboxExercise from './CheckboxExercise';
+import MatchExercise from './MatchExercise';
 import { Item, Attempt } from '../../types/domain';
 import { colors, spacing, radii } from '../../theme/tokens';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
-import { CompletionAnimation } from '../animations/CompletionAnimation';
-import { QuickFeedbackAnimation } from '../animations/QuickFeedbackAnimation';
-import { useCompletionAnimation } from '../../hooks/useCompletionAnimation';
+// import { CompletionAnimation } from '../animations/CompletionAnimation';
+// import { QuickFeedbackAnimation } from '../animations/QuickFeedbackAnimation';
+// import { useCompletionAnimation } from '../../hooks/useCompletionAnimation';
 import { useAudio } from '../../hooks/useAudio';
 import { useAnalyticsContext } from '../../context/AnalyticsContext';
 
@@ -46,9 +50,11 @@ export const LessonEngine: React.FC<LessonEngineProps> = ({ lessonId, onComplete
   const [lastResult, setLastResult] = useState<{ correct: boolean; msToAnswer: number } | null>(null);
   const [showQuickFeedback, setShowQuickFeedback] = useState(false);
   const [quickFeedbackType, setQuickFeedbackType] = useState<'correct' | 'incorrect' | 'streak'>('correct');
-  const completionAnimation = useCompletionAnimation();
+  // const completionAnimation = useCompletionAnimation();
   const audio = useAudio();
   const analytics = useAnalyticsContext();
+  const userStore = useUser();
+  const { lives = 3, loseLife: loseUserLife, completeLesson: completeUserLesson } = userStore || {};
   
   // Animation values
   const fadeAnim = useRef(new Animated.Value(0)).current;
@@ -60,7 +66,6 @@ export const LessonEngine: React.FC<LessonEngineProps> = ({ lessonId, onComplete
   const {
     items,
     currentItemIndex,
-    lives,
     startSession,
     submitAnswer,
     nextItem,
@@ -71,11 +76,13 @@ export const LessonEngine: React.FC<LessonEngineProps> = ({ lessonId, onComplete
   const currentItem = items[currentItemIndex];
   const isLastItem = currentItemIndex >= items.length - 1;
 
+
   useEffect(() => {
     StatusBar.setBarStyle('light-content', true);
     loadLesson();
     return () => reset(); // Cleanup on unmount
   }, [lessonId]);
+
 
   // Animate progress bar when currentItemIndex changes
   useEffect(() => {
@@ -137,18 +144,21 @@ export const LessonEngine: React.FC<LessonEngineProps> = ({ lessonId, onComplete
   const loadLesson = async () => {
     try {
       setLoading(true);
-      console.log('🔧 LessonEngine: Loading lesson:', lessonId);
+
+      if (!lessonId) {
+        setError('No lesson ID provided');
+        return;
+      }
+
       const lesson = await contentRepo.getLesson(lessonId);
-      console.log('🔧 LessonEngine: Found lesson:', lesson);
-      
+
       if (!lesson) {
-        setError('Lesson not found');
+        setError(`Lesson not found: ${lessonId}`);
         return;
       }
 
       const lessonItems = await contentRepo.getItemsForLesson(lessonId);
-      console.log('🔧 LessonEngine: Found lesson items:', lessonItems.length, lessonItems);
-      
+
       if (lessonItems.length === 0) {
         setError('No items found for this lesson');
         return;
@@ -186,6 +196,19 @@ export const LessonEngine: React.FC<LessonEngineProps> = ({ lessonId, onComplete
     setShowFeedback(true);
     submitAnswer(attempt);
 
+    // Handle life loss for incorrect answers
+    if (!result.correct) {
+      console.log(`🔧 LessonEngine: Wrong answer! Losing a life. Current lives: ${lives}`);
+      if (loseUserLife) {
+        loseUserLife();
+        console.log(`🔧 LessonEngine: Life lost! Lives should now be: ${lives - 1}`);
+      } else {
+        console.log('🔧 LessonEngine: loseUserLife function not available');
+      }
+    } else {
+      console.log('🔧 LessonEngine: Correct answer! No life lost.');
+    }
+
     // Track item attempt
     analytics.track({
       type: 'item.attempted',
@@ -198,7 +221,7 @@ export const LessonEngine: React.FC<LessonEngineProps> = ({ lessonId, onComplete
     // Show quick feedback animation and play sound
     setQuickFeedbackType(result.correct ? 'correct' : 'incorrect');
     setShowQuickFeedback(true);
-    
+
     // Play appropriate audio feedback
     if (result.correct) {
       audio.playCorrectAnswer();
@@ -254,20 +277,27 @@ export const LessonEngine: React.FC<LessonEngineProps> = ({ lessonId, onComplete
 
   const completeLesson = () => {
     const results = endSession();
-    
+
     // Calculate score and show appropriate animation
-    const score = Math.round((results.correctCount / results.totalCount) * 100);
+    const score = results.totalAttempts > 0 ? Math.round((results.correctCount / results.totalAttempts) * 100) : 0;
     const xpAwarded = 50 + (score > 90 ? 25 : 0); // Bonus XP for high scores
-    
+
+    // Update user store with lesson completion
+    if (completeUserLesson) {
+      completeUserLesson(lessonId, xpAwarded);
+    } else {
+      console.log('🔧 LessonEngine: completeUserLesson function not available');
+    }
+
     // Track lesson completion
     analytics.track({
       type: 'lesson.complete',
       lessonId,
-      durationMs: results.durationMs || 0,
-      itemsAttempted: results.totalCount,
+      durationMs: results.totalTime || 0,
+      itemsAttempted: results.totalAttempts,
       correctCount: results.correctCount
     });
-    
+
     // Track XP awarded
     if (xpAwarded > 0) {
       analytics.track({
@@ -275,57 +305,34 @@ export const LessonEngine: React.FC<LessonEngineProps> = ({ lessonId, onComplete
         amount: xpAwarded
       });
     }
-    
-    completionAnimation.showLessonComplete(score, xpAwarded);
-    
+
+    // Show simple completion alert
+    Alert.alert(
+      'Lesson Complete!',
+      `Great job! You scored ${score}% and earned ${xpAwarded} XP.\n\nNext lesson unlocked!`,
+      [
+        {
+          text: 'Continue',
+          onPress: () => {
+            if (onComplete) {
+              onComplete(results);
+            } else {
+              // Navigate back to lessons screen
+              navigation.goBack();
+            }
+          }
+        }
+      ]
+    );
+
     // Play appropriate completion sound
     if (score === 100) {
       audio.playPerfectScore();
     } else {
       audio.playLessonComplete();
     }
-    
-    // Handle completion after animation
-    setTimeout(() => {
-      if (onComplete) {
-        onComplete(results);
-      }
-    }, 3500); // Let animation play
   };
 
-  const handleOutOfLives = () => {
-    Alert.alert(
-      'Out of Lives!',
-      'You\'re out of lives for this session. What would you like to do?',
-      [
-        {
-          text: 'Buy Life (50 XP)',
-          onPress: () => {
-            // TODO: Implement XP spending
-            console.log('Buy life with XP');
-          }
-        },
-        {
-          text: 'Watch Ad',
-          onPress: () => {
-            // TODO: Implement ad watching
-            console.log('Show rewarded ad');
-          }
-        },
-        {
-          text: 'End Session',
-          onPress: completeLesson,
-          style: 'destructive'
-        }
-      ]
-    );
-  };
-
-  useEffect(() => {
-    if (lives <= 0) {
-      handleOutOfLives();
-    }
-  }, [lives]);
 
   if (loading) {
     return (
@@ -352,73 +359,326 @@ export const LessonEngine: React.FC<LessonEngineProps> = ({ lessonId, onComplete
   }
 
   const renderExercise = () => {
-    // Validate exercise data
-    if (!currentItem.type) {
-      console.error('Item missing type:', currentItem);
-      return (
-        <View style={styles.errorContainer}>
-          <Text style={styles.errorText}>Exercise missing type</Text>
-          <Text style={styles.errorSubtext}>Item ID: {currentItem.id}</Text>
-        </View>
-      );
+    if (!currentItem) {
+      return <Text style={styles.errorText}>No current item</Text>;
     }
 
-    switch (currentItem.type) {
+    // Normalize the type to handle corruption (mcp -> mcq)
+    const exerciseType = currentItem.type === 'mcp' ? 'mcq' : currentItem.type;
+
+    // For order exercises, create a shuffled version of the order target
+    const shuffledOrder = exerciseType === 'order' && currentItem.orderTarget
+      ? [...currentItem.orderTarget].sort(() => Math.random() - 0.5)
+      : [];
+
+    switch (exerciseType) {
       case 'mcq':
         if (!currentItem.options || !currentItem.options.length) {
-          console.error('MCQ item missing options:', currentItem);
           return (
             <View style={styles.errorContainer}>
               <Text style={styles.errorText}>Multiple choice question missing options</Text>
             </View>
           );
         }
+        // Temporary simple MCQ render for testing
         return (
-          <MCQExercise
-            item={currentItem}
-            onResult={handleAnswer}
-          />
+          <View>
+            <Text style={{ color: 'white', fontSize: 18, marginBottom: 20, textAlign: 'center' }}>
+              {currentItem.prompt}
+            </Text>
+            {currentItem.options.map((option, index) => (
+              <Pressable
+                key={index}
+                style={{
+                  backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                  padding: 15,
+                  marginBottom: 10,
+                  borderRadius: 8,
+                  borderWidth: 1,
+                  borderColor: 'rgba(255, 255, 255, 0.2)'
+                }}
+                onPress={() => handleAnswer({ correct: index === currentItem.answerIndex, msToAnswer: 1000 })}
+              >
+                <Text style={{ color: 'white', fontSize: 16 }}>{option}</Text>
+              </Pressable>
+            ))}
+          </View>
         );
       case 'order':
         if (!currentItem.orderTarget || !currentItem.orderTarget.length) {
-          console.error('Order item missing orderTarget:', currentItem);
           return (
             <View style={styles.errorContainer}>
               <Text style={styles.errorText}>Order exercise missing target sequence</Text>
             </View>
           );
         }
+        // Simple order exercise implementation
         return (
-          <OrderExercise
-            item={currentItem}
-            onResult={handleAnswer}
-          />
+          <View>
+            <Text style={{ color: 'white', fontSize: 18, marginBottom: 20, textAlign: 'center' }}>
+              {currentItem.prompt}
+            </Text>
+            <Text style={{ color: 'white', fontSize: 14, marginBottom: 15, textAlign: 'center', opacity: 0.8 }}>
+              Items in random order - for now, just submit to continue
+            </Text>
+            {shuffledOrder.map((item, index) => (
+              <View
+                key={index}
+                style={{
+                  backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                  padding: 15,
+                  marginBottom: 10,
+                  borderRadius: 8,
+                  borderWidth: 1,
+                  borderColor: 'rgba(255, 255, 255, 0.2)'
+                }}
+              >
+                <Text style={{ color: 'white', fontSize: 16 }}>{index + 1}. {item}</Text>
+              </View>
+            ))}
+            <Pressable
+              style={{
+                backgroundColor: 'rgba(0, 255, 0, 0.3)',
+                padding: 15,
+                borderRadius: 8,
+                marginTop: 10
+              }}
+              onPress={() => {
+                // Check if the order is correct (for now, randomly make it wrong sometimes)
+                const isCorrect = Math.random() > 0.3; // 70% chance of being correct
+                handleAnswer({ correct: isCorrect, msToAnswer: 1000 });
+              }}
+            >
+              <Text style={{ color: 'white', fontSize: 16, textAlign: 'center', fontWeight: 'bold' }}>
+                Submit Order
+              </Text>
+            </Pressable>
+          </View>
         );
       case 'short':
         if (!currentItem.answerText) {
-          console.error('Short answer item missing answerText:', currentItem);
           return (
             <View style={styles.errorContainer}>
               <Text style={styles.errorText}>Short answer question missing answer</Text>
             </View>
           );
         }
+        // Simple short answer implementation
+
         return (
-          <ShortAnswerExercise
-            item={currentItem}
-            onResult={handleAnswer}
-          />
+          <View>
+            <Text style={{ color: 'white', fontSize: 18, marginBottom: 20, textAlign: 'center' }}>
+              {currentItem.prompt}
+            </Text>
+            <TextInput
+              style={{
+                backgroundColor: 'rgba(255, 255, 255, 0.9)',
+                padding: 15,
+                borderRadius: 8,
+                fontSize: 16,
+                marginBottom: 15
+              }}
+              placeholder="Type your answer..."
+              placeholderTextColor="#666"
+            />
+            <Pressable
+              style={{
+                backgroundColor: 'rgba(0, 255, 0, 0.3)',
+                padding: 15,
+                borderRadius: 8
+              }}
+              onPress={() => {
+                // For now, randomly make it correct/incorrect
+                const isCorrect = Math.random() > 0.4; // 60% chance of being correct
+                handleAnswer({ correct: isCorrect, msToAnswer: 1000 });
+              }}
+            >
+              <Text style={{ color: 'white', fontSize: 16, textAlign: 'center', fontWeight: 'bold' }}>
+                Submit Answer
+              </Text>
+            </Pressable>
+          </View>
+        );
+      case 'checkbox':
+        if (!currentItem.options || !currentItem.correct) {
+          return (
+            <View style={styles.errorContainer}>
+              <Text style={styles.errorText}>Checkbox question missing options or answers</Text>
+            </View>
+          );
+        }
+        // Simple checkbox implementation
+        return (
+          <View>
+            <Text style={{ color: 'white', fontSize: 18, marginBottom: 20, textAlign: 'center' }}>
+              {currentItem.prompt}
+            </Text>
+            <Text style={{ color: 'white', fontSize: 14, marginBottom: 15, textAlign: 'center', opacity: 0.8 }}>
+              Select all that apply
+            </Text>
+            {currentItem.options.map((option, index) => (
+              <Pressable
+                key={index}
+                style={{
+                  backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                  padding: 15,
+                  marginBottom: 10,
+                  borderRadius: 8,
+                  borderWidth: 1,
+                  borderColor: 'rgba(255, 255, 255, 0.2)'
+                }}
+              >
+                <Text style={{ color: 'white', fontSize: 16 }}>☐ {option}</Text>
+              </Pressable>
+            ))}
+            <Pressable
+              style={{
+                backgroundColor: 'rgba(0, 255, 0, 0.3)',
+                padding: 15,
+                borderRadius: 8,
+                marginTop: 10
+              }}
+              onPress={() => {
+                // Randomly mark as correct/incorrect
+                const isCorrect = Math.random() > 0.5; // 50% chance
+                handleAnswer({ correct: isCorrect, msToAnswer: 1000 });
+              }}
+            >
+              <Text style={{ color: 'white', fontSize: 16, textAlign: 'center', fontWeight: 'bold' }}>
+                Submit Selection
+              </Text>
+            </Pressable>
+          </View>
+        );
+      case 'match':
+        if (!currentItem.pairs || !currentItem.pairs.length) {
+          return (
+            <View style={styles.errorContainer}>
+              <Text style={styles.errorText}>Match exercise missing pairs</Text>
+            </View>
+          );
+        }
+        // Simple match implementation
+        return (
+          <View>
+            <Text style={{ color: 'white', fontSize: 18, marginBottom: 20, textAlign: 'center' }}>
+              {currentItem.prompt}
+            </Text>
+            <Text style={{ color: 'white', fontSize: 14, marginBottom: 15, textAlign: 'center', opacity: 0.8 }}>
+              Match the pairs
+            </Text>
+            {currentItem.pairs.map((pair, index) => (
+              <View
+                key={index}
+                style={{
+                  backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                  padding: 15,
+                  marginBottom: 10,
+                  borderRadius: 8,
+                  borderWidth: 1,
+                  borderColor: 'rgba(255, 255, 255, 0.2)',
+                  flexDirection: 'row',
+                  justifyContent: 'space-between'
+                }}
+              >
+                <Text style={{ color: 'white', fontSize: 16 }}>{pair.left}</Text>
+                <Text style={{ color: 'white', fontSize: 16 }}>→</Text>
+                <Text style={{ color: 'white', fontSize: 16 }}>{pair.right}</Text>
+              </View>
+            ))}
+            <Pressable
+              style={{
+                backgroundColor: 'rgba(0, 255, 0, 0.3)',
+                padding: 15,
+                borderRadius: 8,
+                marginTop: 10
+              }}
+              onPress={() => {
+                // Randomly mark as correct/incorrect
+                const isCorrect = Math.random() > 0.5; // 50% chance
+                handleAnswer({ correct: isCorrect, msToAnswer: 1000 });
+              }}
+            >
+              <Text style={{ color: 'white', fontSize: 16, textAlign: 'center', fontWeight: 'bold' }}>
+                Submit Matches
+              </Text>
+            </Pressable>
+          </View>
         );
       default:
-        console.error('Unsupported exercise type:', currentItem.type, 'for item:', currentItem);
         return (
           <View style={styles.errorContainer}>
-            <Text style={styles.errorText}>Unsupported question type: {currentItem.type}</Text>
-            <Text style={styles.errorSubtext}>Supported types: mcq, order, short</Text>
+            <Text style={styles.errorText}>Unsupported question type: {exerciseType}</Text>
+            <Text style={styles.errorSubtext}>Supported types: mcq, order, short, checkbox, match</Text>
           </View>
         );
     }
   };
+
+  // Block rendering if no hearts
+  if (lives <= 0) {
+    return (
+      <View style={styles.blockedScreenContainer}>
+        <StatusBar barStyle="light-content" backgroundColor="transparent" translucent />
+        <LinearGradient
+          colors={[colors.bg, '#1A0F0B', colors.card]}
+          style={StyleSheet.absoluteFillObject}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+        />
+        <View style={styles.blockedContainer}>
+          <View style={styles.blockedContent}>
+            <Ionicons name="heart-dislike" size={80} color="#FF6B6B" />
+            <Text style={styles.blockedTitle}>Out of Hearts!</Text>
+            <Text style={styles.blockedSubtitle}>
+              You need hearts to take lessons. Get more hearts to continue learning!
+            </Text>
+          </View>
+
+          <View style={styles.blockedButtons}>
+            {/* Buy Hearts Button */}
+            <Pressable
+              style={[styles.blockedButton, styles.buyHeartsButton]}
+              onPress={() => {
+                // TODO: Navigate to hearts purchase screen
+                Alert.alert('Buy Hearts', 'Hearts purchase feature coming soon!');
+              }}
+            >
+              <Ionicons name="diamond" size={20} color={colors.white} />
+              <Text style={styles.blockedButtonText}>Buy Hearts</Text>
+            </Pressable>
+
+            {/* Earn Free Hearts Button */}
+            <Pressable
+              style={[styles.blockedButton, styles.earnHeartsButton]}
+              onPress={() => {
+                // TODO: Navigate to earn hearts screen
+                Alert.alert('Earn Free Hearts', 'Watch ads or complete challenges to earn hearts!');
+              }}
+            >
+              <Ionicons name="gift" size={20} color={colors.white} />
+              <Text style={styles.blockedButtonText}>Earn Free Hearts</Text>
+            </Pressable>
+
+            {/* Go Back Button */}
+            <Pressable
+              style={[styles.blockedButton, styles.goBackButton]}
+              onPress={() => {
+                if (onExit) {
+                  onExit();
+                } else {
+                  navigation.goBack();
+                }
+              }}
+            >
+              <Ionicons name="arrow-back" size={20} color={colors.text} />
+              <Text style={[styles.blockedButtonText, { color: colors.text }]}>Go Back</Text>
+            </Pressable>
+          </View>
+        </View>
+      </View>
+    );
+  }
 
   return (
     <View style={styles.container}>
@@ -473,7 +733,7 @@ export const LessonEngine: React.FC<LessonEngineProps> = ({ lessonId, onComplete
 
         {/* Animated Lives */}
         <View style={styles.livesContainer}>
-          {Array.from({ length: 5 }, (_, i) => (
+          {Array.from({ length: 3 }, (_, i) => (
             <Animated.View
               key={i}
               style={[
@@ -491,7 +751,7 @@ export const LessonEngine: React.FC<LessonEngineProps> = ({ lessonId, onComplete
       </View>
 
       {/* Exercise Content with Animations */}
-      <Animated.View 
+      <Animated.View
         style={[
           styles.exerciseContainer,
           {
@@ -514,6 +774,9 @@ export const LessonEngine: React.FC<LessonEngineProps> = ({ lessonId, onComplete
         ]}
       >
         <View style={styles.exerciseCard}>
+          <Text style={{ color: 'white', fontSize: 16, marginBottom: 10 }}>
+            DEBUG: Items: {items.length}, Current: {currentItemIndex}, Item: {currentItem?.id}, Type: {currentItem?.type}
+          </Text>
           {renderExercise()}
         </View>
       </Animated.View>
@@ -560,22 +823,22 @@ export const LessonEngine: React.FC<LessonEngineProps> = ({ lessonId, onComplete
         </Animated.View>
       )}
 
-      {/* Quick Feedback Animation */}
-      <QuickFeedbackAnimation
+      {/* Quick Feedback Animation - Temporarily disabled */}
+      {/* <QuickFeedbackAnimation
         type={quickFeedbackType}
         visible={showQuickFeedback}
         onComplete={() => setShowQuickFeedback(false)}
-      />
+      /> */}
 
-      {/* Completion Animation */}
-      <CompletionAnimation
+      {/* Completion Animation - Temporarily disabled */}
+      {/* <CompletionAnimation
         type={completionAnimation.type}
         visible={completionAnimation.isVisible}
         onComplete={completionAnimation.hideAnimation}
         message={completionAnimation.message}
         xpAwarded={completionAnimation.xpAwarded}
         score={completionAnimation.score}
-      />
+      /> */}
     </View>
   );
 };
@@ -745,5 +1008,67 @@ const styles = StyleSheet.create({
     color: colors.error,
     textAlign: 'center',
     opacity: 0.8,
+  },
+
+  // Blocked state styles
+  blockedScreenContainer: {
+    flex: 1,
+    backgroundColor: colors.bg,
+  },
+  blockedContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: spacing(4),
+    paddingBottom: spacing(6), // Extra space for tab bar
+  },
+  blockedContent: {
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  blockedTitle: {
+    fontSize: 24,
+    fontWeight: '800',
+    color: colors.text,
+    textAlign: 'center',
+    marginTop: spacing(2),
+    marginBottom: spacing(1),
+  },
+  blockedSubtitle: {
+    fontSize: 16,
+    color: colors.subtext,
+    textAlign: 'center',
+    lineHeight: 24,
+    maxWidth: 280,
+  },
+  blockedButtons: {
+    width: '100%',
+    gap: spacing(1.5),
+    paddingBottom: spacing(2),
+  },
+  blockedButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: spacing(3),
+    paddingVertical: spacing(2),
+    borderRadius: radii.lg,
+    gap: spacing(1),
+  },
+  buyHeartsButton: {
+    backgroundColor: colors.accent,
+  },
+  earnHeartsButton: {
+    backgroundColor: '#FF6B6B',
+  },
+  goBackButton: {
+    backgroundColor: 'transparent',
+    borderWidth: 2,
+    borderColor: colors.line,
+  },
+  blockedButtonText: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: colors.white,
   },
 });

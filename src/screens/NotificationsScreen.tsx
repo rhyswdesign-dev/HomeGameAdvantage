@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -6,10 +6,13 @@ import {
   StyleSheet,
   Pressable,
   Image,
+  TouchableOpacity,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
+import { useNavigation } from '@react-navigation/native';
 import { colors, spacing, radii } from '../theme/tokens';
+import { useNotifications, AppNotification, NotificationType } from '../services/notificationService';
 
 interface Notification {
   id: string;
@@ -89,31 +92,95 @@ const mockNotifications: Notification[] = [
 ];
 
 export default function NotificationsScreen() {
-  const [notifications, setNotifications] = useState(mockNotifications);
+  const navigation = useNavigation();
+  const { notifications: realNotifications, unreadCount, markAsRead, markAllAsRead } = useNotifications();
 
-  const markAsRead = (notificationId: string) => {
-    setNotifications(prev =>
-      prev.map(notif =>
-        notif.id === notificationId
-          ? { ...notif, isRead: true }
-          : notif
-      )
-    );
+  // Combine real notifications with mock data for demo (remove mock data in production)
+  const [allNotifications, setAllNotifications] = useState<(Notification | AppNotification)[]>([]);
+
+  useEffect(() => {
+    // Combine real notifications with mock data for demo purposes
+    const combinedNotifications = [
+      ...realNotifications.map(notif => ({
+        ...notif,
+        type: notif.type as any, // Type mapping
+        isRead: notif.read,
+        timestamp: formatTimestamp(notif.timestamp),
+      })),
+      ...mockNotifications,
+    ];
+    setAllNotifications(combinedNotifications);
+  }, [realNotifications]);
+
+  // Set up navigation header with settings button
+  useEffect(() => {
+    navigation.setOptions({
+      headerRight: () => (
+        <TouchableOpacity
+          onPress={() => navigation.navigate('NotificationSettings' as never)}
+          style={{ marginRight: 16 }}
+        >
+          <Ionicons name="settings-outline" size={24} color={colors.text} />
+        </TouchableOpacity>
+      ),
+    });
+  }, [navigation]);
+
+  const formatTimestamp = (timestamp: number): string => {
+    const now = Date.now();
+    const diff = now - timestamp;
+    const minutes = Math.floor(diff / (1000 * 60));
+    const hours = Math.floor(diff / (1000 * 60 * 60));
+    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+
+    if (minutes < 1) return 'Just now';
+    if (minutes < 60) return `${minutes}m ago`;
+    if (hours < 24) return `${hours}h ago`;
+    if (days < 7) return `${days}d ago`;
+    return new Date(timestamp).toLocaleDateString();
   };
 
-  const markAllAsRead = () => {
-    setNotifications(prev =>
+  const handleMarkAsRead = (notificationId: string) => {
+    // Handle both real notifications and mock notifications
+    const notification = allNotifications.find(n => n.id === notificationId);
+    if (notification && 'read' in notification) {
+      // Real notification
+      markAsRead(notificationId);
+    } else {
+      // Mock notification - update local state
+      setAllNotifications(prev =>
+        prev.map(notif =>
+          notif.id === notificationId
+            ? { ...notif, isRead: true }
+            : notif
+        )
+      );
+    }
+  };
+
+  const handleMarkAllAsRead = () => {
+    markAllAsRead(); // Handle real notifications
+    // Handle mock notifications
+    setAllNotifications(prev =>
       prev.map(notif => ({ ...notif, isRead: true }))
     );
   };
 
   const getNotificationIcon = (type: string) => {
     switch (type) {
-      case 'unlock': return 'lock-open';
-      case 'follow': return 'person-add';
-      case 'event': return 'calendar';
-      case 'achievement': return 'trophy';
+      case 'unlock':
+      case 'vault_item_available': return 'lock-open';
+      case 'follow':
+      case 'social_follow': return 'person-add';
+      case 'event':
+      case 'event_reminder': return 'calendar';
+      case 'achievement':
+      case 'xp_milestone': return 'trophy';
       case 'reward': return 'star';
+      case 'lesson_reminder': return 'book-outline';
+      case 'streak_reminder': return 'flame-outline';
+      case 'hearts_refilled': return 'heart';
+      case 'daily_challenge': return 'ribbon-outline';
       default: return 'notifications';
     }
   };
@@ -136,7 +203,7 @@ export default function NotificationsScreen() {
         styles.notificationCard,
         !notification.isRead && styles.unreadCard,
       ]}
-      onPress={() => markAsRead(notification.id)}
+      onPress={() => handleMarkAsRead(notification.id)}
     >
       <View style={styles.notificationContent}>
         <View style={styles.iconContainer}>
@@ -175,7 +242,7 @@ export default function NotificationsScreen() {
     </Pressable>
   );
 
-  const unreadCount = notifications.filter(n => !n.isRead).length;
+  const totalUnreadCount = allNotifications.filter(n => !n.isRead).length;
 
   return (
     <SafeAreaView style={styles.container} edges={['left', 'right', 'bottom']}>
@@ -183,14 +250,14 @@ export default function NotificationsScreen() {
       <View style={styles.header}>
         <View>
           <Text style={styles.headerTitle}>Notifications</Text>
-          {unreadCount > 0 && (
+          {totalUnreadCount > 0 && (
             <Text style={styles.headerSubtitle}>
-              {unreadCount} unread notification{unreadCount !== 1 ? 's' : ''}
+              {totalUnreadCount} unread notification{totalUnreadCount !== 1 ? 's' : ''}
             </Text>
           )}
         </View>
-        {unreadCount > 0 && (
-          <Pressable style={styles.markAllButton} onPress={markAllAsRead}>
+        {totalUnreadCount > 0 && (
+          <Pressable style={styles.markAllButton} onPress={handleMarkAllAsRead}>
             <Text style={styles.markAllButtonText}>Mark all read</Text>
           </Pressable>
         )}
@@ -201,7 +268,7 @@ export default function NotificationsScreen() {
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
-        {notifications.length === 0 ? (
+        {allNotifications.length === 0 ? (
           <View style={styles.emptyState}>
             <MaterialCommunityIcons
               name="bell-off"
@@ -215,7 +282,7 @@ export default function NotificationsScreen() {
           </View>
         ) : (
           <View style={styles.notificationsList}>
-            {notifications.map(renderNotification)}
+            {allNotifications.map(renderNotification)}
           </View>
         )}
       </ScrollView>

@@ -88,10 +88,10 @@
 
   "lessons": [
     {
-      "id": "lesson-ch1-001",
+      "id": "ch1-traits-lesson1",
       "moduleId": "ch1-basics",
-      "title": "Lesson 1: Bartending Basics",
-      "types": ["mcq", "order", "match", "short", "checkbox"],
+      "title": "Great Bartender Traits",
+      "types": ["mcq", "order", "short", "checkbox", "match"],
       "itemIds": ["q1","q2","q3","q4","q5","q6","q7","q8","q9","q10"],
       "estimatedMinutes": 5,
       "prereqs": []
@@ -237,116 +237,125 @@
     {
       "id": "q1",
       "type": "mcq",
-      "prompt": "Which of these traits are key for a great bartender?",
-      "options": ["Confidence", "Cleanliness", "Precision + Speed", "Curiosity", "All of the above"],
-      "answerIndex": 4,
-      "tags": ["traits"],
+      "prompt": "Which of these is NOT one of the four core traits of a great bartender?",
+      "options": ["Confidence","Cleanliness","Precision + Speed","Laziness","Curiosity"],
+      "answerIndex": 3,
+      "tags": ["traits","basics"],
       "conceptId": "traits.core",
-      "difficulty": 0,
-      "xpAward": 10
+      "difficulty": 0.1,
+      "xpAward": 12,
+      "reviewWeight": 0.7
     },
     {
       "id": "q2",
       "type": "order",
-      "prompt": "Put the tasting steps in the correct order.",
-      "orderTarget": ["Smell", "Sip", "Break it down", "Adjust"],
-      "tags": ["tasting"],
-      "conceptId": "tasting.4step",
-      "difficulty": 0,
-      "xpAward": 10
+      "prompt": "Put the four traits in the order they were introduced.",
+      "orderTarget": ["Confidence","Cleanliness","Precision + Speed","Curiosity"],
+      "tags": ["traits","memory"],
+      "conceptId": "traits.order",
+      "difficulty": 0.15,
+      "xpAward": 12,
+      "reviewWeight": 0.6
     },
     {
       "id": "q3",
-      "type": "match",
-      "prompt": "Match the citrus to its flavor vibe.",
-      "pairs": [
-        {"left":"Lemon","right":"Bright, floral"},
-        {"left":"Lime","right":"Punchy, tart"},
-        {"left":"Orange","right":"Soft, juicy"}
-      ],
-      "tags": ["citrus"],
-      "conceptId": "flavor.citrus",
-      "difficulty": 0,
-      "xpAward": 15
+      "type": "short",
+      "prompt": "Finish the quote: \"A good drink is like a ______ — firm, balanced, and unforgettable.\"",
+      "answerText": "handshake",
+      "acceptableAnswers": ["handshake"],
+      "tags": ["traits","quote"],
+      "conceptId": "quote.handshake",
+      "difficulty": 0.05,
+      "xpAward": 10,
+      "reviewWeight": 0.5
     },
     {
       "id": "q4",
-      "type": "short",
-      "prompt": "What should you never shake?",
-      "answerText": "fizzy drinks",
-      "acceptableAnswers": ["fizzy drinks","soda","sparkling","carbonated"],
-      "tags": ["safety"],
-      "conceptId": "safety.noshakefizz",
-      "difficulty": 0,
-      "xpAward": 10
+      "type": "mcq",
+      "prompt": "Which trait ensures drinks are measured consistently every time?",
+      "options": ["Confidence","Precision + Speed","Cleanliness","Curiosity"],
+      "answerIndex": 1,
+      "tags": ["traits","precision"],
+      "conceptId": "traits.precisionSpeed",
+      "difficulty": 0.12,
+      "xpAward": 12,
+      "reviewWeight": 0.7
     },
     {
       "id": "q5",
       "type": "checkbox",
-      "prompt": "Select the 5 core spirits every home bar should start with.",
-      "options": ["Vodka","Gin","Rum","Tequila","Whiskey","Brandy","Liqueurs"],
-      "correct": ["Vodka","Gin","Rum","Tequila","Whiskey"],
-      "tags": ["spirits"],
-      "conceptId": "spirits.core5",
-      "difficulty": 0,
-      "xpAward": 10
+      "prompt": "Select ALL the traits of a great bartender.",
+      "options": ["Confidence","Cleanliness","Precision + Speed","Curiosity","Forgetfulness"],
+      "correct": ["Confidence","Cleanliness","Precision + Speed","Curiosity"],
+      "tags": ["traits","recap"],
+      "conceptId": "traits.core.set",
+      "difficulty": 0.14,
+      "xpAward": 13,
+      "reviewWeight": 0.8
     },
     {
       "id": "q6",
       "type": "mcq",
-      "prompt": "Which tool measures accuracy and consistency?",
-      "options": ["Shaker","Jigger","Bar Spoon","Muddler"],
+      "prompt": "If a bartender shows up bold, even while nervous, which trait are they demonstrating?",
+      "options": ["Cleanliness","Confidence","Curiosity","Precision + Speed"],
       "answerIndex": 1,
-      "tags": ["tools"],
-      "conceptId": "tools.jigger",
-      "difficulty": 0,
-      "xpAward": 10
+      "tags": ["traits","confidence"],
+      "conceptId": "traits.confidence",
+      "difficulty": 0.08,
+      "xpAward": 11,
+      "reviewWeight": 0.7
     },
     {
       "id": "q7",
-      "type": "short",
-      "prompt": "Name one fresh good every bar should always have on hand.",
-      "answerText": "citrus",
-      "acceptableAnswers": ["lemon","lime","orange","mint","basil","fresh juice","citrus"],
-      "tags": ["fresh"],
-      "conceptId": "ingredients.fresh",
-      "difficulty": 0,
-      "xpAward": 10
+      "type": "match",
+      "prompt": "Match the trait with its meaning.",
+      "pairs": [
+        {"left":"Confidence","right":"Show up bold — even if you fake it til round two"},
+        {"left":"Cleanliness","right":"Sticky counters = sloppy energy"},
+        {"left":"Precision + Speed","right":"Fast, but never reckless"},
+        {"left":"Curiosity","right":"Keep tasting, learning, sharpening"}
+      ],
+      "tags": ["traits","meaning"],
+      "conceptId": "traits.meanings",
+      "difficulty": 0.18,
+      "xpAward": 15,
+      "reviewWeight": 0.9
     },
     {
       "id": "q8",
-      "type": "mcq",
-      "prompt": "Fun one: Which cocktail famously uses a sugar cube, bitters, and whiskey?",
-      "options": ["Margarita","Daiquiri","Old Fashioned","Martini"],
-      "answerIndex": 2,
-      "tags": ["recipes"],
-      "conceptId": "cocktail.oldfashioned",
-      "difficulty": 0,
-      "xpAward": 15
+      "type": "short",
+      "prompt": "Which trait is linked to keeping garnishes prepped, counters tidy, and tools clean?",
+      "answerText": "Cleanliness",
+      "acceptableAnswers": ["cleanliness","clean"],
+      "tags": ["traits","cleanliness"],
+      "conceptId": "traits.cleanliness",
+      "difficulty": 0.1,
+      "xpAward": 11,
+      "reviewWeight": 0.7
     },
     {
       "id": "q9",
-      "type": "order",
-      "prompt": "Order the setup zones correctly: Mix → Pour → Serve.",
-      "orderTarget": ["Mix","Pour","Serve"],
-      "tags": ["organization"],
-      "conceptId": "bar.zones",
-      "difficulty": 0,
-      "xpAward": 10
+      "type": "mcq",
+      "prompt": "A guest asks about a spirit you've never tried. What's the best response?",
+      "options": ["Pretend you know","Stay curious and taste it","Avoid the question","Pour randomly"],
+      "answerIndex": 1,
+      "tags": ["traits","curiosity","service"],
+      "conceptId": "traits.curiosity",
+      "difficulty": 0.12,
+      "xpAward": 12,
+      "reviewWeight": 0.75
     },
     {
       "id": "q10",
-      "type": "match",
-      "prompt": "Match the tool to its use.",
-      "pairs": [
-        {"left":"Shaker","right":"For sours & citrus builds"},
-        {"left":"Bar Spoon","right":"For stirred cocktails"},
-        {"left":"Muddler","right":"Unlock fresh herbs & fruit"}
-      ],
-      "tags": ["tools"],
-      "conceptId": "tools.basics",
-      "difficulty": 0,
-      "xpAward": 15
+      "type": "checkbox",
+      "prompt": "Which actions show Precision + Speed?",
+      "options": ["Free-pouring without measuring","Using a jigger for accuracy","Shaking recklessly","Stirring calmly for ~20 seconds"],
+      "correct": ["Using a jigger for accuracy","Stirring calmly for ~20 seconds"],
+      "tags": ["traits","precision","speed"],
+      "conceptId": "traits.precisionSpeed.actions",
+      "difficulty": 0.16,
+      "xpAward": 14,
+      "reviewWeight": 0.85
     }
   ]
 }

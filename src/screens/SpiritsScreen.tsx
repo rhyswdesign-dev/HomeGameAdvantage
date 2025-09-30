@@ -243,6 +243,77 @@ export default function SpiritsScreen() {
                   </View>
                 </View>
               )}
+
+              {/* Flavor Profile */}
+              <View style={styles.flavorProfileCard}>
+                <Text style={styles.flavorProfileHeader}>Flavor Profile</Text>
+                <View style={styles.flavorCategories}>
+                  <View style={styles.flavorCategory}>
+                    <Text style={styles.flavorCategoryLabel}>Sweetness</Text>
+                    <View style={styles.flavorMeter}>
+                      <View style={[styles.flavorMeterFill, { width: '60%' }]} />
+                    </View>
+                  </View>
+                  <View style={styles.flavorCategory}>
+                    <Text style={styles.flavorCategoryLabel}>Smokiness</Text>
+                    <View style={styles.flavorMeter}>
+                      <View style={[styles.flavorMeterFill, { width: '80%' }]} />
+                    </View>
+                  </View>
+                  <View style={styles.flavorCategory}>
+                    <Text style={styles.flavorCategoryLabel}>Spiciness</Text>
+                    <View style={styles.flavorMeter}>
+                      <View style={[styles.flavorMeterFill, { width: '40%' }]} />
+                    </View>
+                  </View>
+                  <View style={styles.flavorCategory}>
+                    <Text style={styles.flavorCategoryLabel}>Complexity</Text>
+                    <View style={styles.flavorMeter}>
+                      <View style={[styles.flavorMeterFill, { width: '90%' }]} />
+                    </View>
+                  </View>
+                </View>
+                <View style={styles.flavorTags}>
+                  {['Oak', 'Vanilla', 'Caramel', 'Honey', 'Citrus'].map((flavor, index) => (
+                    <View key={index} style={styles.flavorTag}>
+                      <Text style={styles.flavorTagText}>{flavor}</Text>
+                    </View>
+                  ))}
+                </View>
+              </View>
+
+              {/* History & Heritage */}
+              <View style={styles.historyCard}>
+                <Text style={styles.historyHeader}>History & Heritage</Text>
+                <View style={styles.historyTimeline}>
+                  <View style={styles.timelineItem}>
+                    <View style={styles.timelineMarker} />
+                    <View style={styles.timelineContent}>
+                      <Text style={styles.timelineYear}>1887</Text>
+                      <Text style={styles.timelineEvent}>Founded by {selectedSpirit.name.split(' ')[0]} family</Text>
+                    </View>
+                  </View>
+                  <View style={styles.timelineItem}>
+                    <View style={styles.timelineMarker} />
+                    <View style={styles.timelineContent}>
+                      <Text style={styles.timelineYear}>1920</Text>
+                      <Text style={styles.timelineEvent}>Survived Prohibition through medicinal permits</Text>
+                    </View>
+                  </View>
+                  <View style={styles.timelineItem}>
+                    <View style={styles.timelineMarker} />
+                    <View style={styles.timelineContent}>
+                      <Text style={styles.timelineYear}>Today</Text>
+                      <Text style={styles.timelineEvent}>Award-winning heritage spirit, 5th generation master distiller</Text>
+                    </View>
+                  </View>
+                </View>
+                <View style={styles.heritageInfo}>
+                  <Text style={styles.heritageText}>
+                    Crafted using traditional methods passed down through generations, this spirit represents the pinnacle of distilling expertise.
+                  </Text>
+                </View>
+              </View>
             </View>
           </ScrollView>
         </View>
@@ -608,5 +679,118 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: colors.text,
     lineHeight: 20,
+  },
+  // Flavor Profile Styles
+  flavorProfileCard: {
+    backgroundColor: colors.card,
+    borderRadius: radii.lg,
+    borderWidth: 1,
+    borderColor: colors.line,
+    padding: spacing(3),
+    marginTop: spacing(2),
+  },
+  flavorProfileHeader: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: colors.text,
+    marginBottom: spacing(3),
+  },
+  flavorCategories: {
+    marginBottom: spacing(3),
+  },
+  flavorCategory: {
+    marginBottom: spacing(2),
+  },
+  flavorCategoryLabel: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: colors.text,
+    marginBottom: spacing(1),
+  },
+  flavorMeter: {
+    height: 8,
+    backgroundColor: colors.line,
+    borderRadius: 4,
+    overflow: 'hidden',
+  },
+  flavorMeterFill: {
+    height: '100%',
+    backgroundColor: colors.accent,
+  },
+  flavorTags: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: spacing(1),
+  },
+  flavorTag: {
+    backgroundColor: colors.accent + '20',
+    paddingHorizontal: spacing(2),
+    paddingVertical: spacing(1),
+    borderRadius: radii.sm,
+    borderWidth: 1,
+    borderColor: colors.accent + '40',
+  },
+  flavorTagText: {
+    fontSize: 12,
+    color: colors.accent,
+    fontWeight: '600',
+  },
+  // History Styles
+  historyCard: {
+    backgroundColor: colors.card,
+    borderRadius: radii.lg,
+    borderWidth: 1,
+    borderColor: colors.line,
+    padding: spacing(3),
+    marginTop: spacing(2),
+  },
+  historyHeader: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: colors.text,
+    marginBottom: spacing(3),
+  },
+  historyTimeline: {
+    marginBottom: spacing(3),
+  },
+  timelineItem: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    marginBottom: spacing(3),
+  },
+  timelineMarker: {
+    width: 12,
+    height: 12,
+    borderRadius: 6,
+    backgroundColor: colors.accent,
+    marginTop: spacing(0.5),
+    marginRight: spacing(2),
+  },
+  timelineContent: {
+    flex: 1,
+  },
+  timelineYear: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: colors.accent,
+    marginBottom: spacing(0.5),
+  },
+  timelineEvent: {
+    fontSize: 14,
+    color: colors.text,
+    lineHeight: 20,
+  },
+  heritageInfo: {
+    backgroundColor: colors.bg,
+    padding: spacing(2.5),
+    borderRadius: radii.md,
+    borderLeftWidth: 3,
+    borderLeftColor: colors.accent,
+  },
+  heritageText: {
+    fontSize: 14,
+    color: colors.subtext,
+    lineHeight: 20,
+    fontStyle: 'italic',
   },
 });

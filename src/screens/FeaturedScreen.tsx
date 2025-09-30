@@ -17,6 +17,7 @@ import SearchModal from '../components/SearchModal';
 import FilterDrawer from '../components/FilterDrawer';
 import CreateRecipeModal from '../components/CreateRecipeModal';
 import { useScreenTracking } from '../context/AnalyticsContext';
+import { FEATURED_SPIRIT_IMAGES } from '../data/barImages';
 
 const chips: Array<{ key: string; label: string }> = [
   { key: 'Home', label: 'Home' },
@@ -24,24 +25,39 @@ const chips: Array<{ key: string; label: string }> = [
   { key: 'NonAlcoholic', label: 'Non-Alcoholic' },
   { key: 'Bars',    label: 'Bars'    },
   { key: 'Events',  label: 'Events'  },
-  { key: 'Games',   label: 'Games'   },
-  { key: 'Vault',   label: 'Vault'   },
 ];
 
-// Get gold tier spirits from all categories (same as Spirits page logic)
+// Get gold tier spirits from all categories but use uploaded images
 const goldSpirits = [
   ...getRandomizedBrandsByCategory('Whiskey').filter(brand => brand.tier === 'gold'),
   ...getRandomizedBrandsByCategory('Gin').filter(brand => brand.tier === 'gold'),
   ...getRandomizedBrandsByCategory('Vodka').filter(brand => brand.tier === 'gold'),
   ...getRandomizedBrandsByCategory('Tequila').filter(brand => brand.tier === 'gold'),
   ...getRandomizedBrandsByCategory('Rum').filter(brand => brand.tier === 'gold')
-].map(brand => ({
-  id: brand.id,  // Add brand ID for navigation
-  title: brand.name,
-  subtitle: brand.hero?.tagline || `${brand.quickInfo?.style || ''} • ${brand.quickInfo?.origin || ''}`,
-  img: brand.hero?.image || 'https://images.unsplash.com/photo-1569529465841-dfecdab7503b?auto=format&fit=crop&w=1200&q=60',
-  tier: brand.tier  // Add tier for navigation
-}));
+].map(brand => {
+  // Map brand categories to uploaded images
+  let featuredImage = brand.hero?.image;
+
+  if (brand.category === 'Whiskey') {
+    featuredImage = FEATURED_SPIRIT_IMAGES.whiskey;
+  } else if (brand.category === 'Gin') {
+    featuredImage = FEATURED_SPIRIT_IMAGES.gin;
+  } else if (brand.category === 'Vodka') {
+    featuredImage = FEATURED_SPIRIT_IMAGES.vodka;
+  } else if (brand.category === 'Tequila') {
+    featuredImage = FEATURED_SPIRIT_IMAGES.tequila;
+  } else if (brand.category === 'Rum') {
+    featuredImage = FEATURED_SPIRIT_IMAGES.rum;
+  }
+
+  return {
+    id: brand.id,
+    title: brand.name,
+    subtitle: brand.hero?.tagline || `${brand.quickInfo?.style || ''} • ${brand.quickInfo?.origin || ''}`,
+    img: featuredImage,
+    tier: brand.tier
+  };
+});
 
 // Hardcode only gold tier bars (Untitled Champagne Lounge is currently the only gold tier bar)
 const goldBars = [
@@ -184,19 +200,7 @@ export default function FeaturedScreen() {
       headerTitleStyle: { color: colors.text, fontWeight: '900' },
       headerShadowVisible: false,
       headerLeft: () => null,
-      headerRight: () => (
-        <View style={{ flexDirection: 'row', gap: 16 }}>
-          <Pressable hitSlop={12} onPress={() => setSearchModalVisible(true)}>
-            <Ionicons name="search" size={24} color={colors.text} />
-          </Pressable>
-          <Pressable hitSlop={12} onPress={() => setFilterDrawerVisible(true)}>
-            <Ionicons name="funnel" size={24} color={colors.text} />
-          </Pressable>
-          <Pressable hitSlop={12} onPress={() => setCreateRecipeModalVisible(true)}>
-            <Ionicons name="add-circle" size={24} color={colors.accent} />
-          </Pressable>
-        </View>
-      ),
+      headerRight: () => null,
     });
   }, [nav, active]);
 
@@ -431,10 +435,10 @@ function Section({ title, children, onPress }: { title:string; children:React.Re
   );
 }
 
-function HScroll({ cards, smallGap, onPress }:{ cards:Array<{title:string; subtitle?:string; img:string; id?:string; tier?:string}>; smallGap?:boolean; onPress?: (item: {title:string; subtitle?:string; img:string; id?:string; tier?:string}) => void }) {
+function HScroll({ cards, smallGap, onPress }:{ cards:Array<{title:string; subtitle?:string; img:any; id?:string; tier?:string}>; smallGap?:boolean; onPress?: (item: {title:string; subtitle?:string; img:any; id?:string; tier?:string}) => void }) {
   const { toggleSavedBar, isBarSaved } = useSavedItems();
 
-  const handleShare = async (item: {title:string; subtitle?:string; img:string; id?:string; tier?:string}) => {
+  const handleShare = async (item: {title:string; subtitle?:string; img:any; id?:string; tier?:string}) => {
     try {
       await Share.share({
         message: `Check out ${item.title}! ${item.subtitle ? item.subtitle : 'A great bar to visit.'}`,
@@ -451,7 +455,7 @@ function HScroll({ cards, smallGap, onPress }:{ cards:Array<{title:string; subti
       {cards.map(c=>(
         <TouchableOpacity key={c.id || c.title} style={styles.hCard} onPress={() => onPress?.(c)} activeOpacity={0.8}>
           <View style={styles.cardImageContainer}>
-            <Image source={{ uri:c.img }} style={styles.hImage}/>
+            <Image source={typeof c.img === 'string' ? { uri: c.img } : c.img} style={styles.hImage}/>
             <TouchableOpacity
               style={styles.cardShareButton}
               onPress={() => handleShare(c)}

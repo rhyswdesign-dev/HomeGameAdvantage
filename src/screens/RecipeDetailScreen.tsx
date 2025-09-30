@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   View,
   Text,
@@ -14,11 +14,13 @@ import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '../navigation/RootNavigator';
+import GroceryListModal from '../components/GroceryListModal';
 
 export default function RecipeDetailScreen() {
   const nav = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const route = useRoute();
   const recipe = (route.params as any)?.recipe;
+  const [groceryListVisible, setGroceryListVisible] = useState(false);
 
   if (!recipe) {
     return (
@@ -139,7 +141,29 @@ export default function RecipeDetailScreen() {
             </View>
           </View>
         )}
+
+        {/* Actions */}
+        <View style={styles.actionsSection}>
+          <TouchableOpacity
+            style={styles.groceryListButton}
+            onPress={() => setGroceryListVisible(true)}
+          >
+            <Ionicons name="list" size={20} color={colors.bg} />
+            <Text style={styles.groceryListButtonText}>Create Shopping List</Text>
+          </TouchableOpacity>
+        </View>
       </ScrollView>
+
+      {/* Grocery List Modal */}
+      {(recipe.ingredients || recipe.tags) && (
+        <GroceryListModal
+          visible={groceryListVisible}
+          onClose={() => setGroceryListVisible(false)}
+          recipeName={recipe.name || recipe.title || 'Recipe'}
+          ingredients={recipe.ingredients || recipe.tags || []}
+          recipeId={recipe.id}
+        />
+      )}
     </SafeAreaView>
   );
 }
@@ -258,6 +282,27 @@ const styles = StyleSheet.create({
   backButtonText: {
     color: colors.bg,
     fontSize: 16,
+    fontWeight: '600',
+  },
+  actionsSection: {
+    paddingHorizontal: spacing(3),
+    paddingVertical: spacing(3),
+    borderTopWidth: 1,
+    borderTopColor: colors.line,
+    marginTop: spacing(2),
+  },
+  groceryListButton: {
+    backgroundColor: colors.accent,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: spacing(3),
+    borderRadius: radii.md,
+    gap: spacing(1),
+  },
+  groceryListButtonText: {
+    color: colors.bg,
+    fontSize: fonts.body,
     fontWeight: '600',
   },
 });

@@ -7,6 +7,7 @@ import { initializeApp, getApps, getApp } from 'firebase/app';
 import { getFirestore, connectFirestoreEmulator, enableNetwork, disableNetwork } from 'firebase/firestore';
 import { getAuth, initializeAuth, getReactNativePersistence, connectAuthEmulator } from 'firebase/auth';
 import { getFunctions, connectFunctionsEmulator } from 'firebase/functions';
+import { getStorage, connectStorageEmulator } from 'firebase/storage';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 // Firebase configuration object
@@ -45,6 +46,10 @@ try {
 export { auth };
 
 export const functions = getFunctions(app);
+export const storage = getStorage(app);
+
+// Log storage bucket configuration for debugging
+console.log('Firebase Storage bucket:', app.options.storageBucket);
 
 // Development emulator setup
 const isEmulator = process.env.NODE_ENV === 'development' && process.env.EXPO_PUBLIC_USE_FIREBASE_EMULATOR === 'true';
@@ -65,7 +70,12 @@ if (isEmulator) {
     if (!functions.app.options.projectId?.includes('demo-')) {
       connectFunctionsEmulator(functions, 'localhost', 5001);
     }
-    
+
+    // Connect to Storage emulator
+    if (!storage.app.options.projectId?.includes('demo-')) {
+      connectStorageEmulator(storage, 'localhost', 9199);
+    }
+
     console.log('🔧 Connected to Firebase emulators');
   } catch (error) {
     console.warn('⚠️ Failed to connect to emulators:', error);

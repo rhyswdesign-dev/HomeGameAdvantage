@@ -1,11 +1,12 @@
 import type { SpiritContent } from '../types/spirit';
 import { getBrandById } from './brands/index';
+import { FEATURED_SPIRIT_IMAGES } from './barImages';
 
 export const highlandCrownGold: SpiritContent = {
   id: 'highland_crown',
   name: 'Highland Crown',
   hero: {
-    image: 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?q=80&w=1200&auto=format&fit=crop',
+    image: FEATURED_SPIRIT_IMAGES.whiskey,
     title: 'Scottish Heritage, Modern Excellence',
     xpMessage: '+150 XP'
   },
