@@ -4,7 +4,7 @@
  */
 
 import { ContentRepository } from '../interfaces';
-import { Module, Lesson, Item } from '../../types/domain';
+import { Module, Lesson, Item, ExerciseType } from '../../types/domain';
 import curriculumData from '../../../curriculum-data.json';
 
 export class MemoryContentRepository implements ContentRepository {
@@ -39,7 +39,8 @@ export class MemoryContentRepository implements ContentRepository {
         title: lesson.title,
         itemIds: lesson.itemIds,
         estimatedMinutes: lesson.estimatedMinutes,
-        prerequisiteIds: lesson.prereqs || []
+        prerequisiteIds: lesson.prereqs || [],
+        types: lesson.types as ExerciseType[]
       };
       this.lessons.set(lesson.id, lessonData);
     });
@@ -47,13 +48,15 @@ export class MemoryContentRepository implements ContentRepository {
     curriculumData.items.forEach(item => {
       const itemData: Item = {
         id: item.id,
-        type: item.type as any,
+        type: item.type as ExerciseType,
         prompt: item.prompt,
         options: item.options || [],
         answerIndex: item.answerIndex,
+        orderTarget: item.orderTarget,
         answerText: item.answerText,
         acceptableAnswers: item.acceptableAnswers,
         correct: item.correct,
+        pairs: item.pairs,
         roleplay: item.roleplay,
         tags: item.tags,
         conceptId: item.conceptId,

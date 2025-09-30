@@ -1,191 +1,318 @@
-import React, { useLayoutEffect } from 'react';
-import { View, Text, ScrollView, StyleSheet, TouchableOpacity } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { useNavigation } from '@react-navigation/native';
-import { Ionicons } from '@expo/vector-icons';
-import { colors, spacing, radii } from '../theme/tokens';
+/**
+ * PRIVACY POLICY SCREEN
+ * Displays privacy policy content with search and anchor navigation
+ * Marks policy as seen when viewed
+ */
 
-interface PrivacyPolicyScreenProps {
-  onBack?: () => void;
+import React, { useState, useEffect } from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  SafeAreaView,
+  TextInput,
+  TouchableOpacity,
+  Alert,
+  ActivityIndicator,
+} from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
+import { useNavigation, useRoute } from '@react-navigation/native';
+import MarkdownView from '../components/MarkdownView';
+import { useConsent } from '../hooks/useConsent';
+import { colors, spacing, radii } from '../theme/tokens';
+import type { PolicyDeepLink } from '../types/consent';
+
+interface RouteParams {
+  anchor?: string;
+  lang?: string;
 }
 
-export default function PrivacyPolicyScreen({ onBack }: PrivacyPolicyScreenProps) {
+/**
+ * Privacy Policy screen with markdown content, search, and version tracking
+ */
+export default function PrivacyPolicyScreen() {
   const navigation = useNavigation();
+  const route = useRoute();
+  const { markPrivacySeen } = useConsent();
+  const routeParams = route.params as RouteParams | undefined;
 
-  useLayoutEffect(() => {
+  const [content, setContent] = useState<string>('');
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [filteredContent, setFilteredContent] = useState<string>('');
+  const [lastUpdated, setLastUpdated] = useState<string>('');
+
+  /**
+   * Load privacy policy markdown content
+   */
+  const loadPrivacyPolicy = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      // For this implementation, we'll use the content we created
+      // In production, you'd load from bundled assets or fetch from server
+      const markdownContent = `---
+title: Privacy Policy
+updated: 2025-09-20
+version: 1.0.0
+language: en-CA
+---
+
+# Privacy Policy
+
+**Effective Date:** September 20, 2025
+**Last Updated:** September 20, 2025
+
+## Introduction
+
+Home Game Advantage ("we," "our," or "us") is committed to protecting your privacy and ensuring you have a positive experience on our bartending education mobile application (the "App"). This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use our App.
+
+By using our App, you agree to the collection and use of information in accordance with this policy.
+
+## Information We Collect
+
+### Personal Information
+
+When you create an account or use our App, we may collect:
+
+- **Account Information**: Username, email address, profile preferences
+- **Learning Progress**: Lesson completion, scores, achievements, and learning statistics
+- **Device Information**: Device type, operating system, app version, and unique device identifiers
+- **Usage Data**: How you interact with the App, features used, and time spent
+
+### Automatically Collected Information
+
+We automatically collect certain information when you use our App:
+
+- **Device Identifiers**: Unique device and installation identifiers for app functionality
+- **Usage Analytics**: App performance, feature usage, and user behavior patterns
+- **Technical Data**: IP address (when applicable), device specifications, and app crash reports
+
+## Tracking Technologies
+
+As a mobile application, we use the following tracking technologies:
+
+### Device Identifiers
+- **Installation ID**: Unique identifier for your app installation
+- **Device ID**: Platform-specific device identifiers (iOS IDFA, Android Advertising ID)
+- **User ID**: Internal identifier for your account and progress
+
+### Analytics SDKs
+- **Performance Monitoring**: Crash reporting and performance analytics
+- **Usage Analytics**: Feature usage and user behavior analysis
+- **A/B Testing**: Testing different app versions to improve user experience
+
+## Your Privacy Rights
+
+Depending on your location, you may have the following rights regarding your personal information:
+
+### General Rights
+- **Access**: Request a copy of the personal information we hold about you
+- **Correction**: Request that we correct any inaccurate or incomplete information
+- **Deletion**: Request that we delete your personal information
+- **Portability**: Request a copy of your data in a machine-readable format
+
+### For Quebec Residents (Law 25)
+- Right to request information about the collection and use of personal information
+- Right to access and rectify personal information
+- Right to request cessation of use or disclosure of personal information
+- Right to portability of personal information
+
+## Contact Us
+
+If you have any questions about this Privacy Policy, please contact us:
+
+**Email**: privacy@homegameadvantage.com
+**Support**: support@homegameadvantage.com
+
+**Personne responsable de la protection des renseignements personnels** (Quebec Law 25):
+Privacy Officer
+Email: privacy@homegameadvantage.com`;
+
+      // Parse front-matter to extract metadata
+      const { content: parsedContent, metadata } = parseFrontMatter(markdownContent);
+
+      setContent(parsedContent);
+      setFilteredContent(parsedContent);
+      setLastUpdated(metadata.updated || 'September 20, 2025');
+
+      // Mark privacy policy as seen
+      await markPrivacySeen();
+
+    } catch (err) {
+      console.error('Failed to load privacy policy:', err);
+      setError('Failed to load privacy policy. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  /**
+   * Parse front-matter from markdown content
+   */
+  const parseFrontMatter = (content: string) => {
+    const frontMatterRegex = /^---\n([\s\S]*?)\n---\n([\s\S]*)$/;
+    const match = content.match(frontMatterRegex);
+
+    if (match) {
+      const frontMatter = match[1];
+      const markdownContent = match[2];
+
+      // Parse YAML-like front-matter
+      const metadata: Record<string, string> = {};
+      frontMatter.split('\n').forEach(line => {
+        const [key, ...valueParts] = line.split(':');
+        if (key && valueParts.length > 0) {
+          metadata[key.trim()] = valueParts.join(':').trim();
+        }
+      });
+
+      return {
+        content: markdownContent,
+        metadata,
+      };
+    }
+
+    return {
+      content,
+      metadata: {},
+    };
+  };
+
+  /**
+   * Filter content based on search query
+   */
+  const filterContent = (query: string) => {
+    if (!query.trim()) {
+      setFilteredContent(content);
+      return;
+    }
+
+    // Simple search: highlight sections containing the query
+    const lines = content.split('\n');
+    const filteredLines: string[] = [];
+
+    lines.forEach((line, index) => {
+      if (line.toLowerCase().includes(query.toLowerCase())) {
+        // Add context before and after
+        const start = Math.max(0, index - 2);
+        const end = Math.min(lines.length - 1, index + 2);
+
+        for (let i = start; i <= end; i++) {
+          if (!filteredLines.includes(lines[i])) {
+            filteredLines.push(lines[i]);
+          }
+        }
+      }
+    });
+
+    setFilteredContent(filteredLines.length > 0 ? filteredLines.join('\n') : 'No matches found.');
+  };
+
+  /**
+   * Handle search input changes
+   */
+  const handleSearchChange = (query: string) => {
+    setSearchQuery(query);
+    filterContent(query);
+  };
+
+  /**
+   * Handle link presses in markdown content
+   */
+  const handleLinkPress = (url: string) => {
+    if (url.startsWith('#')) {
+      // Internal anchor link - handled by MarkdownView
+      return;
+    }
+
+    if (url.startsWith('mailto:')) {
+      // Email link
+      Alert.alert('Contact', `Would you like to send an email to ${url.replace('mailto:', '')}?`);
+      return;
+    }
+
+    // External link
+    Alert.alert('External Link', 'This link leads to an external website.');
+  };
+
+  // Load content on mount
+  useEffect(() => {
+    loadPrivacyPolicy();
+  }, []);
+
+  // Set up navigation header
+  useEffect(() => {
     navigation.setOptions({
       title: 'Privacy Policy',
       headerStyle: { backgroundColor: colors.bg },
       headerTintColor: colors.text,
-      headerTitleStyle: { color: colors.text, fontWeight: '700' },
-      headerShadowVisible: false,
+      headerTitleStyle: { color: colors.text, fontWeight: '900' },
     });
-  }, [navigation, onBack]);
+  }, [navigation]);
+
+  if (loading) {
+    return (
+      <SafeAreaView style={styles.container}>
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color={colors.accent} />
+          <Text style={styles.loadingText}>Loading Privacy Policy...</Text>
+        </View>
+      </SafeAreaView>
+    );
+  }
+
+  if (error) {
+    return (
+      <SafeAreaView style={styles.container}>
+        <View style={styles.errorContainer}>
+          <Ionicons name="alert-circle-outline" size={48} color="#ef4444" />
+          <Text style={styles.errorTitle}>Error Loading Policy</Text>
+          <Text style={styles.errorText}>{error}</Text>
+        </View>
+      </SafeAreaView>
+    );
+  }
 
   return (
-    <SafeAreaView style={styles.container} edges={['left', 'right', 'bottom']}>
-      <ScrollView contentContainerStyle={styles.scrollContent}>
-        {/* Header */}
-        <View style={styles.header}>
-          <Text style={styles.title}>Privacy Policy</Text>
-          <Text style={styles.subtitle}>
-            Effective Date: March 1, 2024
+    <SafeAreaView style={styles.container}>
+      {/* Search Header */}
+      <View style={styles.searchContainer}>
+        <View style={styles.searchInputContainer}>
+          <Ionicons name="search" size={20} color={colors.subtext} />
+          <TextInput
+            style={styles.searchInput}
+            placeholder="Search privacy policy..."
+            placeholderTextColor={colors.subtext}
+            value={searchQuery}
+            onChangeText={handleSearchChange}
+          />
+          {searchQuery ? (
+            <TouchableOpacity
+              onPress={() => handleSearchChange('')}
+              style={styles.clearButton}
+            >
+              <Ionicons name="close-circle" size={20} color={colors.subtext} />
+            </TouchableOpacity>
+          ) : null}
+        </View>
+
+        {lastUpdated && (
+          <Text style={styles.lastUpdated}>
+            Last updated: {lastUpdated}
           </Text>
-        </View>
+        )}
+      </View>
 
-        {/* Content */}
-        <View style={styles.content}>
-          <Section
-            title="Introduction"
-            content="Home Game Advantage ('we', 'our', or 'us') respects your privacy and is committed to protecting your personal data. This privacy policy explains how we collect, use, and safeguard your information when you use our mobile application and services."
-          />
-
-          <Section
-            title="Information We Collect"
-            content="We collect information you provide directly to us, such as when you create an account, update your profile, participate in events, or contact us for support."
-            subsections={[
-              {
-                subtitle: "Personal Information",
-                content: "• Name and email address\n• Profile information (bio, avatar, preferences)\n• Location data (with your permission)\n• Communication preferences"
-              },
-              {
-                subtitle: "Usage Information",
-                content: "• App usage patterns and preferences\n• Event participation and feedback\n• Bar and spirit interactions\n• Device information and identifiers"
-              },
-              {
-                subtitle: "Social Information",
-                content: "• Information from social media accounts (if you connect them)\n• User-generated content like reviews and comments\n• Social interactions within the app"
-              }
-            ]}
-          />
-
-          <Section
-            title="How We Use Your Information"
-            content="We use the information we collect to provide, maintain, and improve our services."
-            subsections={[
-              {
-                subtitle: "Core Services",
-                content: "• Personalize your experience with relevant content\n• Facilitate event registration and participation\n• Enable social features and community interaction\n• Provide customer support and respond to inquiries"
-              },
-              {
-                subtitle: "Communication",
-                content: "• Send important updates about your account or our services\n• Notify you about events and opportunities (with your consent)\n• Share promotional content and special offers (optional)\n• Gather feedback to improve our services"
-              },
-              {
-                subtitle: "Analytics and Improvement",
-                content: "• Analyze usage patterns to improve app functionality\n• Conduct research and analytics\n• Develop new features and services\n• Ensure security and prevent fraud"
-              }
-            ]}
-          />
-
-          <Section
-            title="Information Sharing"
-            content="We do not sell, trade, or rent your personal information to third parties. We may share your information only in the following circumstances:"
-            subsections={[
-              {
-                subtitle: "Service Providers",
-                content: "We may share information with trusted third-party service providers who help us operate our app and provide services to you, such as cloud hosting, analytics, and customer support."
-              },
-              {
-                subtitle: "Legal Requirements",
-                content: "We may disclose your information if required by law, court order, or government regulation, or to protect our rights, property, or safety."
-              },
-              {
-                subtitle: "Business Transfers",
-                content: "In the event of a merger, acquisition, or sale of assets, your information may be transferred as part of that transaction."
-              }
-            ]}
-          />
-
-          <Section
-            title="Data Security"
-            content="We implement appropriate technical and organizational measures to protect your personal information against unauthorized access, alteration, disclosure, or destruction. However, no method of transmission over the internet or electronic storage is 100% secure."
-          />
-
-          <Section
-            title="Your Rights and Choices"
-            content="You have several rights regarding your personal information:"
-            subsections={[
-              {
-                subtitle: "Access and Updates",
-                content: "• Access and update your account information at any time\n• Request a copy of the personal data we hold about you\n• Correct any inaccurate or incomplete information"
-              },
-              {
-                subtitle: "Data Control",
-                content: "• Delete your account and associated data\n• Opt out of marketing communications\n• Control location tracking and other permissions\n• Request data portability where applicable"
-              },
-              {
-                subtitle: "Communication Preferences",
-                content: "• Choose which types of notifications you receive\n• Unsubscribe from promotional emails\n• Adjust privacy settings for social features"
-              }
-            ]}
-          />
-
-          <Section
-            title="Cookies and Tracking"
-            content="We use cookies and similar technologies to enhance your experience, analyze usage patterns, and provide personalized content. You can control cookie settings through your device or browser settings."
-          />
-
-          <Section
-            title="Children's Privacy"
-            content="Our service is not intended for children under the age of 21. We do not knowingly collect personal information from children under 21. If you are a parent or guardian and believe your child has provided us with personal information, please contact us."
-          />
-
-          <Section
-            title="International Data Transfers"
-            content="Your information may be transferred to and processed in countries other than your own. We ensure that such transfers comply with applicable data protection laws and implement appropriate safeguards."
-          />
-
-          <Section
-            title="Changes to This Policy"
-            content="We may update this Privacy Policy from time to time. We will notify you of any material changes by posting the new policy in the app and updating the effective date. Your continued use of the app after such changes constitutes acceptance of the updated policy."
-          />
-
-          <Section
-            title="Contact Us"
-            content="If you have any questions, concerns, or requests regarding this Privacy Policy or our data practices, please contact us:"
-            subsections={[
-              {
-                subtitle: "Contact Information",
-                content: "Email: privacy@homegameadvantage.com\nAddress: [Company Address]\nPhone: [Phone Number]\n\nWe will respond to your inquiries within 30 days."
-              }
-            ]}
-          />
-        </View>
-
-        {/* Footer */}
-        <View style={styles.footer}>
-          <Text style={styles.footerText}>
-            By using Home Game Advantage, you acknowledge that you have read, understood, and agree to this Privacy Policy.
-          </Text>
-        </View>
-      </ScrollView>
+      {/* Content */}
+      <MarkdownView
+        content={filteredContent}
+        scrollToAnchor={routeParams?.anchor}
+        onLinkPress={handleLinkPress}
+      />
     </SafeAreaView>
-  );
-}
-
-interface SectionProps {
-  title: string;
-  content: string;
-  subsections?: Array<{
-    subtitle: string;
-    content: string;
-  }>;
-}
-
-function Section({ title, content, subsections }: SectionProps) {
-  return (
-    <View style={styles.section}>
-      <Text style={styles.sectionTitle}>{title}</Text>
-      <Text style={styles.sectionContent}>{content}</Text>
-      
-      {subsections && subsections.map((subsection, index) => (
-        <View key={index} style={styles.subsection}>
-          <Text style={styles.subsectionTitle}>{subsection.subtitle}</Text>
-          <Text style={styles.subsectionContent}>{subsection.content}</Text>
-        </View>
-      ))}
-    </View>
   );
 }
 
@@ -194,81 +321,72 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: colors.bg,
   },
-  scrollContent: {
-    paddingBottom: spacing(6),
-  },
-  backButton: {
-    width: 40,
-    height: 40,
+
+  // Loading state
+  loadingContainer: {
+    flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
+    padding: spacing(4),
   },
-  header: {
-    paddingHorizontal: spacing(3),
-    paddingTop: spacing(3),
-    paddingBottom: spacing(4),
-    alignItems: 'center',
-  },
-  title: {
-    fontSize: 28,
-    fontWeight: '900',
+  loadingText: {
+    marginTop: spacing(2),
+    fontSize: 16,
     color: colors.text,
     textAlign: 'center',
-    marginBottom: spacing(1),
   },
-  subtitle: {
-    fontSize: 16,
-    color: colors.subtext,
-    textAlign: 'center',
+
+  // Error state
+  errorContainer: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: spacing(4),
   },
-  content: {
-    paddingHorizontal: spacing(3),
-  },
-  section: {
-    marginBottom: spacing(4),
-  },
-  sectionTitle: {
+  errorTitle: {
     fontSize: 20,
     fontWeight: '700',
     color: colors.text,
-    marginBottom: spacing(2),
-  },
-  sectionContent: {
-    fontSize: 16,
-    color: colors.subtext,
-    lineHeight: 24,
-    marginBottom: spacing(1),
-  },
-  subsection: {
     marginTop: spacing(2),
-    marginLeft: spacing(2),
-  },
-  subsectionTitle: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: colors.text,
     marginBottom: spacing(1),
   },
-  subsectionContent: {
-    fontSize: 15,
+  errorText: {
+    fontSize: 16,
     color: colors.subtext,
+    textAlign: 'center',
     lineHeight: 22,
   },
-  footer: {
-    paddingHorizontal: spacing(3),
-    paddingTop: spacing(4),
-    paddingBottom: spacing(2),
+
+  // Search
+  searchContainer: {
+    padding: spacing(2),
+    borderBottomWidth: 1,
+    borderBottomColor: colors.line,
     backgroundColor: colors.card,
-    marginHorizontal: spacing(3),
-    borderRadius: radii.lg,
+  },
+  searchInputContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: colors.bg,
+    borderRadius: radii.md,
+    paddingHorizontal: spacing(1.5),
+    paddingVertical: spacing(1),
     borderWidth: 1,
     borderColor: colors.line,
   },
-  footerText: {
-    fontSize: 14,
+  searchInput: {
+    flex: 1,
+    marginLeft: spacing(1),
+    fontSize: 16,
+    color: colors.text,
+  },
+  clearButton: {
+    padding: spacing(0.5),
+  },
+  lastUpdated: {
+    marginTop: spacing(1),
+    fontSize: 12,
     color: colors.subtext,
     textAlign: 'center',
-    lineHeight: 20,
-    fontStyle: 'italic',
   },
 });

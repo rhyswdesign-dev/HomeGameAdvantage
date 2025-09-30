@@ -19,10 +19,13 @@ import type { RootStackParamList } from '../navigation/RootNavigator';
 import { useSocialData } from '../hooks/useSocialData';
 import { useUser } from '../contexts/UserContext';
 import { useSavedItems } from '../hooks/useSavedItems';
+import { usePosts } from '../contexts/PostsContext';
 import { SearchableItem, FilterOptions } from '../services/searchService';
 import SearchModal from '../components/SearchModal';
 import FilterDrawer from '../components/FilterDrawer';
 import CreateRecipeModal from '../components/CreateRecipeModal';
+import CreateContentModal from '../components/CreateContentModal';
+import CreatePostModal from '../components/CreatePostModal';
 import SectionHeader from '../components/SectionHeader';
 
 interface TabOption {
@@ -293,11 +296,14 @@ export default function CommunityScreen() {
   const nav = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const { socialData } = useSocialData();
   const { toggleSavedCocktail, isCocktailSaved, toggleFollowedCommunity, isCommunityFollowed } = useSavedItems();
+  const { userPosts, addPost } = usePosts();
 
   // Modal states
   const [searchModalVisible, setSearchModalVisible] = useState(false);
   const [filterDrawerVisible, setFilterDrawerVisible] = useState(false);
+  const [createContentModalVisible, setCreateContentModalVisible] = useState(false);
   const [createRecipeModalVisible, setCreateRecipeModalVisible] = useState(false);
+  const [createPostModalVisible, setCreatePostModalVisible] = useState(false);
   const [currentFilters, setCurrentFilters] = useState<Partial<FilterOptions>>({});
 
   const handleSearch = (query: string) => {
@@ -317,6 +323,25 @@ export default function CommunityScreen() {
     console.log('Recipe created:', recipeId);
     setCreateRecipeModalVisible(false);
     // Could refresh community feed or navigate to recipe
+  };
+
+  const handlePostCreated = (postData: any) => {
+    console.log('Post created:', postData);
+
+    // Add the post to the posts context
+    addPost({
+      content: postData.content,
+      image: postData.image,
+      type: postData.type,
+      author: {
+        name: socialData.currentUser.name,
+        username: socialData.currentUser.username,
+        avatar: socialData.currentUser.avatar,
+        isVerified: false,
+      },
+    });
+
+    setCreatePostModalVisible(false);
   };
 
   const handleCompetitionEntryCreated = (entryId: string) => {
@@ -339,10 +364,10 @@ export default function CommunityScreen() {
           <Pressable hitSlop={12} onPress={() => setFilterDrawerVisible(true)}>
             <Ionicons name="funnel" size={24} color={colors.text} />
           </Pressable>
-          <Pressable hitSlop={12} onPress={() => setCreateRecipeModalVisible(true)}>
+          <Pressable hitSlop={12} onPress={() => setCreateContentModalVisible(true)}>
             <Ionicons name="add-circle" size={24} color={colors.accent} />
           </Pressable>
-          <Pressable hitSlop={10} onPress={() => nav.navigate('UserProfile', { userId: 'current-user', isOwnProfile: true })}>
+          <Pressable hitSlop={10} onPress={() => nav.navigate('Profile')}>
             <Image 
               source={{ uri: socialData.currentUser.avatar }} 
               style={{ width: 32, height: 32, borderRadius: 16 }}
@@ -356,10 +381,13 @@ export default function CommunityScreen() {
   const renderTabContent = () => {
     switch (activeTab) {
       case 'feed':
+        // Combine user posts with featured posts, user posts first
+        const allPosts = [...userPosts, ...featuredPosts];
+
         return (
           <View>
-            <Text style={styles.sectionTitle}>Community Feed</Text>
-            {featuredPosts.map(post => (
+            <Text style={styles.sectionTitle}>Feed</Text>
+            {allPosts.map(post => (
               <View key={post.id} style={styles.postCard}>
                 <View style={styles.postHeader}>
                   <Image source={{ uri: post.author.avatar }} style={styles.postAvatar} />
@@ -704,14 +732,27 @@ export default function CommunityScreen() {
         onClose={() => setSearchModalVisible(false)}
         onSearch={handleSearch}
       />
-      
+
       <FilterDrawer
         visible={filterDrawerVisible}
         onClose={() => setFilterDrawerVisible(false)}
         onApply={handleFilterApply}
         currentFilters={currentFilters}
       />
-      
+
+      <CreateContentModal
+        visible={createContentModalVisible}
+        onClose={() => setCreateContentModalVisible(false)}
+        onCreatePost={() => setCreatePostModalVisible(true)}
+        onCreateRecipe={() => setCreateRecipeModalVisible(true)}
+      />
+
+      <CreatePostModal
+        visible={createPostModalVisible}
+        onClose={() => setCreatePostModalVisible(false)}
+        onSuccess={handlePostCreated}
+      />
+
       <CreateRecipeModal
         visible={createRecipeModalVisible}
         onClose={() => setCreateRecipeModalVisible(false)}

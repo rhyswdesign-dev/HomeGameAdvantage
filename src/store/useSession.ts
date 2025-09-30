@@ -12,21 +12,18 @@ interface SessionState {
   items: Item[];
   currentItemIndex: number;
   attempts: Attempt[];
-  lives: number;
   startTime: number;
-  
+
   // Session results
   correctCount: number;
   totalAttempts: number;
   masteryGains: Record<string, number>;
-  
+
   // Actions
   startSession: (lessonId: string, items: Item[]) => void;
   submitAnswer: (attempt: Attempt) => void;
   nextItem: () => void;
   endSession: () => SessionResults;
-  loseLife: () => void;
-  gainLife: () => void;
   reset: () => void;
 }
 
@@ -40,15 +37,12 @@ interface SessionResults {
   completed: boolean;
 }
 
-const INITIAL_LIVES = 5;
-
 export const useSession = create<SessionState>((set, get) => ({
   // Initial state
   lessonId: null,
   items: [],
   currentItemIndex: 0,
   attempts: [],
-  lives: INITIAL_LIVES,
   startTime: 0,
   correctCount: 0,
   totalAttempts: 0,
@@ -63,7 +57,6 @@ export const useSession = create<SessionState>((set, get) => ({
       items,
       currentItemIndex: 0,
       attempts: [],
-      lives: INITIAL_LIVES,
       startTime: Date.now(),
       correctCount: 0,
       totalAttempts: 0,
@@ -76,7 +69,7 @@ export const useSession = create<SessionState>((set, get) => ({
     const newAttempts = [...state.attempts, attempt];
     const newTotalAttempts = state.totalAttempts + 1;
     const newCorrectCount = state.correctCount + (attempt.correct ? 1 : 0);
-    
+
     // Calculate mastery gain for this item
     const masteryGain = attempt.correct ? 0.1 : 0.05; // Simple calculation
     const newMasteryGains = {
@@ -91,10 +84,8 @@ export const useSession = create<SessionState>((set, get) => ({
       masteryGains: newMasteryGains
     });
 
-    // Lose life if incorrect
-    if (!attempt.correct) {
-      get().loseLife();
-    }
+    // Note: Life management is now handled by the user store
+    // Lives are decremented in the LessonEngine when incorrect answers are submitted
   },
 
   nextItem: () => {
@@ -104,13 +95,6 @@ export const useSession = create<SessionState>((set, get) => ({
     }
   },
 
-  loseLife: () => {
-    set(state => ({ lives: Math.max(0, state.lives - 1) }));
-  },
-
-  gainLife: () => {
-    set(state => ({ lives: Math.min(INITIAL_LIVES, state.lives + 1) }));
-  },
 
   endSession: (): SessionResults => {
     const state = get();
@@ -135,7 +119,6 @@ export const useSession = create<SessionState>((set, get) => ({
       items: [],
       currentItemIndex: 0,
       attempts: [],
-      lives: INITIAL_LIVES,
       startTime: 0,
       correctCount: 0,
       totalAttempts: 0,

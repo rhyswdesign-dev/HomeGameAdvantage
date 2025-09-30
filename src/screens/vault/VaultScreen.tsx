@@ -20,29 +20,21 @@ import type { RootStackParamList } from '../../navigation/RootNavigator';
 import { colors, spacing, radii } from '../../theme/tokens';
 import { VaultItem } from '../../types/vault';
 import { useVault } from '../../contexts/VaultContext';
+import { useUser } from '../../store/useUser';
 import { currentVaultCycle, getVaultCountdown } from '../../data/vaultData';
 import PillButton from '../../components/PillButton';
 import VaultUnlockModal from './components/VaultUnlockModal';
 import VaultItemCard from './components/VaultItemCard';
 import { useScreenTracking, useAnalyticsContext } from '../../context/AnalyticsContext';
 
-const chips: Array<{ key: string; label: string }> = [
-  { key: 'Home', label: 'Home' },
-  { key: 'Spirits', label: 'Spirits' },
-  { key: 'NonAlcoholic', label: 'Non-Alcoholic' },
-  { key: 'Bars', label: 'Bars' },
-  { key: 'Events', label: 'Events' },
-  { key: 'Games', label: 'Games' },
-  { key: 'Vault', label: 'Vault' },
-];
 
 export default function VaultScreen() {
   const nav = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const { state, dispatch } = useVault();
   const analytics = useAnalyticsContext();
+  const { xp } = useUser();
   const [selectedTab, setSelectedTab] = useState<string>('common');
   const [countdown, setCountdown] = useState(getVaultCountdown());
-  const [activeChip, setActiveChip] = useState<string>('Vault');
   
   // Track screen view
   useScreenTracking('VaultScreen');
@@ -55,21 +47,6 @@ export default function VaultScreen() {
     return () => clearInterval(timer);
   }, []);
 
-  const goto = (key: string) => {
-    setActiveChip(key);
-    try {
-      if (key === 'Home') {
-        nav.navigate('Main', { screen: 'Featured' });
-      } else if (key === 'NonAlcoholic') {
-        nav.navigate('NonAlcoholic' as never);
-      } else if (key === 'Vault') {
-        // Already on vault screen, do nothing
-        return;
-      } else if (key) {
-        nav.navigate(key as never);
-      }
-    } catch {}
-  };
   
   useLayoutEffect(() => {
     nav.setOptions({
@@ -143,7 +120,7 @@ export default function VaultScreen() {
         <View style={styles.quickStats}>
           <View style={styles.statCard}>
             <MaterialCommunityIcons name="star" size={16} color={colors.gold} />
-            <Text style={styles.statValue}>{state.userProfile.xpBalance.toLocaleString()}</Text>
+            <Text style={styles.statValue}>{xp.toLocaleString()}</Text>
             <Text style={styles.statLabel}>XP</Text>
           </View>
           
@@ -158,21 +135,25 @@ export default function VaultScreen() {
       {/* Action Buttons */}
       <View style={styles.actionsContainer}>
         <View style={styles.actionsWrapper}>
-          <TouchableOpacity 
+          <TouchableOpacity
             style={styles.primaryAction}
             onPress={() => nav.navigate('VaultEarnXP')}
           >
             <MaterialCommunityIcons name="star-plus" size={18} color={colors.white} />
             <Text style={styles.primaryActionText}>Earn XP</Text>
           </TouchableOpacity>
-          
-          <TouchableOpacity 
+
+          <TouchableOpacity
             style={styles.secondaryAction}
-            onPress={() => nav.navigate('VaultStore')}
+            onPress={() => {
+              console.log('🔧 VaultScreen: Items button pressed, navigating to VaultStore');
+              nav.navigate('VaultStore');
+            }}
           >
-            <MaterialCommunityIcons name="key-plus" size={18} color={colors.accent} />
-            <Text style={styles.secondaryActionText}>Get Keys</Text>
+            <MaterialCommunityIcons name="storefront" size={18} color={colors.accent} />
+            <Text style={styles.secondaryActionText}>Items</Text>
           </TouchableOpacity>
+
         </View>
       </View>
 
@@ -213,26 +194,6 @@ export default function VaultScreen() {
 
   return (
     <View style={styles.container}>
-      {/* Top Navigation Chips */}
-      <ScrollView 
-        horizontal 
-        showsHorizontalScrollIndicator={false} 
-        style={{ paddingTop: spacing(2), paddingBottom: spacing(1) }} 
-        contentContainerStyle={{ flexDirection: 'row', paddingHorizontal: spacing(2), gap: spacing(1) }}
-      >
-        {chips.map(c => {
-          const isActive = activeChip === c.key;
-          return (
-            <PillButton
-              key={c.key}
-              title={c.label}
-              onPress={() => goto(c.key)}
-              style={!isActive ? { backgroundColor: 'transparent', borderWidth: 1, borderColor: colors.line } : undefined}
-              textStyle={!isActive ? { color: colors.text } : undefined}
-            />
-          );
-        })}
-      </ScrollView>
 
       <FlatList
         data={filteredItems}
@@ -375,6 +336,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '700',
   },
+
   
   // Tabs
   tabsScrollView: {

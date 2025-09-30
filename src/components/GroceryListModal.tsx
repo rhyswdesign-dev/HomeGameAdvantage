@@ -18,7 +18,7 @@ interface GroceryListModalProps {
   visible: boolean;
   onClose: () => void;
   recipeName: string;
-  ingredients: string[];
+  ingredients: string[] | { name: string; note?: string }[];
   recipeId?: string;
 }
 

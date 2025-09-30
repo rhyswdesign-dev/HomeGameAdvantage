@@ -1,4 +1,4 @@
-import React, { useState, useLayoutEffect } from 'react';
+import React, { useState, useLayoutEffect, useEffect } from 'react';
 import {
   View, Text, ScrollView, Image, TouchableOpacity, StyleSheet, Share, Alert, Pressable
 } from 'react-native';
@@ -9,6 +9,11 @@ import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { colors, spacing, radii } from '../theme/tokens';
 import { useSavedItems } from '../hooks/useSavedItems';
 import type { RootStackParamList } from '../navigation/RootNavigator';
+import { getRecipeById, type Recipe } from '../lib/firestore';
+import { ShoppingListStore } from '../services/shoppingListStore';
+import { GroceryListService } from '../services/groceryListService';
+import { getDetailedCocktail } from '../utils/cocktailDataTransformer';
+import GroceryListModal from '../components/GroceryListModal';
 
 type CocktailDetailScreenRouteProp = {
   params: {
@@ -634,6 +639,158 @@ const cocktailData = {
     glassware: 'Highball Glass',
     kitAvailable: false,
     kitPrice: 0
+  },
+  'mojito': {
+    id: 'mojito',
+    title: 'Mojito',
+    subtitle: 'Classic • Rum-based',
+    description: 'A refreshing Cuban cocktail with white rum, fresh mint, lime juice, sugar, and soda water. The perfect summer drink.',
+    img: 'https://images.unsplash.com/photo-1551538827-9c037cb4f32a?q=80&w=1200&auto=format&fit=crop',
+    difficulty: 'Easy',
+    time: '3 min',
+    ingredients: [
+      { name: '2 oz White Rum', note: 'Light rum preferred' },
+      { name: '1 oz Fresh Lime Juice', note: 'Freshly squeezed' },
+      { name: '2 tsp Sugar', note: 'Or 1/2 oz simple syrup' },
+      { name: '8-10 Mint Leaves', note: 'Fresh mint only' },
+      { name: 'Soda Water', note: '2-3 oz to top' },
+      { name: 'Ice', note: 'Crushed preferred' }
+    ],
+    instructions: [
+      'Gently muddle mint leaves with sugar in glass',
+      'Add lime juice and rum',
+      'Fill glass with crushed ice',
+      'Top with soda water',
+      'Stir gently and garnish with mint sprig'
+    ],
+    tips: [
+      'Don\'t over-muddle the mint - bruise, don\'t tear',
+      'Use fresh lime juice only',
+      'Adjust sweetness to taste'
+    ],
+    glassware: 'Highball Glass',
+    kitAvailable: true,
+    kitPrice: 34.99
+  },
+  'daiquiri': {
+    id: 'daiquiri',
+    title: 'Daiquiri',
+    subtitle: 'Classic • Rum-based',
+    description: 'A simple yet perfect cocktail with white rum, lime juice, and simple syrup. The essence of Caribbean elegance.',
+    img: 'https://images.unsplash.com/photo-1578662996442-48f60103fc96?q=80&w=1200&auto=format&fit=crop',
+    difficulty: 'Easy',
+    time: '2 min',
+    ingredients: [
+      { name: '2 oz White Rum', note: 'Quality white rum' },
+      { name: '1 oz Fresh Lime Juice', note: 'Freshly squeezed' },
+      { name: '3/4 oz Simple Syrup', note: 'Adjust to taste' }
+    ],
+    instructions: [
+      'Add all ingredients to shaker with ice',
+      'Shake vigorously for 10-15 seconds',
+      'Double strain into chilled coupe glass',
+      'Garnish with lime wheel if desired'
+    ],
+    tips: [
+      'Balance is key - adjust sweetness to taste',
+      'Shake hard for proper dilution',
+      'Serve immediately while cold'
+    ],
+    glassware: 'Coupe Glass',
+    kitAvailable: true,
+    kitPrice: 29.99
+  },
+  'margarita': {
+    id: 'margarita',
+    title: 'Margarita',
+    subtitle: 'Classic • Tequila-based',
+    description: 'The quintessential tequila cocktail with lime juice, orange liqueur, and a salted rim. Perfect balance of sweet, sour, and salty.',
+    img: 'https://images.unsplash.com/photo-1541976076758-347942db1978?q=80&w=1200&auto=format&fit=crop',
+    difficulty: 'Easy',
+    time: '3 min',
+    ingredients: [
+      { name: '2 oz Blanco Tequila', note: '100% agave preferred' },
+      { name: '1 oz Fresh Lime Juice', note: 'Freshly squeezed' },
+      { name: '3/4 oz Orange Liqueur', note: 'Cointreau or Triple Sec' },
+      { name: 'Salt', note: 'For rim' },
+      { name: 'Lime Wheel', note: 'For garnish' }
+    ],
+    instructions: [
+      'Rim glass with salt using lime wheel',
+      'Add tequila, lime juice, and orange liqueur to shaker',
+      'Add ice and shake vigorously',
+      'Strain into salt-rimmed rocks glass over ice',
+      'Garnish with lime wheel'
+    ],
+    tips: [
+      'Use 100% agave tequila for best flavor',
+      'Fresh lime juice is essential',
+      'Salt rim is traditional but optional'
+    ],
+    glassware: 'Rocks Glass',
+    kitAvailable: true,
+    kitPrice: 39.99
+  },
+  'cosmopolitan': {
+    id: 'cosmopolitan',
+    title: 'Cosmopolitan',
+    subtitle: 'Modern • Vodka-based',
+    description: 'A glamorous pink cocktail with vodka, cranberry juice, lime juice, and orange liqueur. Made famous in the 90s.',
+    img: 'https://images.unsplash.com/photo-1609951651556-5334e2706168?q=80&w=1200&auto=format&fit=crop',
+    difficulty: 'Easy',
+    time: '2 min',
+    ingredients: [
+      { name: '1.5 oz Vodka', note: 'Premium vodka preferred' },
+      { name: '1/2 oz Orange Liqueur', note: 'Cointreau or Triple Sec' },
+      { name: '1/2 oz Fresh Lime Juice', note: 'Freshly squeezed' },
+      { name: '1/4 oz Cranberry Juice', note: 'For color and flavor' },
+      { name: 'Lime Wheel', note: 'For garnish' }
+    ],
+    instructions: [
+      'Add all ingredients to shaker with ice',
+      'Shake vigorously for 10-15 seconds',
+      'Double strain into chilled coupe glass',
+      'Garnish with lime wheel on rim'
+    ],
+    tips: [
+      'Use just enough cranberry for pink color',
+      'Fresh lime juice makes all the difference',
+      'Serve in a chilled glass'
+    ],
+    glassware: 'Coupe Glass',
+    kitAvailable: true,
+    kitPrice: 34.99
+  },
+  'moscow-mule': {
+    id: 'moscow-mule',
+    title: 'Moscow Mule',
+    subtitle: 'Classic • Vodka-based',
+    description: 'A refreshing cocktail with vodka, ginger beer, and lime juice, traditionally served in a copper mug.',
+    img: 'https://images.unsplash.com/photo-1544145945-f90425340c7e?q=80&w=1200&auto=format&fit=crop',
+    difficulty: 'Easy',
+    time: '2 min',
+    ingredients: [
+      { name: '2 oz Vodka', note: 'Quality vodka' },
+      { name: '1/2 oz Fresh Lime Juice', note: 'Freshly squeezed' },
+      { name: '4-6 oz Ginger Beer', note: 'Spicy ginger beer preferred' },
+      { name: 'Lime Wedge', note: 'For garnish' },
+      { name: 'Ice', note: 'Cubed ice' }
+    ],
+    instructions: [
+      'Fill copper mug or highball glass with ice',
+      'Add vodka and lime juice',
+      'Top with ginger beer',
+      'Stir gently to combine',
+      'Garnish with lime wedge'
+    ],
+    tips: [
+      'Copper mug keeps drink colder longer',
+      'Good quality ginger beer is key',
+      'Don\'t over-stir to preserve carbonation'
+    ],
+    glassware: 'Copper Mug',
+    kitAvailable: true,
+    kitPrice: 32.99
   }
 };
 
@@ -673,10 +830,59 @@ export default function CocktailDetailScreen() {
   const nav = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const route = useRoute<CocktailDetailScreenRouteProp>();
   const { toggleSavedCocktail, isCocktailSaved } = useSavedItems();
-  
-  // Check if it's a non-alcoholic recipe first
+
+  const [firebaseRecipe, setFirebaseRecipe] = useState<Recipe | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [groceryListVisible, setGroceryListVisible] = useState(false);
+
+  // Load recipe from Firebase first
+  useEffect(() => {
+    const loadFirebaseRecipe = async () => {
+      try {
+        const recipe = await getRecipeById(route.params.cocktailId);
+        setFirebaseRecipe(recipe);
+      } catch (error) {
+        console.error('Error loading Firebase recipe:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadFirebaseRecipe();
+  }, [route.params.cocktailId]);
+
+  // Check data sources in priority order:
+  // 1. Non-alcoholic recipes
+  // 2. Firebase user-created recipes
+  // 3. Hardcoded premium cocktails (original 11)
+  // 4. Transformed centralized cocktails (new 81)
   const nonAlcoholicRecipe = getNonAlcoholicRecipeData(route.params.cocktailId);
-  const cocktail = nonAlcoholicRecipe || cocktailData[route.params.cocktailId as keyof typeof cocktailData];
+  const hardcodedCocktail = cocktailData[route.params.cocktailId as keyof typeof cocktailData];
+  const transformedCocktail = getDetailedCocktail(route.params.cocktailId);
+
+  // Convert Firebase recipe to cocktail format if available
+  const firebaseCocktail = firebaseRecipe?.aiFormattedData ? {
+    id: firebaseRecipe.id,
+    title: firebaseRecipe.aiFormattedData.title || firebaseRecipe.title || 'Untitled Recipe',
+    subtitle: `Custom Recipe • ${firebaseRecipe.aiFormattedData.tags?.[0] || 'Mixed'}`,
+    description: firebaseRecipe.aiFormattedData.description || 'Custom recipe created with AI assistance',
+    img: firebaseRecipe.imageUrl || 'https://images.unsplash.com/photo-1536935338788-846bb9981813?auto=format&fit=crop&w=1200&q=60',
+    difficulty: firebaseRecipe.aiFormattedData.difficulty || 'Medium',
+    time: firebaseRecipe.aiFormattedData.time || '5 min',
+    ingredients: firebaseRecipe.aiFormattedData.ingredients?.map((ing: any) => ({
+      name: `${ing.amount || ''} ${ing.name || ''}`.trim(),
+      note: ing.notes || ''
+    })) || [],
+    instructions: firebaseRecipe.aiFormattedData.instructions || [],
+    tips: firebaseRecipe.aiFormattedData.tags?.map((tag: string) => `Tagged as: ${tag}`) || [],
+    glassware: firebaseRecipe.aiFormattedData.glassware || 'Rocks Glass',
+    kitAvailable: false,
+    kitPrice: 0,
+    isFirebaseRecipe: true
+  } : null;
+
+  // Priority order: non-alcoholic > firebase > hardcoded > transformed centralized
+  const cocktail = nonAlcoholicRecipe || firebaseCocktail || hardcodedCocktail || transformedCocktail;
   const isSaved = isCocktailSaved(route.params.cocktailId);
 
   const handleShare = async () => {
@@ -703,14 +909,16 @@ export default function CocktailDetailScreen() {
 
   const handleAddToCart = () => {
     if (!cocktail || !cocktail.kitAvailable) return;
-    Alert.alert(
-      'Add to Cart',
-      `Add ${cocktail.title} ingredient kit for $${cocktail.kitPrice}?`,
-      [
-        { text: 'Cancel', style: 'cancel' },
-        { text: 'Add to Cart', onPress: () => Alert.alert('Success', 'Added to cart!') }
-      ]
-    );
+
+    // Check if ingredients exist
+    const ingredients = cocktail.ingredients || [];
+    if (ingredients.length === 0) {
+      Alert.alert('No Ingredients', 'This cocktail has no ingredients listed.');
+      return;
+    }
+
+    // Show the grocery list modal
+    setGroceryListVisible(true);
   };
 
   const handleDownload = () => {
@@ -728,11 +936,24 @@ export default function CocktailDetailScreen() {
     });
   }, [nav, cocktail?.title]);
 
+  if (loading) {
+    return (
+      <SafeAreaView style={styles.container}>
+        <View style={styles.errorContainer}>
+          <Text style={styles.errorText}>Loading recipe...</Text>
+        </View>
+      </SafeAreaView>
+    );
+  }
+
   if (!cocktail) {
     return (
       <SafeAreaView style={styles.container}>
         <View style={styles.errorContainer}>
-          <Text style={styles.errorText}>Cocktail not found</Text>
+          <Text style={styles.errorText}>Recipe not found</Text>
+          <Text style={styles.errorSubtext}>
+            This recipe may have been deleted or moved.
+          </Text>
         </View>
       </SafeAreaView>
     );
@@ -832,7 +1053,7 @@ export default function CocktailDetailScreen() {
                 onPress={handleAddToCart}
               >
                 <MaterialCommunityIcons name="cart-plus" size={20} color={colors.white} />
-                <Text style={styles.addToCartText}>Add Ingredient Kit - ${cocktail.kitPrice}</Text>
+                <Text style={styles.addToCartText}>Add Ingredients to Cart</Text>
               </Pressable>
             </View>
           )}
@@ -867,6 +1088,17 @@ export default function CocktailDetailScreen() {
           </View>
         </View>
       </ScrollView>
+
+      {/* Grocery List Modal */}
+      {cocktail && (
+        <GroceryListModal
+          visible={groceryListVisible}
+          onClose={() => setGroceryListVisible(false)}
+          recipeName={cocktail.title}
+          ingredients={cocktail.ingredients}
+          recipeId={cocktail.id}
+        />
+      )}
     </SafeAreaView>
   );
 }
@@ -1024,6 +1256,12 @@ const styles = StyleSheet.create({
   errorText: {
     fontSize: 18,
     color: colors.subtext,
+    marginBottom: spacing(1),
+  },
+  errorSubtext: {
+    fontSize: 14,
+    color: colors.subtext,
+    textAlign: 'center',
   },
   addToCartButton: {
     flexDirection: 'row',

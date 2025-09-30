@@ -1,5 +1,5 @@
 import { db, auth } from '../config/firebase';
-import { collection, addDoc, serverTimestamp, query, where, orderBy, onSnapshot, doc, updateDoc, deleteDoc, getDocs } from 'firebase/firestore';
+import { collection, addDoc, serverTimestamp, query, where, orderBy, onSnapshot, doc, updateDoc, deleteDoc, getDocs, getDoc } from 'firebase/firestore';
 
 export interface Recipe {
   id?: string;
@@ -11,6 +11,8 @@ export interface Recipe {
   createdAt?: any;
   updatedAt?: any;
   userId?: string;
+  aiFormatted?: boolean;
+  aiFormattedData?: any;
 }
 
 export interface RecipeFolder {
@@ -41,6 +43,25 @@ export async function createRecipe(recipeData: Omit<Recipe, 'id' | 'createdAt' |
 
   const docRef = await addDoc(collection(db, 'recipes'), recipe);
   return docRef.id;
+}
+
+export async function getRecipeById(recipeId: string): Promise<Recipe | null> {
+  try {
+    const recipeRef = doc(db, 'recipes', recipeId);
+    const docSnap = await getDoc(recipeRef);
+
+    if (docSnap.exists()) {
+      return {
+        id: docSnap.id,
+        ...docSnap.data()
+      } as Recipe;
+    }
+
+    return null;
+  } catch (error) {
+    console.error('Error getting recipe by ID:', error);
+    return null;
+  }
 }
 
 export async function getUserRecipes(userId?: string) {

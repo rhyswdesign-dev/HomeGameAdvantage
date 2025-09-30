@@ -85,6 +85,13 @@ import CheckoutScreen from '../screens/commerce/CheckoutScreen';
 import OrderConfirmationScreen from '../screens/commerce/OrderConfirmationScreen';
 import OrderHistoryScreen from '../screens/commerce/OrderHistoryScreen';
 import AddRecipeScreen from '../screens/AddRecipeScreen';
+import AIRecipeFormatScreen from '../screens/AIRecipeFormatScreen';
+import OCRCaptureScreen from '../screens/OCRCaptureScreen';
+import ManualRecipeInputScreen from '../screens/ManualRecipeInputScreen';
+import VoiceRecipeScreen from '../screens/VoiceRecipeScreen';
+import HomeBarScreen from '../screens/HomeBarScreen';
+import SpiritRecognitionScreen from '../screens/SpiritRecognitionScreen';
+import ShoppingCartScreen from '../screens/ShoppingCartScreen';
 
 export type RootStackParamList = {
   Main: undefined;
@@ -170,6 +177,13 @@ export type RootStackParamList = {
   AddAddress: { addressId?: string };
   AddRecipe: undefined;
   RecipeDetail: { recipe: any };
+  AIRecipeFormat: { recipe: any };
+  OCRCapture: undefined;
+  ManualRecipeInput: undefined;
+  VoiceRecipe: undefined;
+  HomeBar: undefined;
+  SpiritRecognition: undefined;
+  ShoppingCart: undefined;
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -401,6 +415,13 @@ export default function RootNavigator() {
     <Stack.Screen name="OrderHistory" component={OrderHistoryScreen} options={{ headerShown: true, title: 'Order History' }} />
     <Stack.Screen name="AddRecipe" component={AddRecipeScreen} options={{ headerShown: true, title: 'Add Recipe' }} />
     <Stack.Screen name="RecipeDetail" component={RecipeDetailScreen} options={{ headerShown: true, title: 'Recipe' }} />
+    <Stack.Screen name="AIRecipeFormat" component={AIRecipeFormatScreen} options={{ headerShown: true, title: '✨ AI Recipe Formatting' }} />
+    <Stack.Screen name="OCRCapture" component={OCRCaptureScreen} options={{ headerShown: true, title: '📸 Scan Recipe' }} />
+    <Stack.Screen name="ManualRecipeInput" component={ManualRecipeInputScreen} options={{ headerShown: true, title: '📝 Manual Recipe Entry' }} />
+    <Stack.Screen name="VoiceRecipe" component={VoiceRecipeScreen} options={{ headerShown: true, title: '🎤 Voice Recipe Input' }} />
+    <Stack.Screen name="HomeBar" component={HomeBarScreen} options={{ headerShown: true, title: '🏠 My Home Bar' }} />
+    <Stack.Screen name="SpiritRecognition" component={SpiritRecognitionScreen} options={{ headerShown: true, title: '📱 Scan Spirit' }} />
+    <Stack.Screen name="ShoppingCart" component={ShoppingCartScreen} options={{ headerShown: true, title: '🛒 Shopping Cart' }} />
 </Stack.Navigator>
   );
 }

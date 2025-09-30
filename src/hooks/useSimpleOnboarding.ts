@@ -1,14 +1,25 @@
 import { useState, useEffect } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 type AppState = 'loading' | 'splash' | 'bartending_welcome' | 'welcome' | 'onboarding' | 'survey' | 'xp_reminder' | 'main';
 
 export function useSimpleOnboarding() {
   const [appState, setAppState] = useState<AppState>('loading');
-  
+
   useEffect(() => {
-    // Reset to splash for fresh testing
+    // Clear saved items and reset to splash for fresh session
+    clearSavedItems();
     setAppState('splash');
   }, []);
+
+  const clearSavedItems = async () => {
+    try {
+      await AsyncStorage.removeItem('savedItems');
+      console.log('Cleared saved items for new session');
+    } catch (error) {
+      console.log('Error clearing saved items:', error);
+    }
+  };
 
   const handleSplashFinish = () => {
     // Start with bartending welcome as first step

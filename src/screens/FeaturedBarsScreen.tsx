@@ -14,6 +14,7 @@ import { Feather, Ionicons } from '@expo/vector-icons';
 import { colors, spacing, radii, textStyles, layouts } from '../theme/tokens';
 import { CompactLocationMap } from '../components/ui';
 import { BARS } from '../data/bars';
+import { BAR_IMAGES, HEADER_IMAGES, BAR_PAGE_HEADERS } from '../data/barImages';
 
 const { width } = Dimensions.get('window');
 const CARD = width - 32;
@@ -195,11 +196,11 @@ export default function FeaturedBarsScreen() {
           justifyContent: 'space-between',
         }}
       >
-        {[IMGS.grid1, IMGS.grid2, IMGS.grid3, IMGS.grid4, IMGS.grid5, IMGS.grid6].map(
+        {[BAR_IMAGES.aqua_lounge, BAR_IMAGES.the_alchemist, BAR_IMAGES.the_velvet_curtain, BAR_IMAGES.the_gilded_lily, BAR_IMAGES.the_iron_flask, BAR_IMAGES.aqua_lounge].map(
           (src, i) => (
             <Image
               key={i}
-              source={{ uri: src }}
+              source={src}
               style={{
                 width: (width - 16 * 2 - 6 * 2) / 3,
                 height: 90,
@@ -217,7 +218,7 @@ export default function FeaturedBarsScreen() {
       >
         <View style={{ paddingHorizontal: 16 }}>
           <Image
-            source={{ uri: IMGS.ucl1 }}
+            source={BAR_PAGE_HEADERS.depth_frame_header_24}
             style={{
               width: CARD,
               height: CARD * 0.56,
@@ -248,10 +249,10 @@ export default function FeaturedBarsScreen() {
         showsHorizontalScrollIndicator={false}
         style={{ marginBottom: 6 }}
       >
-        {[IMGS.ucl1, IMGS.ucl2, IMGS.ucl3].map((src, i) => (
+        {[BAR_IMAGES.aqua_lounge, BAR_IMAGES.the_alchemist, BAR_IMAGES.the_velvet_curtain].map((src, i) => (
           <Image
             key={i}
-            source={{ uri: src }}
+            source={src}
             style={{
               width,
               height: width * 0.56,

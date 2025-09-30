@@ -3,7 +3,7 @@
  * Clean, modern design following app's current patterns
  */
 
-import React, { useLayoutEffect, useState } from 'react';
+import React, { useLayoutEffect, useState, useEffect, useRef } from 'react';
 import {
   View,
   Text,
@@ -15,7 +15,7 @@ import {
   Alert,
 } from 'react-native';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '../../navigation/RootNavigator';
 import { colors, spacing, radii } from '../../theme/tokens';
@@ -25,9 +25,27 @@ import PillButton from '../../components/PillButton';
 
 export default function VaultStoreScreen() {
   const nav = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+  const route = useRoute();
   const { state, addToCart, getCartItemCount } = useVault();
-  const [selectedCategory, setSelectedCategory] = useState<string>('keys');
-  
+  const hasProcessedInitialParams = useRef(false);
+  const [selectedCategory, setSelectedCategory] = useState<string>(() => {
+    // Check initial route params
+    const params = route.params as any;
+    console.log('🔧 VaultStore: Initial route params:', params);
+    return params?.tab || 'keys';
+  });
+
+  useEffect(() => {
+    // Only process initial navigation params once
+    const params = route.params as any;
+    console.log('🔧 VaultStore: Route params changed:', params);
+    if (params?.tab && !hasProcessedInitialParams.current) {
+      console.log('🔧 VaultStore: Setting category to:', params.tab);
+      setSelectedCategory(params.tab);
+      hasProcessedInitialParams.current = true;
+    }
+  }, [route.params]);
+
   useLayoutEffect(() => {
     nav.setOptions({
       title: 'Keys & Boosters',
@@ -54,6 +72,40 @@ export default function VaultStoreScreen() {
   }, [nav, getCartItemCount()]);
 
   const getFilteredItems = (): MonetizationItem[] => {
+    // For hearts category, show placeholder hearts items
+    if (selectedCategory === 'hearts') {
+      return [
+        {
+          id: 'heart-1',
+          name: '1 Heart',
+          description: 'Restore 1 heart to continue playing',
+          type: 'hearts' as any,
+          price: 99, // $0.99
+          inStock: true,
+          heartsGranted: 1
+        },
+        {
+          id: 'heart-5',
+          name: '5 Hearts',
+          description: 'Restore 5 hearts with bonus value',
+          type: 'hearts' as any,
+          price: 399, // $3.99
+          originalPrice: 495, // $4.95 (save $0.96)
+          inStock: true,
+          heartsGranted: 5
+        },
+        {
+          id: 'heart-unlimited',
+          name: 'Unlimited Hearts',
+          description: '24 hours of unlimited hearts',
+          type: 'hearts' as any,
+          price: 799, // $7.99
+          inStock: true,
+          heartsGranted: 999
+        }
+      ];
+    }
+
     return state.monetizationItems.filter(item => {
       if (selectedCategory === 'keys') return item.type === 'keys';
       if (selectedCategory === 'boosters') return item.type === 'booster';
@@ -62,20 +114,22 @@ export default function VaultStoreScreen() {
     });
   };
 
-  const getItemIcon = (type: MonetizationItem['type']): string => {
+  const getItemIcon = (type: MonetizationItem['type'] | 'hearts'): string => {
     switch (type) {
       case 'keys': return 'key';
       case 'booster': return 'flash';
       case 'pass': return 'gift';
+      case 'hearts': return 'heart';
       default: return 'cube';
     }
   };
 
-  const getItemColor = (type: MonetizationItem['type']): string => {
+  const getItemColor = (type: MonetizationItem['type'] | 'hearts'): string => {
     switch (type) {
       case 'keys': return colors.accent;
       case 'booster': return colors.gold;
       case 'pass': return '#9C27B0';
+      case 'hearts': return '#FF6B6B';
       default: return colors.accent;
     }
   };
@@ -97,6 +151,7 @@ export default function VaultStoreScreen() {
     { key: 'keys', label: 'Keys' },
     { key: 'boosters', label: 'Boosters' },
     { key: 'bundles', label: 'Bundles' },
+    { key: 'hearts', label: 'Hearts' },
   ];
 
   const renderStoreItem = ({ item }: { item: MonetizationItem }) => (
@@ -135,7 +190,16 @@ export default function VaultStoreScreen() {
               </Text>
             </View>
           )}
-          
+
+          {(item as any).heartsGranted && (
+            <View style={styles.benefitRow}>
+              <Ionicons name="heart" size={14} color="#FF6B6B" />
+              <Text style={styles.benefitText}>
+                {(item as any).heartsGranted === 999 ? 'Unlimited Hearts' : `${(item as any).heartsGranted} Heart${(item as any).heartsGranted !== 1 ? 's' : ''}`}
+              </Text>
+            </View>
+          )}
+
           {item.boosterEffect && (
             <View style={styles.benefitRow}>
               <MaterialCommunityIcons name="flash" size={14} color={colors.gold} />

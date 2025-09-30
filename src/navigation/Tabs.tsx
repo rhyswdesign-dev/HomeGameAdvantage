@@ -1,21 +1,21 @@
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import LessonsScreen from '../screens/LessonsScreen';
-import FeaturedScreen from '../screens/FeaturedScreen';
-import CommunityScreen from '../screens/CommunityScreen';
-import ProfileScreen from '../screens/ProfileScreen';
+import LessonsStack from './LessonsStack';
+import FeaturedStack from './FeaturedStack';
+import GamesStack from './GamesStack';
+import VaultStack from './VaultStack';
+import RecipesStack from './RecipesStack';
+import AuthScreen from '../screens/AuthScreen';
 import { Ionicons } from '@expo/vector-icons';
 import { colors } from '../theme/tokens';
 
-type TabsParamList = { Lessons: undefined; Featured: undefined; Community: undefined; Profile: undefined; };
+type TabsParamList = { Lessons: undefined; Featured: undefined; Games: undefined; Vault: undefined; Recipes: undefined; };
 const Tab = createBottomTabNavigator<TabsParamList>();
 
 export default function Tabs() {
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({
-        headerTitleAlign: 'center',
-        headerStyle: { backgroundColor: colors.bg },
-        headerTintColor: colors.text,
+        headerShown: false,
         tabBarStyle: { backgroundColor: colors.card, borderTopColor: 'transparent' },
         tabBarActiveTintColor: colors.gold,
         tabBarInactiveTintColor: colors.muted,
@@ -23,17 +23,19 @@ export default function Tabs() {
           const map: Record<string, keyof typeof Ionicons.glyphMap> = {
             Lessons: 'school-outline',
             Featured: 'star-outline',
-            Community: 'people-outline',
-            Profile: 'person-circle-outline',
+            Games: 'game-controller-outline',
+            Vault: 'lock-closed-outline',
+            Recipes: 'restaurant-outline',
           };
           return <Ionicons name={map[route.name]} size={size} color={color} />;
         },
       })}
     >
-      <Tab.Screen name="Lessons" component={LessonsScreen} />
-      <Tab.Screen name="Featured" component={FeaturedScreen} />
-      <Tab.Screen name="Community" component={CommunityScreen} />
-      <Tab.Screen name="Profile" component={ProfileScreen} />
+      <Tab.Screen name="Lessons" component={LessonsStack} />
+      <Tab.Screen name="Featured" component={FeaturedStack} />
+      <Tab.Screen name="Games" component={GamesStack} />
+      <Tab.Screen name="Vault" component={VaultStack} />
+      <Tab.Screen name="Recipes" component={RecipesStack} />
     </Tab.Navigator>
   );
 }

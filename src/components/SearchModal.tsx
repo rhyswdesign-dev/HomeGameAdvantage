@@ -9,11 +9,15 @@ import {
   ScrollView,
   Image,
   FlatList,
+  TouchableOpacity,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { colors, spacing, radii } from '../theme/tokens';
-import { searchService, SearchableItem } from '../services/searchService';
+import { searchService, SearchableItem, FilterOptions } from '../services/searchService';
+import { SearchSuggestion } from '../services/searchHistoryService';
+import AdvancedFilters, { AdvancedFilterState } from './search/AdvancedFilters';
+import VoiceSearch from './search/VoiceSearch';
 
 interface SearchModalProps {
   visible: boolean;
@@ -21,6 +25,20 @@ interface SearchModalProps {
   onSearch: (query: string) => void;
   initialQuery?: string;
 }
+
+const DEFAULT_FILTERS: AdvancedFilterState = {
+  categories: [],
+  difficulties: [],
+  abvRange: [0, 50],
+  timeRange: [0, 60],
+  ingredients: [],
+  equipment: [],
+  tags: [],
+  sortBy: 'relevance',
+  sortOrder: 'desc',
+  showOnlyFavorites: false,
+  showOnlyCompleted: false,
+};
 
 export default function SearchModal({
   visible,
@@ -30,13 +48,17 @@ export default function SearchModal({
 }: SearchModalProps) {
   const [query, setQuery] = useState(initialQuery);
   const [results, setResults] = useState<SearchableItem[]>([]);
-  const [recentSearches, setRecentSearches] = useState<string[]>([
-    'Old Fashioned',
-    'Whiskey',
-    'Mixology Class',
-    'Sarah Chen',
-  ]);
+  const [suggestions, setSuggestions] = useState<SearchSuggestion[]>([]);
   const [isSearching, setIsSearching] = useState(false);
+  const [showFilters, setShowFilters] = useState(false);
+  const [showVoiceSearch, setShowVoiceSearch] = useState(false);
+  const [filters, setFilters] = useState<AdvancedFilterState>(DEFAULT_FILTERS);
+  const [availableFilterOptions, setAvailableFilterOptions] = useState({
+    categories: [],
+    difficulties: [],
+    abvRange: [0, 50] as [number, number],
+    timeRange: [0, 60] as [number, number],
+  });
 
   useEffect(() => {
     if (visible) {
@@ -45,24 +67,65 @@ export default function SearchModal({
         handleSearch(initialQuery);
       } else {
         // Show popular/trending items when no query
-        setResults(searchService.search(''));
+        performSearch('');
       }
+      // Load available filter options
+      loadFilterOptions();
     }
   }, [visible, initialQuery]);
 
-  const handleSearch = (searchQuery: string) => {
-    setIsSearching(true);
-    const searchResults = searchService.search(searchQuery);
-    setResults(searchResults);
-    setIsSearching(false);
-
-    // Add to recent searches if not empty
-    if (searchQuery.trim()) {
-      setRecentSearches(prev => {
-        const updated = [searchQuery, ...prev.filter(s => s !== searchQuery)];
-        return updated.slice(0, 5); // Keep only 5 recent searches
-      });
+  // Update suggestions when query changes
+  useEffect(() => {
+    if (query.trim()) {
+      const newSuggestions = searchService.getSearchSuggestions(query);
+      setSuggestions(newSuggestions);
+    } else {
+      setSuggestions(searchService.getSearchSuggestions(''));
     }
+  }, [query]);
+
+  const loadFilterOptions = async () => {
+    const options = searchService.getFilterOptions();
+    setAvailableFilterOptions(options);
+  };
+
+  const performSearch = async (searchQuery: string) => {
+    setIsSearching(true);
+    try {
+      const searchResults = await searchService.search(searchQuery, filters);
+      setResults(searchResults);
+    } catch (error) {
+      console.error('Search failed:', error);
+      setResults([]);
+    } finally {
+      setIsSearching(false);
+    }
+  };
+
+  const handleSearch = (searchQuery: string) => {
+    performSearch(searchQuery);
+  };
+
+  const handleFiltersApply = (newFilters: AdvancedFilterState) => {
+    setFilters(newFilters);
+    performSearch(query);
+  };
+
+  const handleVoiceResult = (text: string) => {
+    setQuery(text);
+    handleSearch(text);
+  };
+
+  const getActiveFiltersCount = (): number => {
+    let count = 0;
+    if (filters.categories.length > 0) count++;
+    if (filters.difficulties.length > 0) count++;
+    if (filters.ingredients.length > 0) count++;
+    if (filters.equipment.length > 0) count++;
+    if (filters.tags.length > 0) count++;
+    if (filters.showOnlyFavorites) count++;
+    if (filters.showOnlyCompleted) count++;
+    return count;
   };
 
   const handleSubmit = () => {
@@ -182,7 +245,7 @@ export default function SearchModal({
                 if (text.trim()) {
                   handleSearch(text);
                 } else {
-                  setResults(searchService.search(''));
+                  performSearch('');
                 }
               }}
               onSubmitEditing={handleSubmit}
@@ -196,29 +259,111 @@ export default function SearchModal({
               </Pressable>
             )}
           </View>
-          <Pressable style={styles.cancelButton} onPress={onClose}>
-            <Text style={styles.cancelText}>Cancel</Text>
-          </Pressable>
+
+          {/* Action Buttons */}
+          <View style={styles.headerActions}>
+            <TouchableOpacity
+              style={styles.actionButton}
+              onPress={() => setShowVoiceSearch(true)}
+            >
+              <Ionicons name="mic-outline" size={20} color={colors.accent} />
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={[
+                styles.actionButton,
+                getActiveFiltersCount() > 0 && styles.actionButtonActive,
+              ]}
+              onPress={() => setShowFilters(true)}
+            >
+              <Ionicons
+                name="options-outline"
+                size={20}
+                color={getActiveFiltersCount() > 0 ? colors.white : colors.accent}
+              />
+              {getActiveFiltersCount() > 0 && (
+                <View style={styles.filterBadge}>
+                  <Text style={styles.filterBadgeText}>{getActiveFiltersCount()}</Text>
+                </View>
+              )}
+            </TouchableOpacity>
+
+            <Pressable style={styles.cancelButton} onPress={onClose}>
+              <Text style={styles.cancelText}>Cancel</Text>
+            </Pressable>
+          </View>
         </View>
 
         {/* Content */}
         <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
-          {/* Recent Searches */}
-          {!query && recentSearches.length > 0 && (
+          {/* Search Suggestions */}
+          {query && suggestions.length > 0 && (
             <View style={styles.section}>
-              <Text style={styles.sectionTitle}>Recent Searches</Text>
-              <View style={styles.recentSearches}>
-                {recentSearches.map((search, index) => (
+              <Text style={styles.sectionTitle}>Suggestions</Text>
+              <View style={styles.suggestions}>
+                {suggestions.map((suggestion, index) => (
                   <Pressable
                     key={index}
-                    style={styles.recentSearchItem}
+                    style={styles.suggestionItem}
                     onPress={() => {
-                      setQuery(search);
-                      handleSearch(search);
+                      setQuery(suggestion.text);
+                      handleSearch(suggestion.text);
                     }}
                   >
-                    <Ionicons name="time" size={16} color={colors.subtext} />
-                    <Text style={styles.recentSearchText}>{search}</Text>
+                    <Ionicons
+                      name={
+                        suggestion.type === 'history'
+                          ? 'time'
+                          : suggestion.type === 'trending'
+                          ? 'trending-up'
+                          : 'search'
+                      }
+                      size={16}
+                      color={colors.subtext}
+                    />
+                    <Text style={styles.suggestionText}>{suggestion.text}</Text>
+                    {suggestion.type === 'trending' && (
+                      <View style={styles.trendingBadge}>
+                        <Text style={styles.trendingBadgeText}>Trending</Text>
+                      </View>
+                    )}
+                  </Pressable>
+                ))}
+              </View>
+            </View>
+          )}
+
+          {/* Recent/Default Suggestions */}
+          {!query && suggestions.length > 0 && (
+            <View style={styles.section}>
+              <Text style={styles.sectionTitle}>Recent & Popular</Text>
+              <View style={styles.suggestions}>
+                {suggestions.map((suggestion, index) => (
+                  <Pressable
+                    key={index}
+                    style={styles.suggestionItem}
+                    onPress={() => {
+                      setQuery(suggestion.text);
+                      handleSearch(suggestion.text);
+                    }}
+                  >
+                    <Ionicons
+                      name={
+                        suggestion.type === 'history'
+                          ? 'time'
+                          : suggestion.type === 'trending'
+                          ? 'trending-up'
+                          : 'star'
+                      }
+                      size={16}
+                      color={colors.subtext}
+                    />
+                    <Text style={styles.suggestionText}>{suggestion.text}</Text>
+                    {suggestion.type === 'trending' && (
+                      <View style={styles.trendingBadge}>
+                        <Text style={styles.trendingBadgeText}>Trending</Text>
+                      </View>
+                    )}
                   </Pressable>
                 ))}
               </View>
@@ -250,6 +395,22 @@ export default function SearchModal({
             />
           </View>
         </ScrollView>
+
+        {/* Advanced Filters Modal */}
+        <AdvancedFilters
+          visible={showFilters}
+          onClose={() => setShowFilters(false)}
+          onApply={handleFiltersApply}
+          currentFilters={filters}
+          availableOptions={availableFilterOptions}
+        />
+
+        {/* Voice Search Modal */}
+        <VoiceSearch
+          visible={showVoiceSearch}
+          onClose={() => setShowVoiceSearch(false)}
+          onResult={handleVoiceResult}
+        />
       </SafeAreaView>
     </Modal>
   );
@@ -261,13 +422,48 @@ const styles = StyleSheet.create({
     backgroundColor: colors.bg,
   },
   header: {
-    flexDirection: 'row',
-    alignItems: 'center',
     paddingHorizontal: spacing(3),
     paddingVertical: spacing(2),
     borderBottomWidth: 1,
     borderBottomColor: colors.line,
     gap: spacing(2),
+  },
+  headerActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing(2),
+    marginTop: spacing(1),
+  },
+  actionButton: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: colors.card,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: colors.line,
+    position: 'relative',
+  },
+  actionButtonActive: {
+    backgroundColor: colors.accent,
+    borderColor: colors.accent,
+  },
+  filterBadge: {
+    position: 'absolute',
+    top: -4,
+    right: -4,
+    backgroundColor: colors.gold,
+    borderRadius: 8,
+    paddingHorizontal: spacing(0.5),
+    paddingVertical: spacing(0.25),
+    minWidth: 16,
+    alignItems: 'center',
+  },
+  filterBadgeText: {
+    fontSize: 10,
+    fontWeight: '700',
+    color: colors.white,
   },
   searchBar: {
     flex: 1,
@@ -307,19 +503,37 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing(3),
     marginBottom: spacing(2),
   },
-  recentSearches: {
+  suggestions: {
     paddingHorizontal: spacing(3),
-    gap: spacing(2),
+    gap: spacing(1),
   },
-  recentSearchItem: {
+  suggestionItem: {
     flexDirection: 'row',
     alignItems: 'center',
     paddingVertical: spacing(2),
+    paddingHorizontal: spacing(2),
+    backgroundColor: colors.card,
+    borderRadius: radii.md,
     gap: spacing(2),
+    borderWidth: 1,
+    borderColor: colors.line,
   },
-  recentSearchText: {
+  suggestionText: {
+    flex: 1,
     fontSize: 16,
     color: colors.text,
+  },
+  trendingBadge: {
+    backgroundColor: colors.accent,
+    paddingHorizontal: spacing(1),
+    paddingVertical: spacing(0.25),
+    borderRadius: radii.sm,
+  },
+  trendingBadgeText: {
+    fontSize: 10,
+    fontWeight: '700',
+    color: colors.white,
+    textTransform: 'uppercase',
   },
   resultItem: {
     flexDirection: 'row',

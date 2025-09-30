@@ -289,9 +289,17 @@ export const Survey: React.FC<SurveyProps> = ({ onComplete }) => {
   return (
     <ScrollView style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.progressText}>
-          Question {currentQuestionIndex + 1} of {questions.length}
-        </Text>
+        <View style={styles.headerTop}>
+          <Text style={styles.progressText}>
+            Question {currentQuestionIndex + 1} of {questions.length}
+          </Text>
+          <Pressable
+            style={styles.skipButton}
+            onPress={() => onComplete({})}
+          >
+            <Text style={styles.skipButtonText}>Skip Survey</Text>
+          </Pressable>
+        </View>
         <View style={styles.progressBar}>
           <View 
             style={[
@@ -324,11 +332,28 @@ const styles = StyleSheet.create({
     borderBottomColor: 'rgba(255, 255, 255, 0.1)',
     backgroundColor: colors.card,
   },
+  headerTop: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: spacing(1),
+  },
+  skipButton: {
+    paddingHorizontal: spacing(2),
+    paddingVertical: spacing(1),
+    borderRadius: radii.sm,
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.2)',
+  },
+  skipButtonText: {
+    fontSize: 12,
+    color: colors.subtext,
+    fontWeight: '600',
+  },
   progressText: {
     fontSize: 14,
     color: colors.subtext,
-    marginBottom: spacing(1),
-    textAlign: 'center',
     fontWeight: '500',
   },
   progressBar: {

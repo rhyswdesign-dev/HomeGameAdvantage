@@ -36,7 +36,7 @@ export class GroceryListService {
     ingredients: string[] | { name: string; note?: string }[],
     recipeId?: string
   ): Omit<GroceryList, 'id' | 'createdAt' | 'updatedAt' | 'userId'> {
-    const items: GroceryItem[] = ingredients.map((ingredient, index) => {
+    const items: GroceryItem[] = (ingredients || []).map((ingredient, index) => {
       // Handle both string and object formats
       let ingredientStr: string;
       let recipeNote: string | undefined;
@@ -91,8 +91,15 @@ export class GroceryListService {
     size?: string;
     notes?: string;
   } {
-    // Ensure ingredient is a string
-    const ingredientStr = typeof ingredient === 'string' ? ingredient : String(ingredient || '');
+    // Extract ingredient string from both formats
+    let ingredientStr: string;
+    if (typeof ingredient === 'string') {
+      ingredientStr = ingredient;
+    } else if (ingredient && typeof ingredient === 'object' && ingredient.name) {
+      ingredientStr = ingredient.name;
+    } else {
+      ingredientStr = String(ingredient || '');
+    }
 
     // Remove common measurements and extract core ingredient
     const measurementPattern = /^(\d+(?:\.\d+)?(?:\/\d+)?)\s*(oz|ml|cl|tsp|tbsp|dash|drop|splash|bottle|can)?\s*/i;

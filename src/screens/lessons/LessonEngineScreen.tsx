@@ -2,12 +2,13 @@
  * Lesson Engine Screen - Main lesson learning interface
  */
 
-import React from 'react';
+import React, { useLayoutEffect } from 'react';
 import { View, StyleSheet } from 'react-native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RouteProp } from '@react-navigation/native';
 import { RootStackParamList } from '../../navigation/RootNavigator';
 import { LessonEngine } from '../../components/engine/LessonEngine';
+import { useUser } from '../../store/useUser';
 
 type LessonEngineScreenProps = {
   navigation: NativeStackNavigationProp<RootStackParamList, 'LessonEngine'>;
@@ -15,7 +16,16 @@ type LessonEngineScreenProps = {
 };
 
 export default function LessonEngineScreen({ navigation, route }: LessonEngineScreenProps) {
-  const { moduleId, lessonId, isFirstLesson } = route.params;
+  const { lessonId, isFirstLesson, moduleId } = route.params;
+  const { lives } = useUser();
+
+  useLayoutEffect(() => {
+    // Disable swipe back gesture for lessons to prevent bypassing hearts system
+    navigation.setOptions({
+      gestureEnabled: false,
+      headerShown: false
+    });
+  }, [navigation]);
 
   const handleLessonComplete = (results: {
     xpAwarded: number;

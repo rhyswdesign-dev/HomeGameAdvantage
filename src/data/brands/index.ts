@@ -1,3 +1,5 @@
+import { FEATURED_SPIRIT_IMAGES, SPIRIT_IMAGES } from '../barImages';
+
 type BarTier = 'bronze' | 'silver' | 'gold';
 
 export type SpiritBrand = {
@@ -49,7 +51,7 @@ const whiskeyBrands: SpiritBrand[] = [
     category: 'Whiskey',
     tier: 'gold',
     hero: {
-      image: 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?q=80&w=1200&auto=format&fit=crop',
+      image: FEATURED_SPIRIT_IMAGES.whiskey,
       tagline: 'Scottish Heritage, Modern Excellence'
     },
     quickInfo: {
@@ -102,7 +104,7 @@ const whiskeyBrands: SpiritBrand[] = [
     category: 'Whiskey',
     tier: 'silver',
     hero: {
-      image: 'https://images.unsplash.com/photo-1540979388789-6cee28a1cdc9?q=80&w=1200&auto=format&fit=crop',
+      image: SPIRIT_IMAGES.whiskey,
       tagline: 'American Craft Excellence'
     },
     quickInfo: {
@@ -137,7 +139,7 @@ const whiskeyBrands: SpiritBrand[] = [
     category: 'Whiskey',
     tier: 'silver',
     hero: {
-      image: 'https://images.unsplash.com/photo-1569529465841-dfecdab7503b?q=80&w=1200&auto=format&fit=crop',
+      image: SPIRIT_IMAGES.whiskey,
       tagline: 'Canadian Wilderness in a Bottle'
     },
     quickInfo: {
@@ -172,7 +174,7 @@ const whiskeyBrands: SpiritBrand[] = [
     category: 'Whiskey',
     tier: 'bronze',
     hero: {
-      image: 'https://images.unsplash.com/photo-1545171811-632f6c9cb0e5?q=80&w=1200&auto=format&fit=crop',
+      image: SPIRIT_IMAGES.whiskey,
       tagline: 'Honest Whiskey from the Heartland'
     },
     quickInfo: {
@@ -207,7 +209,7 @@ const whiskeyBrands: SpiritBrand[] = [
     category: 'Whiskey',
     tier: 'bronze',
     hero: {
-      image: 'https://images.unsplash.com/photo-1582270715020-55c3ad3df4b4?q=80&w=1200&auto=format&fit=crop',
+      image: SPIRIT_IMAGES.whiskey,
       tagline: 'Small Town Spirit, Big Flavor'
     },
     quickInfo: {
@@ -246,7 +248,7 @@ const ginBrands: SpiritBrand[] = [
     category: 'Gin',
     tier: 'gold',
     hero: {
-      image: 'https://images.unsplash.com/photo-1542843137-4b8b2f9d7690?q=80&w=1200&auto=format&fit=crop',
+      image: FEATURED_SPIRIT_IMAGES.gin,
       tagline: 'Where Tradition Meets Innovation'
     },
     quickInfo: {
@@ -290,7 +292,7 @@ const ginBrands: SpiritBrand[] = [
     category: 'Gin',
     tier: 'silver',
     hero: {
-      image: 'https://images.unsplash.com/photo-1541698444018-8aa5e8cf3e69?q=80&w=1200&auto=format&fit=crop',
+      image: SPIRIT_IMAGES.gin,
       tagline: 'Ocean-Inspired Botanical Gin'
     },
     quickInfo: {
@@ -324,7 +326,7 @@ const ginBrands: SpiritBrand[] = [
     category: 'Gin',
     tier: 'silver',
     hero: {
-      image: 'https://images.unsplash.com/photo-1573935514096-1b2b9b5e3a39?q=80&w=1200&auto=format&fit=crop',
+      image: SPIRIT_IMAGES.gin,
       tagline: 'Wild Botanicals from Ancient Forests'
     },
     quickInfo: {
@@ -358,7 +360,7 @@ const ginBrands: SpiritBrand[] = [
     category: 'Gin',
     tier: 'bronze',
     hero: {
-      image: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?q=80&w=1200&auto=format&fit=crop',
+      image: SPIRIT_IMAGES.gin,
       tagline: 'City-Inspired Modern Gin'
     },
     quickInfo: {
@@ -430,7 +432,7 @@ const vodkaBrands: SpiritBrand[] = [
     category: 'Vodka',
     tier: 'gold',
     hero: {
-      image: 'https://images.unsplash.com/photo-1551022372-0bdac482b9d8?q=80&w=1200&auto=format&fit=crop',
+      image: FEATURED_SPIRIT_IMAGES.vodka,
       tagline: 'Purity Perfected'
     },
     quickInfo: {
@@ -474,7 +476,7 @@ const vodkaBrands: SpiritBrand[] = [
     category: 'Vodka',
     tier: 'silver',
     hero: {
-      image: 'https://images.unsplash.com/photo-1569529465841-dfecdab7503b?q=80&w=1200&auto=format&fit=crop',
+      image: SPIRIT_IMAGES.whiskey,
       tagline: 'Scandinavian Purity'
     },
     quickInfo: {
@@ -508,7 +510,7 @@ const vodkaBrands: SpiritBrand[] = [
     category: 'Vodka',
     tier: 'silver',
     hero: {
-      image: 'https://images.unsplash.com/photo-1545171811-632f6c9cb0e5?q=80&w=1200&auto=format&fit=crop',
+      image: SPIRIT_IMAGES.whiskey,
       tagline: 'American Grain Excellence'
     },
     quickInfo: {
@@ -542,7 +544,7 @@ const vodkaBrands: SpiritBrand[] = [
     category: 'Vodka',
     tier: 'bronze',
     hero: {
-      image: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?q=80&w=1200&auto=format&fit=crop',
+      image: SPIRIT_IMAGES.gin,
       tagline: 'Urban Style, Smooth Taste'
     },
     quickInfo: {
@@ -576,7 +578,7 @@ const vodkaBrands: SpiritBrand[] = [
     category: 'Vodka',
     tier: 'bronze',
     hero: {
-      image: 'https://images.unsplash.com/photo-1582270715020-55c3ad3df4b4?q=80&w=1200&auto=format&fit=crop',
+      image: SPIRIT_IMAGES.whiskey,
       tagline: 'Pure Mountain Water Vodka'
     },
     quickInfo: {
@@ -614,7 +616,7 @@ const tequilaBrands: SpiritBrand[] = [
     category: 'Tequila',
     tier: 'gold',
     hero: {
-      image: 'https://images.unsplash.com/photo-1620325867503-2e8b5d0a5b90?q=80&w=1200&auto=format&fit=crop',
+      image: FEATURED_SPIRIT_IMAGES.tequila,
       tagline: 'The Soul of Jalisco'
     },
     quickInfo: {
@@ -803,7 +805,7 @@ const rumBrands: SpiritBrand[] = [
     category: 'Rum',
     tier: 'gold',
     hero: {
-      image: 'https://images.unsplash.com/photo-1514362545857-3bc16c4c76ac?q=80&w=1600&auto=format&fit=crop',
+      image: FEATURED_SPIRIT_IMAGES.rum,
       tagline: 'Crafting the world\'s finest rum'
     },
     quickInfo: {
@@ -815,7 +817,7 @@ const rumBrands: SpiritBrand[] = [
     },
     signatureCocktails: [
       {
-        image: 'https://images.unsplash.com/photo-1569529465841-dfecdab7503b?q=80&w=1200&auto=format&fit=crop',
+        image: SPIRIT_IMAGES.whiskey,
         name: 'MixMind Daiquiri',
         ingredients: 'MixMind Rum, Fresh Lime, Simple Syrup',
         description: 'Classic daiquiri showcasing the rum\'s complexity'
@@ -918,7 +920,7 @@ const rumBrands: SpiritBrand[] = [
     category: 'Rum',
     tier: 'bronze',
     hero: {
-      image: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?q=80&w=1200&auto=format&fit=crop',
+      image: SPIRIT_IMAGES.gin,
       tagline: 'Light Caribbean Spirit'
     },
     quickInfo: {
@@ -953,7 +955,7 @@ const rumBrands: SpiritBrand[] = [
     category: 'Rum',
     tier: 'bronze',
     hero: {
-      image: 'https://images.unsplash.com/photo-1582270715020-55c3ad3df4b4?q=80&w=1200&auto=format&fit=crop',
+      image: SPIRIT_IMAGES.whiskey,
       tagline: 'Pure White Caribbean Rum'
     },
     quickInfo: {

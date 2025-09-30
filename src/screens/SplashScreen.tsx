@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, Animated, Dimensions } from 'react-native';
+import { View, Text, StyleSheet, Animated, Dimensions, Image } from 'react-native';
 import { Video, ResizeMode } from 'expo-av';
 import theme from '../theme/safeTheme';
 
@@ -63,11 +63,20 @@ export default function SplashScreen({ onFinish }: SplashScreenProps) {
       <Video
         style={styles.backgroundVideo}
         source={selectedVideo}
-        shouldPlay
+        shouldPlay={isVideoLoaded}
         isLooping
         isMuted
         resizeMode={ResizeMode.COVER}
-        onLoad={() => setIsVideoLoaded(true)}
+        useNativeControls={false}
+        posterSource={undefined}
+        onLoad={() => {
+          console.log('🎬 Video loaded successfully');
+          setIsVideoLoaded(true);
+        }}
+        onLoadStart={() => {
+          console.log('🎬 Video started loading...');
+          setIsVideoLoaded(false);
+        }}
         onError={(error) => {
           console.log('Video error:', error);
           setIsVideoLoaded(false);
@@ -86,19 +95,19 @@ export default function SplashScreen({ onFinish }: SplashScreenProps) {
           },
         ]}
       >
-        {/* App Name */}
-        <Text style={styles.appName}>MixedMindStudios</Text>
-        <Text style={styles.tagline}>Your ultimate bar & spirits companion</Text>
       </Animated.View>
 
-      {/* Loading indicator */}
-      <View style={styles.footer}>
-        <View style={styles.loadingDots}>
-          <Animated.View style={[styles.dot, { opacity: fadeAnim }]} />
-          <Animated.View style={[styles.dot, { opacity: fadeAnim }]} />
-          <Animated.View style={[styles.dot, { opacity: fadeAnim }]} />
+      {/* Loading indicator - show while video is loading */}
+      {!isVideoLoaded && (
+        <View style={styles.footer}>
+          <Text style={styles.loadingText}>Loading...</Text>
+          <View style={styles.loadingDots}>
+            <Animated.View style={[styles.dot, { opacity: fadeAnim }]} />
+            <Animated.View style={[styles.dot, { opacity: fadeAnim }]} />
+            <Animated.View style={[styles.dot, { opacity: fadeAnim }]} />
+          </View>
         </View>
-      </View>
+      )}
     </View>
   );
 }
@@ -112,14 +121,14 @@ const styles = StyleSheet.create({
   },
   backgroundVideo: {
     position: 'absolute',
-    top: 0,
-    left: 0,
-    bottom: 0,
-    right: 0,
-    width: '100%',
-    height: '100%',
-    minWidth: width,
-    minHeight: height,
+    top: -20,
+    left: -20,
+    bottom: -20,
+    right: -20,
+    width: width + 40,
+    height: height + 40,
+    minWidth: width + 40,
+    minHeight: height + 40,
   },
   videoOverlay: {
     position: 'absolute',
@@ -127,29 +136,13 @@ const styles = StyleSheet.create({
     left: 0,
     bottom: 0,
     right: 0,
-    backgroundColor: 'rgba(0, 0, 0, 0.4)', // Slightly darker overlay for better text contrast
+    backgroundColor: 'transparent',
   },
   content: {
     alignItems: 'center',
     flex: 1,
     justifyContent: 'center',
     zIndex: 10, // Ensure content is above video
-  },
-  appName: {
-    fontSize: 36,
-    fontWeight: '900',
-    color: 'rgba(255, 255, 255, 0.15)',
-    textAlign: 'center',
-    marginBottom: spacing(2),
-    letterSpacing: 2,
-    textShadowColor: 'rgba(255, 255, 255, 0.8)',
-    textShadowOffset: { width: 0, height: 0 },
-    textShadowRadius: 8,
-    shadowColor: 'rgba(0, 0, 0, 0.9)',
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.8,
-    shadowRadius: 12,
-    elevation: 15,
   },
   tagline: {
     fontSize: 18,
@@ -182,5 +175,15 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.7,
     shadowRadius: 4,
     elevation: 5,
+  },
+  loadingText: {
+    fontSize: 16,
+    color: '#FFFFFF',
+    textAlign: 'center',
+    marginBottom: 10,
+    textShadowColor: 'rgba(0, 0, 0, 0.8)',
+    textShadowOffset: { width: 0, height: 2 },
+    textShadowRadius: 4,
+    fontWeight: '500',
   },
 });
