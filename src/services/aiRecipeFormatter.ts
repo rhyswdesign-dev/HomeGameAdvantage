@@ -749,6 +749,21 @@ GENERAL FORMATTING:
 
     switch (recipeType) {
       case 'cocktail':
+        // Attempt to parse user input for specific requests
+        const userRequest = (input.userNotes || input.title || '').toLowerCase();
+
+        // Check for specific spirits mentioned
+        if (userRequest.includes('tequila')) {
+          return this.generateTequilaCocktail(userRequest, input);
+        } else if (userRequest.includes('gin')) {
+          return this.generateGinCocktail(userRequest, input);
+        } else if (userRequest.includes('vodka')) {
+          return this.generateVodkaCocktail(userRequest, input);
+        } else if (userRequest.includes('rum')) {
+          return this.generateRumCocktail(userRequest, input);
+        }
+
+        // Default fallback
         return {
           title: input.title || 'Classic Old Fashioned',
           description: 'A timeless whiskey cocktail with perfect balance of spirit, sweetness, and bitters.',
@@ -942,6 +957,179 @@ GENERAL FORMATTING:
     };
 
     return mockAnalyses[recipeType] || mockAnalyses.cocktail;
+  }
+
+  /**
+   * Generate tequila-based cocktail based on user request
+   */
+  private static generateTequilaCocktail(userRequest: string, input: RecipeInput): FormattedRecipe {
+    // Check for specific flavor profiles
+    if (userRequest.includes('watermelon')) {
+      return {
+        title: input.title || 'Watermelon Tequila Refresher',
+        description: 'A refreshing summer cocktail combining fresh watermelon with smooth tequila and lime.',
+        ingredients: [
+          { name: 'Tequila Blanco', amount: '2 oz', notes: '100% agave preferred' },
+          { name: 'Fresh Watermelon Juice', amount: '3 oz', notes: 'Muddle fresh watermelon' },
+          { name: 'Fresh Lime Juice', amount: '0.75 oz', notes: 'Freshly squeezed' },
+          { name: 'Agave Nectar', amount: '0.5 oz', notes: 'Adjust to taste' },
+          { name: 'Tajín', amount: 'Pinch', notes: 'For rim and garnish' },
+        ],
+        instructions: [
+          'Rim glass with lime juice and Tajín seasoning',
+          'Muddle fresh watermelon in shaker',
+          'Add tequila, lime juice, and agave nectar',
+          'Shake vigorously with ice',
+          'Double strain over fresh ice',
+          'Garnish with watermelon wedge and lime wheel'
+        ],
+        garnish: 'Watermelon wedge and lime wheel',
+        glassware: 'Rocks Glass',
+        difficulty: 'Easy' as const,
+        time: '4 min',
+        servings: 1,
+        tags: ['tequila', 'fresh', 'summer', 'refreshing', 'fruit']
+      };
+    }
+
+    // Default tequila cocktail (Margarita variation)
+    return {
+      title: input.title || 'Perfect Margarita',
+      description: 'A classic tequila cocktail with the perfect balance of citrus and agave.',
+      ingredients: [
+        { name: 'Tequila Blanco', amount: '2 oz', notes: '100% agave preferred' },
+        { name: 'Fresh Lime Juice', amount: '1 oz', notes: 'Freshly squeezed' },
+        { name: 'Orange Liqueur', amount: '0.75 oz', notes: 'Cointreau or Grand Marnier' },
+        { name: 'Agave Nectar', amount: '0.25 oz', notes: 'Optional, to taste' },
+      ],
+      instructions: [
+        'Add all ingredients to shaker with ice',
+        'Shake vigorously for 15 seconds',
+        'Strain over fresh ice in salt-rimmed glass',
+        'Garnish with lime wheel'
+      ],
+      garnish: 'Lime wheel',
+      glassware: 'Rocks Glass',
+      difficulty: 'Easy' as const,
+      time: '3 min',
+      servings: 1,
+      tags: ['tequila', 'classic', 'citrus', 'shaken']
+    };
+  }
+
+  /**
+   * Generate gin-based cocktail based on user request
+   */
+  private static generateGinCocktail(userRequest: string, input: RecipeInput): FormattedRecipe {
+    if (userRequest.includes('cucumber')) {
+      return {
+        title: input.title || 'Cucumber Gin Cooler',
+        description: 'A refreshing gin cocktail with crisp cucumber and bright citrus.',
+        ingredients: [
+          { name: 'London Dry Gin', amount: '2 oz', notes: 'Hendricks works great' },
+          { name: 'Fresh Cucumber', amount: '4 slices', notes: 'Muddle 3, reserve 1 for garnish' },
+          { name: 'Fresh Lime Juice', amount: '0.75 oz', notes: 'Freshly squeezed' },
+          { name: 'Simple Syrup', amount: '0.5 oz', notes: 'Adjust to taste' },
+          { name: 'Soda Water', amount: '2 oz', notes: 'To top' },
+        ],
+        instructions: [
+          'Muddle cucumber slices in shaker',
+          'Add gin, lime juice, and simple syrup',
+          'Shake with ice and double strain',
+          'Serve over ice and top with soda water',
+          'Garnish with cucumber slice'
+        ],
+        garnish: 'Cucumber slice',
+        glassware: 'Highball Glass',
+        difficulty: 'Easy' as const,
+        time: '3 min',
+        servings: 1,
+        tags: ['gin', 'fresh', 'cucumber', 'refreshing']
+      };
+    }
+
+    // Default gin cocktail
+    return {
+      title: input.title || 'Classic Gin & Tonic',
+      description: 'The perfect gin and tonic with premium ingredients and proper garnish.',
+      ingredients: [
+        { name: 'London Dry Gin', amount: '2 oz', notes: 'Premium quality' },
+        { name: 'Tonic Water', amount: '4-6 oz', notes: 'Premium tonic, chilled' },
+        { name: 'Fresh Lime', amount: '2 wedges', notes: 'One for squeeze, one for garnish' },
+      ],
+      instructions: [
+        'Fill highball glass with ice',
+        'Add gin and squeeze lime wedge',
+        'Top with chilled tonic water',
+        'Stir gently once',
+        'Garnish with lime wedge'
+      ],
+      garnish: 'Lime wedge',
+      glassware: 'Highball Glass',
+      difficulty: 'Easy' as const,
+      time: '2 min',
+      servings: 1,
+      tags: ['gin', 'classic', 'simple', 'refreshing']
+    };
+  }
+
+  /**
+   * Generate vodka-based cocktail based on user request
+   */
+  private static generateVodkaCocktail(userRequest: string, input: RecipeInput): FormattedRecipe {
+    return {
+      title: input.title || 'Premium Moscow Mule',
+      description: 'A classic vodka cocktail with spicy ginger beer and fresh lime.',
+      ingredients: [
+        { name: 'Premium Vodka', amount: '2 oz', notes: 'High-quality vodka' },
+        { name: 'Fresh Lime Juice', amount: '0.5 oz', notes: 'Freshly squeezed' },
+        { name: 'Ginger Beer', amount: '4 oz', notes: 'Spicy ginger beer' },
+      ],
+      instructions: [
+        'Fill copper mug with ice',
+        'Add vodka and lime juice',
+        'Top with ginger beer',
+        'Stir gently',
+        'Garnish with lime wheel'
+      ],
+      garnish: 'Lime wheel',
+      glassware: 'Copper Mug',
+      difficulty: 'Easy' as const,
+      time: '2 min',
+      servings: 1,
+      tags: ['vodka', 'classic', 'spicy', 'refreshing']
+    };
+  }
+
+  /**
+   * Generate rum-based cocktail based on user request
+   */
+  private static generateRumCocktail(userRequest: string, input: RecipeInput): FormattedRecipe {
+    return {
+      title: input.title || 'Classic Mojito',
+      description: 'A refreshing Cuban cocktail with white rum, fresh mint, and lime.',
+      ingredients: [
+        { name: 'White Rum', amount: '2 oz', notes: 'Light Cuban-style rum' },
+        { name: 'Fresh Mint Leaves', amount: '8-10 leaves', notes: 'Gently muddled' },
+        { name: 'Fresh Lime Juice', amount: '1 oz', notes: 'Freshly squeezed' },
+        { name: 'Simple Syrup', amount: '0.75 oz', notes: 'Adjust to taste' },
+        { name: 'Soda Water', amount: '2 oz', notes: 'To top' },
+      ],
+      instructions: [
+        'Gently muddle mint leaves in glass',
+        'Add lime juice and simple syrup',
+        'Fill with ice and add rum',
+        'Stir to combine',
+        'Top with soda water',
+        'Garnish with mint sprig and lime wheel'
+      ],
+      garnish: 'Mint sprig and lime wheel',
+      glassware: 'Highball Glass',
+      difficulty: 'Easy' as const,
+      time: '3 min',
+      servings: 1,
+      tags: ['rum', 'classic', 'mint', 'refreshing', 'cuban']
+    };
   }
 
   /**

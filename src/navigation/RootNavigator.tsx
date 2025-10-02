@@ -36,6 +36,7 @@ import PrivacyPolicyScreen from '../screens/PrivacyPolicyScreen';
 import TermsOfServiceScreen from '../screens/TermsOfServiceScreen';
 import FeedbackScreen from '../screens/FeedbackScreen';
 import CocktailDetailScreen from '../screens/CocktailDetailScreen';
+import CocktailListScreen from '../screens/CocktailListScreen';
 import SavedItemsScreen from '../screens/SavedItemsScreen';
 import EditProfileScreen from '../screens/EditProfileScreen';
 import NonAlcoholicScreen from '../screens/NonAlcoholicScreen';
@@ -85,6 +86,7 @@ import CheckoutScreen from '../screens/commerce/CheckoutScreen';
 import OrderConfirmationScreen from '../screens/commerce/OrderConfirmationScreen';
 import OrderHistoryScreen from '../screens/commerce/OrderHistoryScreen';
 import AddRecipeScreen from '../screens/AddRecipeScreen';
+import MyRecipesScreen from '../screens/MyRecipesScreen';
 import AIRecipeFormatScreen from '../screens/AIRecipeFormatScreen';
 import OCRCaptureScreen from '../screens/OCRCaptureScreen';
 import ManualRecipeInputScreen from '../screens/ManualRecipeInputScreen';
@@ -135,6 +137,7 @@ export type RootStackParamList = {
   TermsOfService: undefined;
   Feedback: undefined;
   CocktailDetail: { cocktailId: string };
+  CocktailList: { title: string; cocktailIds: string[]; category: string };
   SavedItems: { category: 'bars' | 'spirits' | 'cocktails' | 'events' | 'communities' };
   EditProfile: undefined;
   Profile: undefined;
@@ -176,6 +179,7 @@ export type RootStackParamList = {
   Billing: undefined;
   AddAddress: { addressId?: string };
   AddRecipe: undefined;
+  MyRecipes: undefined;
   RecipeDetail: { recipe: any };
   AIRecipeFormat: { recipe: any };
   OCRCapture: undefined;
@@ -376,6 +380,7 @@ export default function RootNavigator() {
       <Stack.Screen name="TermsOfService" component={TermsOfServiceScreen} options={{ headerShown: true, title: 'Terms of Service' }} />
       <Stack.Screen name="Feedback" component={FeedbackScreen} options={{ headerShown: true, title: 'Feedback' }} />
       <Stack.Screen name="CocktailDetail" component={CocktailDetailScreen} options={{ headerShown: true, title: 'Cocktail' }} />
+      <Stack.Screen name="CocktailList" component={CocktailListScreen} options={{ headerShown: true, title: 'Cocktails' }} />
       <Stack.Screen name="SavedItems" component={SavedItemsScreen} options={{ headerShown: true, title: 'Saved Items' }} />
       <Stack.Screen name="EditProfile" component={EditProfileScreen} options={{ headerShown: true, title: 'Edit Profile' }} />
       <Stack.Screen name="Profile" component={ProfileScreen} options={{ headerShown: true, title: 'Profile' }} />
@@ -414,6 +419,7 @@ export default function RootNavigator() {
     <Stack.Screen name="OrderConfirmation" component={OrderConfirmationScreen} options={{ headerShown: true, title: 'Order Confirmed' }} />
     <Stack.Screen name="OrderHistory" component={OrderHistoryScreen} options={{ headerShown: true, title: 'Order History' }} />
     <Stack.Screen name="AddRecipe" component={AddRecipeScreen} options={{ headerShown: true, title: 'Add Recipe' }} />
+    <Stack.Screen name="MyRecipes" component={MyRecipesScreen} options={{ headerShown: true, title: 'My Recipes' }} />
     <Stack.Screen name="RecipeDetail" component={RecipeDetailScreen} options={{ headerShown: true, title: 'Recipe' }} />
     <Stack.Screen name="AIRecipeFormat" component={AIRecipeFormatScreen} options={{ headerShown: true, title: '✨ AI Recipe Formatting' }} />
     <Stack.Screen name="OCRCapture" component={OCRCaptureScreen} options={{ headerShown: true, title: '📸 Scan Recipe' }} />
