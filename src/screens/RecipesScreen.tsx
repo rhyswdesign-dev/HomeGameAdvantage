@@ -26,14 +26,20 @@ import { getUserRecipes, Recipe, deleteRecipe } from '../lib/firestore';
 import { auth } from '../config/firebase';
 import GroceryListModal from '../components/GroceryListModal';
 import { recommendationEngine, type RecommendationSet, type Recommendation } from '../services/recommendationEngine';
-import { AIRecipeFormatter } from '../services/aiRecipeFormatter';
+import { AIRecipeFormatter, FormattedRecipe } from '../services/aiRecipeFormatter';
 import { searchService, type SearchableItem, FilterOptions } from '../services/searchService';
+import AIRecipeSearch from '../components/AIRecipeSearch';
+import AIRecipeModal from '../components/AIRecipeModal';
+import AICreditsPurchaseModal from '../components/AICreditsPurchaseModal';
+import { useAICredits } from '../store/useAICredits';
 import RecipeCard from '../components/RecipeCard';
 import { createRecipeCardProps } from '../utils/recipeActions';
 import { StatusBar } from 'expo-status-bar';
 import {
   ALL_COCKTAILS
 } from '../data/cocktails';
+import { usePersonalization } from '../store/usePersonalization';
+import { useUserRecipes } from '../store/useUserRecipes';
 
 type Nav = NativeStackNavigationProp<RootStackParamList>;
 const { width } = Dimensions.get('window');
@@ -53,70 +59,70 @@ const COCKTAIL_OF_THE_MONTH = {
   badge: 'GOLD' as const
 };
 
-// Mood-based categories (only Shots and Mocktails)
+// Mood-based categories with comprehensive cocktail listings
 const COCKTAIL_MOODS = [
   {
     title: 'Bold & Serious',
-    subtitle: 'Classic strength & sophistication',
+    subtitle: 'Spirit-forward, strong, timeless',
     image: 'https://images.unsplash.com/photo-1574096079513-d8259312b785?auto=format&fit=crop&w=800&q=60',
     category: 'bold_serious',
-    cocktails: ['old-fashioned', 'negroni', 'martini', 'sazerac', 'manhattan']
+    cocktails: ['old-fashioned', 'negroni', 'martinez', 'sazerac', 'manhattan', 'boulevardier', 'vesper-martini', 'rob-roy', 'brooklyn', 'el-presidente']
   },
   {
     title: 'Romantic & Elegant',
-    subtitle: 'Refined drinks for special moments',
+    subtitle: 'Refined, sparkling, or delicate — ideal for celebrations & dates',
     image: 'https://images.unsplash.com/photo-1510972527921-ce03766a1cf1?auto=format&fit=crop&w=800&q=60',
     category: 'romantic_elegant',
-    cocktails: ['french-75', 'bellini', 'aviation', 'kir-royale', 'cosmopolitan']
+    cocktails: ['french-75', 'bellini', 'aviation', 'kir-royale', 'cosmopolitan', 'champagne-cocktail', 'mimosa']
   },
   {
     title: 'Playful & Fun',
-    subtitle: 'Vibrant & cheerful cocktails',
+    subtitle: 'Colorful, lively, perfect for social energy',
     image: 'https://images.unsplash.com/photo-1551538827-9c037cb4f32a?auto=format&fit=crop&w=800&q=60',
     category: 'playful_fun',
-    cocktails: ['margarita', 'mojito', 'aperol-spritz', 'pornstar-martini', 'bramble']
+    cocktails: ['margarita', 'mojito', 'aperol-spritz', 'pornstar-martini', 'bramble', 'kamikaze', 'lemon-drop', 'woo-woo-shot', 'melon-ball-shot']
   },
   {
     title: 'Tropical Escape',
-    subtitle: 'Transport yourself to paradise',
+    subtitle: 'Exotic, fruity, a trip to the islands',
     image: 'https://images.unsplash.com/photo-1578662996442-48f60103fc96?auto=format&fit=crop&w=800&q=60',
     category: 'tropical_escape',
-    cocktails: ['mai-tai', 'pina-colada', 'zombie', 'painkiller', 'jungle-bird']
+    cocktails: ['mai-tai', 'pina-colada', 'zombie', 'painkiller', 'jungle-bird', 'navy-grog', 'fog-cutter', 'scorpion', 'blue-hawaii', 'hurricane', 'singapore-sling', 'surfer-on-acid', 'scooby-snack']
   },
   {
     title: 'Cozy & Comforting',
-    subtitle: 'Warm drinks for relaxation',
+    subtitle: 'Warm, creamy, nostalgic — feels like home',
     image: 'https://images.unsplash.com/photo-1578328819058-b69f3a3b0f6b?auto=format&fit=crop&w=800&q=60',
     category: 'cozy_comforting',
-    cocktails: ['irish-coffee', 'white-russian', 'hot-toddy', 'amaretto-sour']
+    cocktails: ['irish-coffee', 'white-russian', 'hot-toddy', 'amaretto-sour', 'brandy-alexander', 'cinnamon-toast-crunch-shot', 'apple-pie-shot', 'chocolate-cake-shot']
   },
   {
     title: 'Late-Night Energy',
-    subtitle: 'Energizing cocktails for the night',
+    subtitle: 'Edgy, caffeinated, or party-fueled',
     image: 'https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?auto=format&fit=crop&w=800&q=60',
     category: 'late_night_energy',
-    cocktails: ['espresso-martini', 'paper-plane', 'naked-famous', 'kamikaze']
+    cocktails: ['espresso-martini', 'paper-plane', 'naked-famous', 'kamikaze', 'jagerbomb', 'espresso-shot-cocktail']
   },
   {
     title: 'Mystery & Depth',
-    subtitle: 'Complex & intriguing flavors',
+    subtitle: 'Complex, layered, contemplative',
     image: 'https://images.unsplash.com/photo-1470337458703-46ad1756a187?auto=format&fit=crop&w=800&q=60',
     category: 'mystery_depth',
-    cocktails: ['vieux-carre', 'last-word', 'oaxaca-old-fashioned', 'rusty-nail']
+    cocktails: ['vieux-carre', 'last-word', 'oaxaca-old-fashioned', 'rusty-nail', 'corpse-reviver-2', 'martinez', 'sidecar', 'between-the-sheets', 'naked-famous', 'mezcal-negroni']
   },
   {
     title: 'Party Crowd-Pleasers',
-    subtitle: 'Easy-drinking favorites for groups',
+    subtitle: 'Refreshing, simple, loved by everyone',
     image: 'https://images.unsplash.com/photo-1544145945-f90425340c7e?auto=format&fit=crop&w=800&q=60',
     category: 'party_crowd_pleasers',
-    cocktails: ['moscow-mule', 'cuba-libre', 'paloma', 'spritz-veneziano']
+    cocktails: ['moscow-mule', 'cuba-libre', 'paloma', 'spritz-veneziano', 'dark-n-stormy', 'tom-collins', 'gin-tonic', 'highball', 'caipirinha', 'pickleback', 'washington-apple', 'alabama-slammer-shot', 'red-headed-slut']
   },
   {
     title: 'After-Dinner Indulgence',
-    subtitle: 'Rich dessert-style cocktails',
+    subtitle: 'Dessert-like, rich, and satisfying',
     image: 'https://images.unsplash.com/photo-1546171753-97d7676e4602?auto=format&fit=crop&w=800&q=60',
     category: 'after_dinner_indulgence',
-    cocktails: ['brandy-alexander', 'grasshopper', 'b-52', 'black-russian']
+    cocktails: ['grasshopper', 'b-52', 'black-russian', 'baby-guinness', 'slippery-nipple', 'buttery-nipple', 'brain-hemorrhage', 'sambuca-con-la-mosca']
   },
 ];
 
@@ -610,23 +616,45 @@ function HeroCard({ cocktail, onPress }: { cocktail: typeof COCKTAIL_OF_THE_MONT
 export default function RecipesScreen() {
   const navigation = useNavigation<Nav>();
   const { savedItems, toggleSavedCocktail, isCocktailSaved } = useSavedItems();
+  const { credits, isPremium, getActionCost } = useAICredits();
+  const { getPersonalizedMoodOrder, getFeaturedCocktails, scoreMoodCategory, recordInteraction } = usePersonalization();
+  const { recipes: userRecipes, loadRecipes } = useUserRecipes();
 
   // Search and filter states
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState<any[]>([]);
   const [isSearching, setIsSearching] = useState(false);
-  const [currentFilters, setCurrentFilters] = useState<Partial<FilterOptions>>({
-    sortBy: 'popularity',
-    sortOrder: 'desc'
-  });
+  const [currentFilters, setCurrentFilters] = useState<Partial<FilterOptions>>({});
   const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const [showSortModal, setShowSortModal] = useState(false);
   const [showFilterModal, setShowFilterModal] = useState(false);
 
   // Modal states
   const [groceryListVisible, setGroceryListVisible] = useState(false);
   const [selectedRecipe, setSelectedRecipe] = useState<any>(null);
 
+  // AI-related states
+  const [aiRecipeModalVisible, setAiRecipeModalVisible] = useState(false);
+  const [currentAiRecipe, setCurrentAiRecipe] = useState<FormattedRecipe | null>(null);
+  const [creditsPurchaseVisible, setCreditsPurchaseVisible] = useState(false);
+  const [creditsInfoVisible, setCreditsInfoVisible] = useState(false);
+
+  // AI recipe handler
+  const handleAiRecipeFound = useCallback((recipe: FormattedRecipe) => {
+    setCurrentAiRecipe(recipe);
+    setAiRecipeModalVisible(true);
+  }, []);
+
+  const handleSaveAiRecipe = useCallback((recipe: FormattedRecipe) => {
+    // Here you could save the AI recipe to user's collection
+    // For now, we'll just log it
+    console.log('Saving AI recipe:', recipe.title);
+    // Could call a firestore function to save the recipe
+  }, []);
+
+  // Handler for when user needs more credits
+  const handleCreditsNeeded = useCallback(() => {
+    setCreditsPurchaseVisible(true);
+  }, []);
 
 
   // Search functionality with debouncing and fallback
@@ -652,7 +680,7 @@ export default function RecipesScreen() {
         // Primary search using search service
         try {
           const results = await searchService.search(query, currentFilters);
-          const recipeResults = results
+          let recipeResults = results
             .filter(item => item.category === 'recipe')
             .map(item => {
               // Find the actual recipe object from our arrays
@@ -662,6 +690,32 @@ export default function RecipesScreen() {
               ) || item.data;
             })
             .filter(Boolean);
+
+          // AI Enhancement: Get personalized recommendations to boost relevant results
+          try {
+            const context = {
+              timeOfDay: new Date().getHours() < 12 ? 'morning' as const :
+                       new Date().getHours() < 17 ? 'afternoon' as const :
+                       new Date().getHours() < 22 ? 'evening' as const : 'night' as const,
+              dayOfWeek: new Date().getDay(),
+              recentActivity: [query] // Include current search as recent activity
+            };
+
+            const recommendations = await recommendationEngine.getRecommendations(context);
+
+            // Boost search results that align with AI recommendations
+            if (recommendations.personalized.length > 0) {
+              const recommendedIds = new Set(recommendations.personalized.map(r => r.item.id));
+              recipeResults = recipeResults.sort((a, b) => {
+                const aRecommended = recommendedIds.has(a.id) ? 1 : 0;
+                const bRecommended = recommendedIds.has(b.id) ? 1 : 0;
+                return bRecommended - aRecommended; // Recommended items first
+              });
+            }
+          } catch (aiError) {
+            console.warn('AI enhancement failed, continuing with basic search:', aiError);
+          }
+
           setSearchResults(recipeResults);
         } catch (searchError) {
           console.warn('Search service error, using fallback:', searchError);
@@ -710,52 +764,13 @@ export default function RecipesScreen() {
       });
     }
 
-    // Sort recipes
-    if (currentFilters.sortBy) {
-      recipes.sort((a, b) => {
-        let comparison = 0;
-        switch (currentFilters.sortBy) {
-          case 'alphabetical':
-            comparison = a.name.localeCompare(b.name);
-            break;
-          case 'difficulty_easy':
-            const diffOrderEasy = { 'Easy': 1, 'Easy-Medium': 2, 'Medium': 3, 'Medium-Hard': 4, 'Hard': 5 };
-            comparison = (diffOrderEasy[a.difficulty as keyof typeof diffOrderEasy] || 3) - (diffOrderEasy[b.difficulty as keyof typeof diffOrderEasy] || 3);
-            break;
-          case 'difficulty_hard':
-            const diffOrderHard = { 'Easy': 5, 'Easy-Medium': 4, 'Medium': 3, 'Medium-Hard': 2, 'Hard': 1 };
-            comparison = (diffOrderHard[a.difficulty as keyof typeof diffOrderHard] || 3) - (diffOrderHard[b.difficulty as keyof typeof diffOrderHard] || 3);
-            break;
-          case 'popularity':
-            comparison = (b.rating || 0) - (a.rating || 0);
-            break;
-          case 'difficulty':
-            const diffOrder = { 'Easy': 1, 'Medium': 2, 'Hard': 3 };
-            comparison = (diffOrder[a.difficulty as keyof typeof diffOrder] || 2) - (diffOrder[b.difficulty as keyof typeof diffOrder] || 2);
-            break;
-          case 'time':
-            const getTime = (timeStr: string) => parseInt(timeStr) || 0;
-            comparison = getTime(a.time) - getTime(b.time);
-            break;
-          case 'abv':
-            // Estimate ABV based on category
-            const getABV = (subtitle: string) => {
-              if (subtitle?.includes('Spirit-Forward')) return 35;
-              if (subtitle?.includes('Shot')) return 25;
-              if (subtitle?.includes('Light')) return 15;
-              return 20;
-            };
-            comparison = getABV(a.subtitle) - getABV(b.subtitle);
-            break;
-          default:
-            comparison = (b.rating || 0) - (a.rating || 0);
-        }
-        return currentFilters.sortOrder === 'asc' ? comparison : -comparison;
-      });
-    }
 
     return recipes;
   };
+
+  useEffect(() => {
+    loadRecipes();
+  }, []);
 
   useLayoutEffect(() => {
     navigation.setOptions({
@@ -764,11 +779,42 @@ export default function RecipesScreen() {
       headerTintColor: colors.text,
       headerTitleStyle: { color: colors.text, fontWeight: '900' },
       headerShadowVisible: false,
-      headerLeft: () => null,
+      headerLeft: () => (
+        <View style={{ flexDirection: 'row', alignItems: 'center', marginLeft: 16, gap: 8 }}>
+          <Pressable
+            hitSlop={12}
+            onPress={() => setCreditsPurchaseVisible(true)}
+            style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}
+          >
+            <Ionicons
+              name={isPremium ? "diamond" : "sparkles"}
+              size={20}
+              color={isPremium ? colors.gold : colors.accent}
+            />
+            <Text style={{
+              color: colors.text,
+              fontWeight: '600',
+              fontSize: 16
+            }}>
+              {isPremium ? '∞' : credits.toLocaleString()}
+            </Text>
+          </Pressable>
+          <Pressable
+            hitSlop={12}
+            onPress={() => setCreditsInfoVisible(true)}
+          >
+            <Ionicons
+              name="information-circle-outline"
+              size={18}
+              color={colors.subtext}
+            />
+          </Pressable>
+        </View>
+      ),
       headerRight: () => (
         <View style={{ flexDirection: 'row', gap: 16 }}>
-          <Pressable hitSlop={12} onPress={() => setShowSortModal(true)}>
-            <Ionicons name="funnel" size={24} color={colors.accent} />
+          <Pressable hitSlop={12} onPress={() => navigation.navigate('AddRecipe')}>
+            <Ionicons name="add-circle-outline" size={24} color={colors.accent} />
           </Pressable>
           <Pressable hitSlop={12} onPress={() => navigation.navigate('ShoppingCart')}>
             <Ionicons name="cart" size={24} color={colors.accent} />
@@ -779,7 +825,7 @@ export default function RecipesScreen() {
         </View>
       ),
     });
-  }, [navigation]);
+  }, [navigation, credits, isPremium, setCreditsPurchaseVisible, setCreditsInfoVisible]);
 
   const renderRecipeItem: ListRenderItem<any> = ({ item }) => {
     const cardProps = createRecipeCardProps(item, navigation, {
@@ -866,6 +912,16 @@ export default function RecipesScreen() {
               </View>
             )}
 
+            {/* AI-Powered Recipe Search */}
+            {!searchQuery.trim() && (
+              <AIRecipeSearch
+                onRecipeFound={handleAiRecipeFound}
+                onCreditsNeeded={handleCreditsNeeded}
+                style={{ marginHorizontal: spacing(2) }}
+              />
+            )}
+
+
             {/* Only show featured content when not searching */}
             {!searchQuery.trim() && (
               <>
@@ -880,40 +936,59 @@ export default function RecipesScreen() {
             {/* Explore by Mood (expanded) */}
             <SectionHeader title="Explore by Mood" />
             <ScrollView horizontal nestedScrollEnabled showsHorizontalScrollIndicator={false} style={{ paddingLeft: spacing(2), marginBottom: spacing(2) }}>
-              {COCKTAIL_MOODS?.map((mood) => (
-                <MoodCard
-                  key={mood.title}
-                  title={mood.title}
-                  subtitle={mood.subtitle}
-                  image={mood.image}
-                  onPress={() => {
-                    // Find cocktails by ID from all available cocktails
-                    const moodCocktails = mood.cocktails.map(id => {
-                      return ALL_COCKTAILS.find(cocktail =>
-                        cocktail.id === id ||
-                        cocktail.id === id.replace(/-/g, '') ||
-                        cocktail.name.toLowerCase().replace(/[^a-z0-9]/g, '-') === id ||
-                        cocktail.name.toLowerCase().replace(/[^a-z0-9]/g, '') === id.replace(/-/g, '')
-                      );
-                    }).filter(Boolean); // Remove any undefined matches
+              {(() => {
+                // Get personalized mood order from user preferences
+                const personalizedOrder = getPersonalizedMoodOrder();
 
-                    navigation.navigate('CocktailList', {
-                      title: mood.title,
-                      cocktails: moodCocktails,
-                      category: mood.category
-                    });
-                  }}
-                />
-              ))}
+                // Sort moods based on personalization, fallback to original order
+                const sortedMoods = personalizedOrder.length > 0
+                  ? personalizedOrder.map(categoryName =>
+                      COCKTAIL_MOODS.find(mood => mood.title === categoryName)
+                    ).filter(Boolean).concat(
+                      COCKTAIL_MOODS.filter(mood =>
+                        !personalizedOrder.includes(mood.title)
+                      )
+                    )
+                  : COCKTAIL_MOODS;
+
+                return sortedMoods.map((mood) => (
+                  <MoodCard
+                    key={mood.title}
+                    title={mood.title}
+                    subtitle={mood.subtitle}
+                    image={mood.image}
+                    onPress={() => {
+                      // Record mood interaction for personalization
+                      recordInteraction('mood_selected', mood.category, {
+                        moodTitle: mood.title,
+                        userScore: scoreMoodCategory(mood.title)
+                      });
+
+                      // Ensure we're passing simple string IDs, not objects
+                      const cocktailIds = Array.isArray(mood.cocktails)
+                        ? mood.cocktails.map(item => typeof item === 'string' ? item : item.id)
+                        : [];
+
+                      navigation.navigate('CocktailList', {
+                        title: mood.title,
+                        cocktailIds: cocktailIds,
+                        category: mood.category
+                      });
+                    }}
+                  />
+                ));
+              })()}
             </ScrollView>
 
             {/* Shots */}
             <SectionHeader
               title="Shots"
               onPress={() => {
+                // Ensure we only pass string IDs
+                const shotIds = ALL_SHOTS.map(shot => shot.id).filter(id => typeof id === 'string');
                 navigation.navigate('CocktailList', {
                   title: 'Shots',
-                  cocktails: ALL_SHOTS,
+                  cocktailIds: shotIds,
                   category: 'shots'
                 });
               }}
@@ -939,9 +1014,11 @@ export default function RecipesScreen() {
             <SectionHeader
               title="Mocktails"
               onPress={() => {
+                // Ensure we only pass string IDs
+                const mocktailIds = sampleRecipes.map(recipe => recipe.id).filter(id => typeof id === 'string');
                 navigation.navigate('CocktailList', {
                   title: 'Mocktails',
-                  cocktails: sampleRecipes,
+                  cocktailIds: mocktailIds,
                   category: 'mocktails'
                 });
               }}
@@ -961,6 +1038,56 @@ export default function RecipesScreen() {
                   <RecipeCard key={mocktail.id} {...cardProps} style={{ width: 240, marginRight: 16 }} />
                 );
               })}
+            </ScrollView>
+
+            {/* My Recipes */}
+            <SectionHeader
+              title="My Recipes"
+              onPress={() => navigation.navigate('MyRecipes')}
+            />
+            <ScrollView horizontal nestedScrollEnabled showsHorizontalScrollIndicator={false} style={{ paddingLeft: spacing(2), marginBottom: spacing(2) }}>
+              {userRecipes.length > 0 ? (
+                userRecipes.slice(0, 5).map((recipe) => {
+                  const cardProps = {
+                    id: recipe.id,
+                    name: recipe.name,
+                    subtitle: recipe.type === 'ai_generated' ? 'AI Generated' : recipe.type === 'modified' ? 'Modified Recipe' : 'My Creation',
+                    description: recipe.description || 'Custom recipe',
+                    image: recipe.image || 'https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=240&h=160&fit=crop',
+                    onPress: () => {
+                      // Navigate to recipe detail - could create a custom recipe detail screen
+                      console.log('Viewing user recipe:', recipe.name);
+                    },
+                    showSaveButton: false,
+                    showCartButton: false,
+                    showDeleteButton: false,
+                  };
+                  return (
+                    <RecipeCard key={recipe.id} {...cardProps} style={{ width: 240, marginRight: 16 }} />
+                  );
+                })
+              ) : (
+                <Pressable
+                  style={{
+                    width: 240,
+                    height: 160,
+                    marginRight: 16,
+                    backgroundColor: colors.card,
+                    borderRadius: radii.lg,
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    borderWidth: 2,
+                    borderColor: colors.border,
+                    borderStyle: 'dashed'
+                  }}
+                  onPress={() => navigation.navigate('AddRecipe')}
+                >
+                  <Ionicons name="add-circle-outline" size={32} color={colors.muted} />
+                  <Text style={{ color: colors.muted, marginTop: 8, textAlign: 'center' }}>
+                    Create your first{'\n'}custom recipe
+                  </Text>
+                </Pressable>
+              )}
             </ScrollView>
 
 
@@ -1046,108 +1173,12 @@ export default function RecipesScreen() {
                       fontSize: 20,
                       fontWeight: '600',
                       color: colors.text
-                    }}>Filter & Sort</Text>
+                    }}>Filter</Text>
                     <Pressable onPress={() => setShowFilterModal(false)}>
                       <Ionicons name="close" size={24} color={colors.text} />
                     </Pressable>
                   </View>
 
-                  <Text style={{
-                    fontSize: 16,
-                    fontWeight: '600',
-                    color: colors.text,
-                    marginBottom: spacing(2)
-                  }}>Sort Options</Text>
-
-                  <Pressable
-                    style={{
-                      flexDirection: 'row',
-                      alignItems: 'center',
-                      padding: spacing(2),
-                      marginBottom: spacing(1),
-                      backgroundColor: currentFilters.sortBy === 'alphabetical' ? colors.accent + '10' : 'transparent',
-                      borderRadius: radii.md,
-                      borderWidth: currentFilters.sortBy === 'alphabetical' ? 1 : 0,
-                      borderColor: currentFilters.sortBy === 'alphabetical' ? colors.accent : 'transparent'
-                    }}
-                    onPress={() => {
-                      setCurrentFilters(prev => ({ ...prev, sortBy: 'alphabetical', sortOrder: 'asc' }));
-                    }}
-                  >
-                    <Ionicons
-                      name="text"
-                      size={20}
-                      color={currentFilters.sortBy === 'alphabetical' ? colors.accent : colors.text}
-                      style={{ marginRight: spacing(2) }}
-                    />
-                    <Text style={{
-                      fontSize: 16,
-                      color: currentFilters.sortBy === 'alphabetical' ? colors.accent : colors.text,
-                      fontWeight: currentFilters.sortBy === 'alphabetical' ? '600' : '400'
-                    }}>
-                      Sort Alphabetically
-                    </Text>
-                  </Pressable>
-
-                  <Pressable
-                    style={{
-                      flexDirection: 'row',
-                      alignItems: 'center',
-                      padding: spacing(2),
-                      marginBottom: spacing(1),
-                      backgroundColor: currentFilters.sortBy === 'difficulty_easy' ? colors.accent + '10' : 'transparent',
-                      borderRadius: radii.md,
-                      borderWidth: currentFilters.sortBy === 'difficulty_easy' ? 1 : 0,
-                      borderColor: currentFilters.sortBy === 'difficulty_easy' ? colors.accent : 'transparent'
-                    }}
-                    onPress={() => {
-                      setCurrentFilters(prev => ({ ...prev, sortBy: 'difficulty_easy' }));
-                    }}
-                  >
-                    <Ionicons
-                      name="trending-up"
-                      size={20}
-                      color={currentFilters.sortBy === 'difficulty_easy' ? colors.accent : colors.text}
-                      style={{ marginRight: spacing(2) }}
-                    />
-                    <Text style={{
-                      fontSize: 16,
-                      color: currentFilters.sortBy === 'difficulty_easy' ? colors.accent : colors.text,
-                      fontWeight: currentFilters.sortBy === 'difficulty_easy' ? '600' : '400'
-                    }}>
-                      Easy to Hard
-                    </Text>
-                  </Pressable>
-
-                  <Pressable
-                    style={{
-                      flexDirection: 'row',
-                      alignItems: 'center',
-                      padding: spacing(2),
-                      marginBottom: spacing(3),
-                      backgroundColor: currentFilters.sortBy === 'difficulty_hard' ? colors.accent + '10' : 'transparent',
-                      borderRadius: radii.md,
-                      borderWidth: currentFilters.sortBy === 'difficulty_hard' ? 1 : 0,
-                      borderColor: currentFilters.sortBy === 'difficulty_hard' ? colors.accent : 'transparent'
-                    }}
-                    onPress={() => {
-                      setCurrentFilters(prev => ({ ...prev, sortBy: 'difficulty_hard' }));
-                    }}
-                  >
-                    <Ionicons
-                      name="trending-down"
-                      size={20}
-                      color={currentFilters.sortBy === 'difficulty_hard' ? colors.accent : colors.text}
-                      style={{ marginRight: spacing(2) }}
-                    />
-                    <Text style={{
-                      fontSize: 16,
-                      color: currentFilters.sortBy === 'difficulty_hard' ? colors.accent : colors.text,
-                      fontWeight: currentFilters.sortBy === 'difficulty_hard' ? '600' : '400'
-                    }}>
-                      Hard to Easy
-                    </Text>
-                  </Pressable>
 
                   <Text style={{
                     fontSize: 16,
@@ -1237,8 +1268,35 @@ export default function RecipesScreen() {
         }}
       />
 
-      {/* Sort Modal */}
-      <Modal visible={showSortModal} transparent animationType="fade">
+      {/* AI Recipe Modal */}
+      <AIRecipeModal
+        visible={aiRecipeModalVisible}
+        onClose={() => {
+          setAiRecipeModalVisible(false);
+          setCurrentAiRecipe(null);
+        }}
+        recipe={currentAiRecipe}
+        onSave={(recipe) => {
+          // Save AI recipe to user's collection
+          console.log('Saving AI recipe:', recipe);
+          // TODO: Implement actual save functionality
+        }}
+        navigation={navigation}
+      />
+
+      {/* AI Credits Purchase Modal */}
+      <AICreditsPurchaseModal
+        visible={creditsPurchaseVisible}
+        onClose={() => setCreditsPurchaseVisible(false)}
+      />
+
+      {/* AI Credits Info Modal */}
+      <Modal
+        visible={creditsInfoVisible}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setCreditsInfoVisible(false)}
+      >
         <View style={{
           flex: 1,
           backgroundColor: 'rgba(0, 0, 0, 0.5)',
@@ -1251,15 +1309,15 @@ export default function RecipesScreen() {
             borderRadius: radii.lg,
             padding: spacing(4),
             width: '100%',
-            maxWidth: 400,
+            maxWidth: 350,
             maxHeight: '80%'
           }}>
             <View style={{
               flexDirection: 'row',
               justifyContent: 'space-between',
               alignItems: 'center',
-              marginBottom: spacing(4),
-              paddingBottom: spacing(3),
+              marginBottom: spacing(3),
+              paddingBottom: spacing(2),
               borderBottomWidth: 1,
               borderBottomColor: colors.border
             }}>
@@ -1268,13 +1326,14 @@ export default function RecipesScreen() {
                 fontWeight: '600',
                 color: colors.text,
                 fontFamily: fonts.heading
-              }}>Sort Recipes</Text>
+              }}>AI Credits Usage</Text>
               <Pressable
-                onPress={() => setShowSortModal(false)}
+                onPress={() => setCreditsInfoVisible(false)}
                 style={{
                   padding: spacing(1),
                   borderRadius: radii.md
                 }}
+                hitSlop={8}
               >
                 <Ionicons name="close" size={24} color={colors.text} />
               </Pressable>
@@ -1282,252 +1341,142 @@ export default function RecipesScreen() {
 
             <ScrollView showsVerticalScrollIndicator={false}>
               <Text style={{
-                fontSize: 16,
-                fontWeight: '600',
-                color: colors.text,
+                fontSize: 14,
+                color: colors.subtext,
                 marginBottom: spacing(3),
-                fontFamily: fonts.heading
-              }}>Sort By</Text>
+                lineHeight: 20
+              }}>
+                Credits are used for AI-powered features. Each action consumes different amounts:
+              </Text>
 
-              <Pressable
-                style={{
+              {/* AI Action Costs */}
+              <View style={{ gap: spacing(2) }}>
+                <View style={{
                   flexDirection: 'row',
+                  justifyContent: 'space-between',
                   alignItems: 'center',
-                  padding: spacing(3),
-                  marginBottom: spacing(2),
-                  backgroundColor: currentFilters.sortBy === 'popularity' ? colors.accent + '10' : 'transparent',
-                  borderRadius: radii.md,
-                  borderWidth: currentFilters.sortBy === 'popularity' ? 1 : 0,
-                  borderColor: currentFilters.sortBy === 'popularity' ? colors.accent : 'transparent'
-                }}
-                onPress={() => {
-                  setCurrentFilters(prev => ({ ...prev, sortBy: 'popularity' }));
-                }}
-              >
-                <Ionicons
-                  name="trending-up"
-                  size={20}
-                  color={currentFilters.sortBy === 'popularity' ? colors.accent : colors.text}
-                  style={{ marginRight: spacing(3) }}
-                />
-                <Text style={{
-                  fontSize: 16,
-                  color: currentFilters.sortBy === 'popularity' ? colors.accent : colors.text,
-                  fontWeight: currentFilters.sortBy === 'popularity' ? '600' : '400'
-                }}>
-                  Popularity
-                </Text>
-              </Pressable>
-
-              <Pressable
-                style={{
-                  flexDirection: 'row',
-                  alignItems: 'center',
-                  padding: spacing(3),
-                  marginBottom: spacing(2),
-                  backgroundColor: currentFilters.sortBy === 'difficulty' ? colors.accent + '10' : 'transparent',
-                  borderRadius: radii.md,
-                  borderWidth: currentFilters.sortBy === 'difficulty' ? 1 : 0,
-                  borderColor: currentFilters.sortBy === 'difficulty' ? colors.accent : 'transparent'
-                }}
-                onPress={() => {
-                  setCurrentFilters(prev => ({ ...prev, sortBy: 'difficulty' }));
-                }}
-              >
-                <Ionicons
-                  name="bar-chart"
-                  size={20}
-                  color={currentFilters.sortBy === 'difficulty' ? colors.accent : colors.text}
-                  style={{ marginRight: spacing(3) }}
-                />
-                <Text style={{
-                  fontSize: 16,
-                  color: currentFilters.sortBy === 'difficulty' ? colors.accent : colors.text,
-                  fontWeight: currentFilters.sortBy === 'difficulty' ? '600' : '400'
-                }}>
-                  Difficulty
-                </Text>
-              </Pressable>
-
-              <Pressable
-                style={{
-                  flexDirection: 'row',
-                  alignItems: 'center',
-                  padding: spacing(3),
-                  marginBottom: spacing(2),
-                  backgroundColor: currentFilters.sortBy === 'time' ? colors.accent + '10' : 'transparent',
-                  borderRadius: radii.md,
-                  borderWidth: currentFilters.sortBy === 'time' ? 1 : 0,
-                  borderColor: currentFilters.sortBy === 'time' ? colors.accent : 'transparent'
-                }}
-                onPress={() => {
-                  setCurrentFilters(prev => ({ ...prev, sortBy: 'time' }));
-                }}
-              >
-                <Ionicons
-                  name="time"
-                  size={20}
-                  color={currentFilters.sortBy === 'time' ? colors.accent : colors.text}
-                  style={{ marginRight: spacing(3) }}
-                />
-                <Text style={{
-                  fontSize: 16,
-                  color: currentFilters.sortBy === 'time' ? colors.accent : colors.text,
-                  fontWeight: currentFilters.sortBy === 'time' ? '600' : '400'
-                }}>
-                  Time
-                </Text>
-              </Pressable>
-
-              <Pressable
-                style={{
-                  flexDirection: 'row',
-                  alignItems: 'center',
-                  padding: spacing(3),
-                  marginBottom: spacing(4),
-                  backgroundColor: currentFilters.sortBy === 'abv' ? colors.accent + '10' : 'transparent',
-                  borderRadius: radii.md,
-                  borderWidth: currentFilters.sortBy === 'abv' ? 1 : 0,
-                  borderColor: currentFilters.sortBy === 'abv' ? colors.accent : 'transparent'
-                }}
-                onPress={() => {
-                  setCurrentFilters(prev => ({ ...prev, sortBy: 'abv' }));
-                }}
-              >
-                <Ionicons
-                  name="wine"
-                  size={20}
-                  color={currentFilters.sortBy === 'abv' ? colors.accent : colors.text}
-                  style={{ marginRight: spacing(3) }}
-                />
-                <Text style={{
-                  fontSize: 16,
-                  color: currentFilters.sortBy === 'abv' ? colors.accent : colors.text,
-                  fontWeight: currentFilters.sortBy === 'abv' ? '600' : '400'
-                }}>
-                  ABV
-                </Text>
-              </Pressable>
-
-              <Text style={{
-                fontSize: 16,
-                fontWeight: '600',
-                color: colors.text,
-                marginBottom: spacing(3),
-                marginTop: spacing(2),
-                fontFamily: fonts.heading
-              }}>Order</Text>
-
-              <Pressable
-                style={{
-                  flexDirection: 'row',
-                  alignItems: 'center',
-                  padding: spacing(3),
-                  marginBottom: spacing(2),
-                  backgroundColor: currentFilters.sortOrder === 'desc' ? colors.accent + '10' : 'transparent',
-                  borderRadius: radii.md,
-                  borderWidth: currentFilters.sortOrder === 'desc' ? 1 : 0,
-                  borderColor: currentFilters.sortOrder === 'desc' ? colors.accent : 'transparent'
-                }}
-                onPress={() => {
-                  setCurrentFilters(prev => ({ ...prev, sortOrder: 'desc' }));
-                }}
-              >
-                <Ionicons
-                  name="arrow-down"
-                  size={20}
-                  color={currentFilters.sortOrder === 'desc' ? colors.accent : colors.text}
-                  style={{ marginRight: spacing(3) }}
-                />
-                <Text style={{
-                  fontSize: 16,
-                  color: currentFilters.sortOrder === 'desc' ? colors.accent : colors.text,
-                  fontWeight: currentFilters.sortOrder === 'desc' ? '600' : '400'
-                }}>
-                  High to Low
-                </Text>
-              </Pressable>
-
-              <Pressable
-                style={{
-                  flexDirection: 'row',
-                  alignItems: 'center',
-                  padding: spacing(3),
-                  marginBottom: spacing(4),
-                  backgroundColor: currentFilters.sortOrder === 'asc' ? colors.accent + '10' : 'transparent',
-                  borderRadius: radii.md,
-                  borderWidth: currentFilters.sortOrder === 'asc' ? 1 : 0,
-                  borderColor: currentFilters.sortOrder === 'asc' ? colors.accent : 'transparent'
-                }}
-                onPress={() => {
-                  setCurrentFilters(prev => ({ ...prev, sortOrder: 'asc' }));
-                }}
-              >
-                <Ionicons
-                  name="arrow-up"
-                  size={20}
-                  color={currentFilters.sortOrder === 'asc' ? colors.accent : colors.text}
-                  style={{ marginRight: spacing(3) }}
-                />
-                <Text style={{
-                  fontSize: 16,
-                  color: currentFilters.sortOrder === 'asc' ? colors.accent : colors.text,
-                  fontWeight: currentFilters.sortOrder === 'asc' ? '600' : '400'
-                }}>
-                  Low to High
-                </Text>
-              </Pressable>
-            </ScrollView>
-
-            <View style={{
-              flexDirection: 'row',
-              gap: spacing(3),
-              marginTop: spacing(4),
-              paddingTop: spacing(3),
-              borderTopWidth: 1,
-              borderTopColor: colors.border
-            }}>
-              <Pressable
-                style={{
-                  flex: 1,
-                  padding: spacing(3),
+                  paddingVertical: spacing(1.5),
+                  paddingHorizontal: spacing(2),
                   backgroundColor: colors.card,
-                  borderRadius: radii.md,
-                  borderWidth: 1,
-                  borderColor: colors.border,
-                  alignItems: 'center'
-                }}
-                onPress={() => {
-                  setCurrentFilters({ sortBy: 'popularity', sortOrder: 'desc' });
-                }}
-              >
-                <Text style={{
-                  fontSize: 16,
-                  color: colors.text,
-                  fontWeight: '500'
-                }}>Reset</Text>
-              </Pressable>
+                  borderRadius: radii.md
+                }}>
+                  <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1 }}>
+                    <Ionicons name="restaurant" size={16} color={colors.accent} style={{ marginRight: spacing(1.5) }} />
+                    <View>
+                      <Text style={{ fontSize: 14, fontWeight: '600', color: colors.text }}>Recipe Generation</Text>
+                      <Text style={{ fontSize: 12, color: colors.subtext }}>Create custom cocktail recipes</Text>
+                    </View>
+                  </View>
+                  <Text style={{ fontSize: 16, fontWeight: '700', color: colors.accent }}>
+                    {getActionCost('recipe_generation')} credits
+                  </Text>
+                </View>
 
-              <Pressable
-                style={{
-                  flex: 1,
-                  padding: spacing(3),
-                  backgroundColor: colors.accent,
-                  borderRadius: radii.md,
-                  alignItems: 'center'
-                }}
-                onPress={() => setShowSortModal(false)}
-              >
+                <View style={{
+                  flexDirection: 'row',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  paddingVertical: spacing(1.5),
+                  paddingHorizontal: spacing(2),
+                  backgroundColor: colors.card,
+                  borderRadius: radii.md
+                }}>
+                  <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1 }}>
+                    <Ionicons name="sparkles" size={16} color={colors.accent} style={{ marginRight: spacing(1.5) }} />
+                    <View>
+                      <Text style={{ fontSize: 14, fontWeight: '600', color: colors.text }}>AI Recommendations</Text>
+                      <Text style={{ fontSize: 12, color: colors.subtext }}>Personalized cocktail suggestions</Text>
+                    </View>
+                  </View>
+                  <Text style={{ fontSize: 16, fontWeight: '700', color: colors.accent }}>
+                    {getActionCost('recommendation')} credits
+                  </Text>
+                </View>
+
+                <View style={{
+                  flexDirection: 'row',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  paddingVertical: spacing(1.5),
+                  paddingHorizontal: spacing(2),
+                  backgroundColor: colors.card,
+                  borderRadius: radii.md
+                }}>
+                  <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1 }}>
+                    <Ionicons name="search" size={16} color={colors.accent} style={{ marginRight: spacing(1.5) }} />
+                    <View>
+                      <Text style={{ fontSize: 14, fontWeight: '600', color: colors.text }}>Search Enhancement</Text>
+                      <Text style={{ fontSize: 12, color: colors.subtext }}>Improved search results</Text>
+                    </View>
+                  </View>
+                  <Text style={{ fontSize: 16, fontWeight: '700', color: colors.accent }}>
+                    {getActionCost('search_enhancement')} credit
+                  </Text>
+                </View>
+
+                <View style={{
+                  flexDirection: 'row',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  paddingVertical: spacing(1.5),
+                  paddingHorizontal: spacing(2),
+                  backgroundColor: colors.card,
+                  borderRadius: radii.md
+                }}>
+                  <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1 }}>
+                    <Ionicons name="camera" size={16} color={colors.accent} style={{ marginRight: spacing(1.5) }} />
+                    <View>
+                      <Text style={{ fontSize: 14, fontWeight: '600', color: colors.text }}>Image Analysis</Text>
+                      <Text style={{ fontSize: 12, color: colors.subtext }}>Cocktail photo recognition</Text>
+                    </View>
+                  </View>
+                  <Text style={{ fontSize: 16, fontWeight: '700', color: colors.accent }}>
+                    {getActionCost('image_analysis')} credits
+                  </Text>
+                </View>
+
+                <View style={{
+                  flexDirection: 'row',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  paddingVertical: spacing(1.5),
+                  paddingHorizontal: spacing(2),
+                  backgroundColor: colors.card,
+                  borderRadius: radii.md
+                }}>
+                  <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1 }}>
+                    <Ionicons name="document-text" size={16} color={colors.accent} style={{ marginRight: spacing(1.5) }} />
+                    <View>
+                      <Text style={{ fontSize: 14, fontWeight: '600', color: colors.text }}>Text Recognition</Text>
+                      <Text style={{ fontSize: 12, color: colors.subtext }}>Extract text from images</Text>
+                    </View>
+                  </View>
+                  <Text style={{ fontSize: 16, fontWeight: '700', color: colors.accent }}>
+                    {getActionCost('ocr_processing')} credits
+                  </Text>
+                </View>
+              </View>
+
+              <View style={{
+                marginTop: spacing(3),
+                paddingTop: spacing(3),
+                borderTopWidth: 1,
+                borderTopColor: colors.border
+              }}>
                 <Text style={{
-                  fontSize: 16,
-                  color: colors.white,
-                  fontWeight: '600'
-                }}>Apply</Text>
-              </Pressable>
-            </View>
+                  fontSize: 14,
+                  color: colors.subtext,
+                  lineHeight: 20,
+                  textAlign: 'center'
+                }}>
+                  💡 You receive 5 free credits daily{isPremium ? '' : ', or upgrade to Premium for unlimited usage'}
+                </Text>
+              </View>
+            </ScrollView>
           </View>
         </View>
       </Modal>
+
     </View>
   );
 }

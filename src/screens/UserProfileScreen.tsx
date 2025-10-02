@@ -330,22 +330,22 @@ export default function UserProfileScreen() {
 
           {/* Stats */}
           <View style={styles.statsContainer}>
-            {renderStatItem('Posts', user.stats.posts)}
+            {renderStatItem('Posts', user.stats?.posts || 0)}
             <Pressable 
               style={styles.statItem} 
               onPress={() => nav.navigate('FollowersList' as never, { userId: user.id, type: 'followers' } as never)}
             >
-              <Text style={styles.statValue}>{user.stats.followers.toLocaleString()}</Text>
+              <Text style={styles.statValue}>{(user.stats?.followers || 0).toLocaleString()}</Text>
               <Text style={styles.statLabel}>Followers</Text>
             </Pressable>
             <Pressable 
               style={styles.statItem}
               onPress={() => nav.navigate('FollowersList' as never, { userId: user.id, type: 'following' } as never)}
             >
-              <Text style={styles.statValue}>{user.stats.following.toLocaleString()}</Text>
+              <Text style={styles.statValue}>{(user.stats?.following || 0).toLocaleString()}</Text>
               <Text style={styles.statLabel}>Following</Text>
             </Pressable>
-            {renderStatItem('Recipes', user.stats.recipes)}
+            {renderStatItem('Recipes', user.stats?.recipes || 0)}
           </View>
 
           {/* QR Code Section */}

@@ -295,6 +295,20 @@ const SPIRIT_FORWARD_COCKTAILS = [
     base: 'gin'
   },
   {
+    id: 'dry-martini',
+    name: 'Dry Martini',
+    subtitle: 'Classic • Gin cocktail',
+    description: 'The quintessential cocktail. Gin and dry vermouth, stirred and served up.',
+    ingredients: ['2.5 oz gin', '0.5 oz dry vermouth', 'Lemon twist or olive garnish'],
+    instructions: ['Add gin and vermouth to mixing glass with ice', 'Stir until well-chilled (about 30 seconds)', 'Strain into chilled coupe or martini glass', 'Garnish with lemon twist or olive'],
+    difficulty: 'Easy',
+    time: '2 min',
+    rating: 4.7,
+    image: 'https://images.unsplash.com/photo-1551538827-9c037cb4f32a?q=80&w=1200&auto=format&fit=crop',
+    era: 'classic',
+    base: 'gin'
+  },
+  {
     id: 'gin-rickey',
     name: 'Gin Rickey',
     subtitle: 'Classic • Refreshing',

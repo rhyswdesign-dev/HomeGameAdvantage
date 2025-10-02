@@ -21,11 +21,16 @@ import { colors, spacing, radii } from '../../theme/tokens';
 import { VaultItem } from '../../types/vault';
 import { useVault } from '../../contexts/VaultContext';
 import { useUser } from '../../store/useUser';
+import { useAICredits } from '../../store/useAICredits';
 import { currentVaultCycle, getVaultCountdown } from '../../data/vaultData';
 import PillButton from '../../components/PillButton';
 import VaultUnlockModal from './components/VaultUnlockModal';
 import VaultItemCard from './components/VaultItemCard';
+import AICreditsPurchaseModal from '../../components/AICreditsPurchaseModal';
 import { useScreenTracking, useAnalyticsContext } from '../../context/AnalyticsContext';
+import AIRecommendations from '../../components/AIRecommendations';
+import { useSavedItems } from '../../hooks/useSavedItems';
+import GroceryListModal from '../../components/GroceryListModal';
 
 
 export default function VaultScreen() {
@@ -33,8 +38,13 @@ export default function VaultScreen() {
   const { state, dispatch } = useVault();
   const analytics = useAnalyticsContext();
   const { xp } = useUser();
-  const [selectedTab, setSelectedTab] = useState<string>('common');
+  const { credits, isPremium } = useAICredits();
+  const { savedItems, toggleSavedCocktail, isCocktailSaved } = useSavedItems();
+  const [selectedTab, setSelectedTab] = useState<string>('ai_recommendations');
   const [countdown, setCountdown] = useState(getVaultCountdown());
+  const [creditsPurchaseVisible, setCreditsPurchaseVisible] = useState(false);
+  const [groceryListVisible, setGroceryListVisible] = useState(false);
+  const [selectedRecipe, setSelectedRecipe] = useState<any>(null);
   
   // Track screen view
   useScreenTracking('VaultScreen');
@@ -69,8 +79,10 @@ export default function VaultScreen() {
 
   const getFilteredItems = (): VaultItem[] => {
     const items = state.vaultItems.filter(item => item.isActive);
-    
+
     switch (selectedTab) {
+      case 'ai_recommendations':
+        return []; // AI recommendations are handled separately
       case 'common':
         return items.filter(item => item.rarity === 'common');
       case 'limited':
@@ -85,6 +97,7 @@ export default function VaultScreen() {
   };
 
   const tabs = [
+    { key: 'ai_recommendations', label: 'AI Picks' },
     { key: 'common', label: 'Common' },
     { key: 'limited', label: 'Limited' },
     { key: 'rare', label: 'Rare' },
@@ -123,12 +136,27 @@ export default function VaultScreen() {
             <Text style={styles.statValue}>{xp.toLocaleString()}</Text>
             <Text style={styles.statLabel}>XP</Text>
           </View>
-          
+
           <View style={styles.statCard}>
             <MaterialCommunityIcons name="key" size={16} color={colors.accent} />
             <Text style={styles.statValue}>{state.userProfile.keysBalance}</Text>
             <Text style={styles.statLabel}>Keys</Text>
           </View>
+
+          <TouchableOpacity
+            style={[styles.statCard, styles.clickableStatCard]}
+            onPress={() => setCreditsPurchaseVisible(true)}
+          >
+            <Ionicons
+              name={isPremium ? "diamond" : "sparkles"}
+              size={16}
+              color={isPremium ? colors.gold : colors.accent}
+            />
+            <Text style={styles.statValue}>
+              {isPremium ? '∞' : credits.toLocaleString()}
+            </Text>
+            <Text style={styles.statLabel}>AI Credits</Text>
+          </TouchableOpacity>
         </View>
       </View>
 
@@ -194,18 +222,36 @@ export default function VaultScreen() {
 
   return (
     <View style={styles.container}>
-
-      <FlatList
-        data={filteredItems}
-        renderItem={renderVaultItem}
-        keyExtractor={(item) => item.id}
-        ListHeaderComponent={renderHeader}
-        ListEmptyComponent={renderEmptyState}
-        contentContainerStyle={styles.listContent}
-        showsVerticalScrollIndicator={false}
-        numColumns={1}
-        ItemSeparatorComponent={() => <View style={styles.itemSeparator} />}
-      />
+      {selectedTab === 'ai_recommendations' ? (
+        <ScrollView
+          style={{ flex: 1 }}
+          contentContainerStyle={styles.listContent}
+          showsVerticalScrollIndicator={false}
+        >
+          {renderHeader()}
+          <AIRecommendations
+            navigation={nav}
+            toggleSavedCocktail={toggleSavedCocktail}
+            isCocktailSaved={isCocktailSaved}
+            setSelectedRecipe={setSelectedRecipe}
+            setGroceryListVisible={setGroceryListVisible}
+            onCreditsNeeded={() => setCreditsPurchaseVisible(true)}
+            style={{ paddingHorizontal: 0 }}
+          />
+        </ScrollView>
+      ) : (
+        <FlatList
+          data={filteredItems}
+          renderItem={renderVaultItem}
+          keyExtractor={(item) => item.id}
+          ListHeaderComponent={renderHeader}
+          ListEmptyComponent={renderEmptyState}
+          contentContainerStyle={styles.listContent}
+          showsVerticalScrollIndicator={false}
+          numColumns={1}
+          ItemSeparatorComponent={() => <View style={styles.itemSeparator} />}
+        />
+      )}
 
       {/* Unlock Modal */}
       <VaultUnlockModal
@@ -216,6 +262,20 @@ export default function VaultScreen() {
           dispatch({ type: 'SHOW_UNLOCK_MODAL', payload: false });
           dispatch({ type: 'SET_SELECTED_ITEM', payload: null });
         }}
+      />
+
+      {/* AI Credits Purchase Modal */}
+      <AICreditsPurchaseModal
+        visible={creditsPurchaseVisible}
+        onClose={() => setCreditsPurchaseVisible(false)}
+      />
+
+      {/* Grocery List Modal */}
+      <GroceryListModal
+        visible={groceryListVisible}
+        onClose={() => setGroceryListVisible(false)}
+        recipe={selectedRecipe}
+        navigation={nav}
       />
     </View>
   );
@@ -285,7 +345,13 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     textTransform: 'uppercase',
   },
-  
+
+  clickableStatCard: {
+    borderWidth: 1,
+    borderColor: colors.line,
+    opacity: 0.9,
+  },
+
   // Actions
   actionsContainer: {
     alignItems: 'center',

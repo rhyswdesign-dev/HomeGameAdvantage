@@ -11,6 +11,7 @@ import { getPlacement, SurveyAnswers } from '../../services/placement';
 import { PlacementResult } from '../../types/domain';
 import { Ionicons } from '@expo/vector-icons';
 import { colors } from '../../theme/tokens';
+import { usePersonalization } from '../../store/usePersonalization';
 
 type SurveyResultsScreenProps = {
   navigation: NativeStackNavigationProp<RootStackParamList, 'SurveyResults'>;
@@ -20,15 +21,19 @@ type SurveyResultsScreenProps = {
 export default function SurveyResultsScreen({ navigation, route }: SurveyResultsScreenProps) {
   const [placement, setPlacement] = useState<PlacementResult | null>(null);
   const { answers } = route.params;
+  const { initializeFromSurvey } = usePersonalization();
 
   useEffect(() => {
     // Calculate placement from survey answers
     const result = getPlacement(answers);
     setPlacement(result);
 
-    // TODO: Save placement to user repository
+    // Initialize personalization system with survey responses
+    initializeFromSurvey(answers);
+
     console.log('Placement result:', result);
-  }, [answers]);
+    console.log('🎯 Initializing personalized experience with survey answers');
+  }, [answers, initializeFromSurvey]);
 
   const handleStartLearning = () => {
     if (placement) {
