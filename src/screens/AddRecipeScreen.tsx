@@ -1,4 +1,4 @@
-import React, { useState, useLayoutEffect, useEffect } from 'react';
+import React, { useState, useLayoutEffect } from 'react';
 import {
   View,
   Text,
@@ -7,42 +7,134 @@ import {
   StyleSheet,
   SafeAreaView,
   Alert,
-  Image,
   ScrollView,
   Modal,
+  FlatList,
 } from 'react-native';
-import * as ImagePicker from 'expo-image-picker';
 import { colors, spacing, radii, fonts } from '../theme/tokens';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '../navigation/RootNavigator';
-import { createRecipe, getUserFolders, createFolder, RecipeFolder } from '../lib/firestore';
-import { uploadImage } from '../lib/storage';
-import { useAuth } from '../contexts/AuthContext';
+import { useUserRecipes } from '../store/useUserRecipes';
+
+type ManualRecipe = {
+  title: string;
+  description: string;
+  ingredients: Array<{
+    name: string;
+    amount: string;
+    notes: string;
+  }>;
+  instructions: string[];
+  garnish: string;
+  glassware: string;
+  time: string;
+  servings: number;
+  tags: string[];
+};
+
+const measurementOptions = ['BS', '0.25', '0.5', '0.75', '1', '1.25', '1.5', '1.75', '2', '2.25', '2.5'];
+
+const spiritsOptions = [
+  'Bourbon Whiskey',
+  'Rye Whiskey',
+  'Scottish Whisky',
+  'Irish Whiskey',
+  'London Dry Gin',
+  'Navy Strength Gin',
+  'Barrel Aged Gin',
+  'Premium Vodka',
+  'White Rum',
+  'Dark Rum',
+  'Aged Rum',
+  'Blanco Tequila',
+  'Reposado Tequila',
+  'Añejo Tequila',
+  'Highland Crown',
+  'Botanical Crown',
+  'Crystal Peak',
+  'Agave Real',
+  'MixMind Rum'
+];
+
+const juicesOptions = [
+  'Fresh Lemon Juice',
+  'Fresh Lime Juice',
+  'Fresh Orange Juice',
+  'Fresh Grapefruit Juice',
+  'Cranberry Juice',
+  'Pineapple Juice',
+  'Apple Juice',
+  'Pomegranate Juice',
+  'Fresh Ginger Juice',
+  'Tomato Juice'
+];
+
+const syrupsOptions = [
+  'Simple Syrup',
+  'Honey Syrup',
+  'Agave Syrup',
+  'Demerara Syrup',
+  'Maple Syrup',
+  'Ginger Syrup',
+  'Cinnamon Syrup',
+  'Vanilla Syrup',
+  'Grenadine',
+  'Orgeat Syrup'
+];
+
+const glasswareOptions = [
+  'Rocks Glass',
+  'Highball Glass',
+  'Coupe Glass',
+  'Martini Glass',
+  'Copa Glass',
+  'Champagne Flute',
+  'Hurricane Glass',
+  'Copper Mug',
+  'Wine Glass',
+  'Shot Glass',
+  'Collins Glass',
+  'Nick & Nora Glass',
+  'Snifter',
+  'Tiki Mug'
+];
+
+const difficultyOptions = [
+  'Beginner',
+  'Easy',
+  'Intermediate',
+  'Advanced',
+  'Expert'
+];
 
 export default function AddRecipeScreen() {
   const nav = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
-  const { user, isAuthenticated, isLoading } = useAuth();
-  const [title, setTitle] = useState('');
-  const [sourceUrl, setSourceUrl] = useState('');
-  const [selectedImage, setSelectedImage] = useState<string | null>(null);
-  const [tags, setTags] = useState('');
-  const [selectedFolder, setSelectedFolder] = useState<RecipeFolder | null>(null);
-  const [folders, setFolders] = useState<RecipeFolder[]>([]);
-  const [showFolderModal, setShowFolderModal] = useState(false);
-  const [newFolderName, setNewFolderName] = useState('');
+  const { addRecipe } = useUserRecipes();
   const [loading, setLoading] = useState(false);
+  const [showMeasurementModal, setShowMeasurementModal] = useState(false);
+  const [showIngredientModal, setShowIngredientModal] = useState(false);
+  const [showGlasswareModal, setShowGlasswareModal] = useState(false);
+  const [showDifficultyModal, setShowDifficultyModal] = useState(false);
+  const [selectedIngredientIndex, setSelectedIngredientIndex] = useState<number>(0);
+  const [ingredientModalType, setIngredientModalType] = useState<'spirits' | 'juices' | 'syrups'>('spirits');
 
-  const userInfo = isLoading
-    ? '⏳ Checking authentication...'
-    : isAuthenticated
-      ? `✅ Signed in as: ${user?.uid.substring(0, 8)}...`
-      : '❌ Not signed in';
+  const [recipe, setRecipe] = useState<ManualRecipe>({
+    title: '',
+    description: '',
+    ingredients: [{ name: '', amount: '', notes: '' }],
+    instructions: [''],
+    garnish: '',
+    glassware: '',
+    time: '',
+    servings: 1,
+    tags: []
+  });
 
   useLayoutEffect(() => {
     nav.setOptions({
-      title: 'Add Recipe',
+      title: 'Create Recipe',
       headerStyle: { backgroundColor: colors.bg },
       headerTintColor: colors.text,
       headerTitleStyle: { color: colors.text, fontWeight: '900' },
@@ -50,136 +142,94 @@ export default function AddRecipeScreen() {
     });
   }, [nav]);
 
-  useEffect(() => {
-    loadFolders();
-  }, []);
-
-  const loadFolders = async () => {
-    try {
-      if (user) {
-        const userFolders = await getUserFolders(user.uid);
-        setFolders(userFolders);
-      }
-    } catch (error) {
-      console.error('Error loading folders:', error);
-    }
+  const updateIngredient = (index: number, field: 'name' | 'amount' | 'notes', value: string) => {
+    const updatedIngredients = [...recipe.ingredients];
+    updatedIngredients[index] = { ...updatedIngredients[index], [field]: value };
+    setRecipe({ ...recipe, ingredients: updatedIngredients });
   };
 
-  const handleCreateFolder = async () => {
-    if (!newFolderName.trim()) {
-      Alert.alert('Error', 'Please enter a folder name');
-      return;
-    }
-
-    try {
-      await createFolder({ name: newFolderName.trim() });
-      setNewFolderName('');
-      setShowFolderModal(false);
-      loadFolders(); // Reload folders
-      Alert.alert('Success', 'Folder created successfully!');
-    } catch (error: any) {
-      Alert.alert('Error', error.message || 'Failed to create folder');
-    }
-  };
-
-  const pickImage = async () => {
-    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-    if (status !== 'granted') {
-      Alert.alert('Permission needed', 'Camera roll permissions are required to upload images.');
-      return;
-    }
-
-    const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      allowsEditing: true,
-      aspect: [4, 3],
-      quality: 1,
+  const addIngredient = () => {
+    setRecipe({
+      ...recipe,
+      ingredients: [...recipe.ingredients, { name: '', amount: '', notes: '' }]
     });
+  };
 
-    if (!result.canceled && result.assets[0]) {
-      setSelectedImage(result.assets[0].uri);
+  const removeIngredient = (index: number) => {
+    if (recipe.ingredients.length > 1) {
+      setRecipe({
+        ...recipe,
+        ingredients: recipe.ingredients.filter((_, i) => i !== index)
+      });
     }
   };
 
-  const takePhoto = async () => {
-    const { status } = await ImagePicker.requestCameraPermissionsAsync();
-    if (status !== 'granted') {
-      Alert.alert('Permission needed', 'Camera permissions are required to take photos.');
-      return;
-    }
+  const updateInstruction = (index: number, value: string) => {
+    const updatedInstructions = [...recipe.instructions];
+    updatedInstructions[index] = value;
+    setRecipe({ ...recipe, instructions: updatedInstructions });
+  };
 
-    const result = await ImagePicker.launchCameraAsync({
-      allowsEditing: true,
-      aspect: [4, 3],
-      quality: 1,
+  const addInstruction = () => {
+    setRecipe({
+      ...recipe,
+      instructions: [...recipe.instructions, '']
     });
+  };
 
-    if (!result.canceled && result.assets[0]) {
-      setSelectedImage(result.assets[0].uri);
+  const removeInstruction = (index: number) => {
+    if (recipe.instructions.length > 1) {
+      setRecipe({
+        ...recipe,
+        instructions: recipe.instructions.filter((_, i) => i !== index)
+      });
     }
   };
 
-  const handleSave = async () => {
-    console.log('AddRecipeScreen: handleSave called');
-    console.log('AddRecipeScreen: isAuthenticated:', isAuthenticated);
-    console.log('AddRecipeScreen: user:', user?.uid);
-
-    if (!isAuthenticated || !user) {
-      Alert.alert('Authentication Required', 'Please sign in first from the Profile tab', [
-        { text: 'OK' }
-      ]);
+  const saveRecipe = async () => {
+    if (!recipe.title.trim()) {
+      Alert.alert('Required Field', 'Please provide a recipe title');
       return;
     }
 
-    if (!title.trim() && !sourceUrl.trim() && !selectedImage) {
-      Alert.alert('Required', 'Please add a title, URL, or image to save the recipe.');
+    if (recipe.ingredients.length === 0 || !recipe.ingredients[0].name.trim()) {
+      Alert.alert('Required Field', 'Please provide at least one ingredient');
+      return;
+    }
+
+    if (recipe.instructions.length === 0 || !recipe.instructions[0].trim()) {
+      Alert.alert('Required Field', 'Please provide at least one instruction');
       return;
     }
 
     setLoading(true);
     try {
-      let imageUrl: string | undefined;
-
-      if (selectedImage) {
-        console.log('AddRecipeScreen: Uploading image...');
-        imageUrl = await uploadImage(selectedImage);
-      }
-
-      const tagArray = tags
-        .split(',')
-        .map(tag => tag.trim())
-        .filter(tag => tag.length > 0);
-
-      console.log('AddRecipeScreen: Creating recipe with user:', user.uid);
-      console.log('AddRecipeScreen: imageUrl value:', imageUrl);
-      const recipeData: any = {
-        title: title.trim() || undefined,
-        sourceUrl: sourceUrl.trim() || undefined,
-        tags: tagArray,
-      };
-
-      // Only include imageUrl if it has a valid value
-      if (imageUrl) {
-        recipeData.imageUrl = imageUrl;
-        console.log('AddRecipeScreen: Added imageUrl to recipe data');
-      } else {
-        console.log('AddRecipeScreen: No imageUrl, excluding from recipe data');
-      }
-
-      // Only include folder if one is selected
-      if (selectedFolder) {
-        recipeData.folder = selectedFolder.name;
-        console.log('AddRecipeScreen: Added folder to recipe data:', selectedFolder.name);
-      }
-
-      console.log('AddRecipeScreen: Final recipe data:', recipeData);
-      await createRecipe(recipeData);
+      await addRecipe({
+        name: recipe.title.trim(),
+        type: 'created',
+        description: recipe.description.trim() || 'Custom cocktail recipe',
+        ingredients: recipe.ingredients
+          .filter(ing => ing.name.trim())
+          .map(ing => ({
+            name: ing.name.trim(),
+            amount: ing.amount.trim(),
+            unit: '',
+            notes: ing.notes.trim()
+          })),
+        instructions: recipe.instructions.filter(inst => inst.trim()),
+        tags: recipe.tags,
+        difficulty: recipe.tags.length ? recipe.tags[0] : 'Easy',
+        prepTime: parseInt(recipe.time) || 5,
+        servings: recipe.servings,
+        notes: `Garnish: ${recipe.garnish}, Glass: ${recipe.glassware}`
+      });
 
       Alert.alert('Success', 'Recipe saved successfully!', [
-        { text: 'OK', onPress: () => resetForm() }
+        { text: 'Create Another', onPress: resetForm },
+        { text: 'View My Recipes', onPress: () => nav.navigate('MyRecipes') }
       ]);
     } catch (error: any) {
-      console.error('AddRecipeScreen: Save error:', error);
+      console.error('Save error:', error);
       Alert.alert('Error', `Failed to save recipe: ${error.message}`);
     } finally {
       setLoading(false);
@@ -187,136 +237,321 @@ export default function AddRecipeScreen() {
   };
 
   const resetForm = () => {
-    setTitle('');
-    setSourceUrl('');
-    setSelectedImage(null);
-    setTags('');
+    setRecipe({
+      title: '',
+      description: '',
+      ingredients: [{ name: '', amount: '', notes: '' }],
+      instructions: [''],
+      garnish: '',
+      glassware: '',
+      time: '',
+      servings: 1,
+      tags: []
+    });
   };
 
-  const removeImage = () => {
-    setSelectedImage(null);
+  const openMeasurementModal = (index: number) => {
+    setSelectedIngredientIndex(index);
+    setShowMeasurementModal(true);
+  };
+
+  const selectMeasurement = (measurement: string) => {
+    updateIngredient(selectedIngredientIndex, 'amount', measurement + ' oz');
+    setShowMeasurementModal(false);
+  };
+
+  const openIngredientModal = (index: number, type: 'spirits' | 'juices' | 'syrups') => {
+    setSelectedIngredientIndex(index);
+    setIngredientModalType(type);
+    setShowIngredientModal(true);
+  };
+
+  const selectIngredient = (ingredient: string) => {
+    // If it's the last ingredient and it's empty, use it
+    const targetIndex = selectedIngredientIndex;
+    if (targetIndex < recipe.ingredients.length && !recipe.ingredients[targetIndex].name) {
+      updateIngredient(targetIndex, 'name', ingredient);
+    } else {
+      // Add a new ingredient
+      setRecipe({
+        ...recipe,
+        ingredients: [...recipe.ingredients, { name: ingredient, amount: '', notes: '' }]
+      });
+    }
+    setShowIngredientModal(false);
+  };
+
+  const getIngredientOptions = () => {
+    switch (ingredientModalType) {
+      case 'spirits': return spiritsOptions;
+      case 'juices': return juicesOptions;
+      case 'syrups': return syrupsOptions;
+      default: return [];
+    }
+  };
+
+  const selectGlassware = (glassware: string) => {
+    setRecipe({ ...recipe, glassware });
+    setShowGlasswareModal(false);
+  };
+
+  const selectDifficulty = (difficulty: string) => {
+    setRecipe({ ...recipe, tags: [difficulty] });
+    setShowDifficultyModal(false);
   };
 
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
         <View style={styles.header}>
-          <Text style={styles.title}>Add New Recipe</Text>
-          <Text style={styles.subtitle}>Save from link, image, or manual entry</Text>
+          <Text style={styles.title}>Create New Recipe</Text>
+          <Text style={styles.subtitle}>Build your own custom cocktail recipe</Text>
         </View>
 
-
+        {/* Recipe Title */}
         <View style={styles.section}>
-          <Text style={styles.label}>Recipe Title</Text>
+          <Text style={styles.label}>Recipe Name *</Text>
           <TextInput
             style={styles.input}
-            placeholder="Enter recipe title..."
+            placeholder="e.g., My Perfect Manhattan"
             placeholderTextColor={colors.subtext}
-            value={title}
-            onChangeText={setTitle}
+            value={recipe.title}
+            onChangeText={(text) => setRecipe({...recipe, title: text})}
+          />
+        </View>
+
+        {/* Description */}
+        <View style={styles.section}>
+          <Text style={styles.label}>Description</Text>
+          <TextInput
+            style={[styles.input, styles.textArea]}
+            placeholder="What makes this recipe special?"
+            placeholderTextColor={colors.subtext}
+            value={recipe.description}
+            onChangeText={(text) => setRecipe({...recipe, description: text})}
             multiline
+            numberOfLines={3}
           />
         </View>
 
-        <View style={styles.section}>
-          <Text style={styles.label}>Source URL</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="Paste link from Instagram, TikTok, YouTube..."
-            placeholderTextColor={colors.subtext}
-            value={sourceUrl}
-            onChangeText={setSourceUrl}
-            keyboardType="url"
-            autoCapitalize="none"
-            multiline
-          />
-        </View>
-
-        <View style={styles.section}>
-          <Text style={styles.label}>Recipe Image</Text>
-          {selectedImage ? (
-            <View style={styles.imageContainer}>
-              <Image source={{ uri: selectedImage }} style={styles.image} />
-              <TouchableOpacity style={styles.removeButton} onPress={removeImage}>
-                <Ionicons name="close" size={16} color={colors.bg} />
-              </TouchableOpacity>
-            </View>
-          ) : (
-            <View style={styles.imageButtons}>
-              <TouchableOpacity style={styles.imageButton} onPress={pickImage}>
-                <Ionicons name="images-outline" size={20} color={colors.accent} />
-                <Text style={styles.imageButtonText}>Choose Photo</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.imageButton} onPress={takePhoto}>
-                <Ionicons name="camera-outline" size={20} color={colors.accent} />
-                <Text style={styles.imageButtonText}>Take Photo</Text>
-              </TouchableOpacity>
-            </View>
-          )}
-        </View>
-
-        <View style={styles.section}>
-          <Text style={styles.label}>Tags (comma separated)</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="dinner, pasta, italian..."
-            placeholderTextColor={colors.subtext}
-            value={tags}
-            onChangeText={setTags}
-            autoCapitalize="none"
-          />
-        </View>
-
-        {/* Folder Selection */}
+        {/* Ingredients */}
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
-            <Text style={styles.label}>Folder (optional)</Text>
+            <Text style={styles.sectionTitle}>Ingredients *</Text>
+            <View style={styles.sectionHeaderRight}>
+              <Text style={styles.ingredientCount}>{recipe.ingredients.length} items</Text>
+              <TouchableOpacity onPress={addIngredient} style={styles.addButton}>
+                <Ionicons name="add" size={16} color={colors.accent} />
+              </TouchableOpacity>
+            </View>
+          </View>
+          <View style={styles.ingredientsContainer}>
+            {recipe.ingredients.map((ingredient, index) => (
+              <View key={index} style={styles.ingredientCard}>
+                <View style={styles.ingredientHeader}>
+                  <View style={styles.ingredientNumber}>
+                    <Text style={styles.ingredientNumberText}>{index + 1}</Text>
+                  </View>
+                  {recipe.ingredients.length > 1 && (
+                    <TouchableOpacity
+                      onPress={() => removeIngredient(index)}
+                      style={styles.removeButton}
+                    >
+                      <Ionicons name="close" size={16} color={colors.error} />
+                    </TouchableOpacity>
+                  )}
+                </View>
+
+                <View style={styles.ingredientInputs}>
+                  <TouchableOpacity
+                    style={[styles.input, styles.ingredientAmount, styles.dropdownButton]}
+                    onPress={() => openMeasurementModal(index)}
+                  >
+                    <Text style={[styles.dropdownText, !ingredient.amount && styles.placeholderText]}>
+                      {ingredient.amount || '2 oz'}
+                    </Text>
+                    <Ionicons name="chevron-down" size={16} color={colors.subtext} />
+                  </TouchableOpacity>
+                  <TextInput
+                    style={[styles.input, styles.ingredientName]}
+                    value={ingredient.name}
+                    onChangeText={(text) => updateIngredient(index, 'name', text)}
+                    placeholder="Bourbon whiskey"
+                    placeholderTextColor={colors.subtext}
+                  />
+                </View>
+
+                <TextInput
+                  style={[styles.input, styles.ingredientNotes]}
+                  value={ingredient.notes}
+                  onChangeText={(text) => updateIngredient(index, 'notes', text)}
+                  placeholder="freshly squeezed, to taste, etc."
+                  placeholderTextColor={colors.subtext}
+                  multiline
+                />
+              </View>
+            ))}
+          </View>
+        </View>
+
+        {/* Quick Add Ingredients */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Quick Add Ingredients</Text>
+          <View style={styles.quickAddContainer}>
             <TouchableOpacity
-              style={styles.createFolderButton}
-              onPress={() => setShowFolderModal(true)}
+              style={styles.quickAddButton}
+              onPress={() => {
+                // Find first empty ingredient or use last one
+                const emptyIndex = recipe.ingredients.findIndex(ing => !ing.name);
+                const targetIndex = emptyIndex >= 0 ? emptyIndex : recipe.ingredients.length - 1;
+                openIngredientModal(targetIndex, 'spirits');
+              }}
             >
-              <Ionicons name="add-circle" size={18} color={colors.accent} />
-              <Text style={styles.createFolderText}>Create Folder</Text>
+              <Ionicons name="wine" size={16} color={colors.accent} />
+              <Text style={styles.quickAddText}>Spirits</Text>
+              <Ionicons name="add" size={14} color={colors.accent} />
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.quickAddButton}
+              onPress={() => {
+                const emptyIndex = recipe.ingredients.findIndex(ing => !ing.name);
+                const targetIndex = emptyIndex >= 0 ? emptyIndex : recipe.ingredients.length - 1;
+                openIngredientModal(targetIndex, 'juices');
+              }}
+            >
+              <Ionicons name="water" size={16} color={colors.accent} />
+              <Text style={styles.quickAddText}>Juices</Text>
+              <Ionicons name="add" size={14} color={colors.accent} />
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.quickAddButton}
+              onPress={() => {
+                const emptyIndex = recipe.ingredients.findIndex(ing => !ing.name);
+                const targetIndex = emptyIndex >= 0 ? emptyIndex : recipe.ingredients.length - 1;
+                openIngredientModal(targetIndex, 'syrups');
+              }}
+            >
+              <Ionicons name="leaf" size={16} color={colors.accent} />
+              <Text style={styles.quickAddText}>Syrups</Text>
+              <Ionicons name="add" size={14} color={colors.accent} />
             </TouchableOpacity>
           </View>
+        </View>
 
+        {/* Instructions */}
+        <View style={styles.section}>
+          <View style={styles.sectionHeader}>
+            <Text style={styles.sectionTitle}>Instructions *</Text>
+            <View style={styles.sectionHeaderRight}>
+              <Text style={styles.stepCount}>{recipe.instructions.length} steps</Text>
+              <TouchableOpacity onPress={addInstruction} style={styles.addButton}>
+                <Ionicons name="add" size={16} color={colors.accent} />
+              </TouchableOpacity>
+            </View>
+          </View>
+          <View style={styles.instructionsContainer}>
+            {recipe.instructions.map((instruction, index) => (
+              <View key={index} style={styles.instructionCard}>
+                <View style={styles.stepHeader}>
+                  <View style={styles.stepBadge}>
+                    <Text style={styles.stepBadgeText}>Step {index + 1}</Text>
+                  </View>
+                  {recipe.instructions.length > 1 && (
+                    <TouchableOpacity
+                      onPress={() => removeInstruction(index)}
+                      style={styles.removeButton}
+                    >
+                      <Ionicons name="close" size={16} color={colors.error} />
+                    </TouchableOpacity>
+                  )}
+                </View>
+                <TextInput
+                  style={[styles.input, styles.instructionInput]}
+                  value={instruction}
+                  onChangeText={(text) => updateInstruction(index, text)}
+                  placeholder={`Describe step ${index + 1}...`}
+                  placeholderTextColor={colors.subtext}
+                  multiline
+                />
+              </View>
+            ))}
+          </View>
+        </View>
+
+        {/* Recipe Details */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Recipe Details</Text>
+          <View style={styles.detailsGrid}>
+            <View style={styles.detailCard}>
+              <Text style={styles.detailLabel}>Garnish</Text>
+              <TextInput
+                style={[styles.input, styles.detailInput]}
+                value={recipe.garnish}
+                onChangeText={(text) => setRecipe({...recipe, garnish: text})}
+                placeholder="Orange peel, cherry..."
+                placeholderTextColor={colors.subtext}
+              />
+            </View>
+
+            <View style={styles.detailCard}>
+              <Text style={styles.detailLabel}>Glassware</Text>
+              <TouchableOpacity
+                style={[styles.input, styles.detailInput, styles.dropdownButton]}
+                onPress={() => setShowGlasswareModal(true)}
+              >
+                <Text style={[styles.dropdownText, !recipe.glassware && styles.placeholderText]}>
+                  {recipe.glassware || 'Rocks glass, coupe...'}
+                </Text>
+                <Ionicons name="chevron-down" size={16} color={colors.subtext} />
+              </TouchableOpacity>
+            </View>
+
+            <View style={styles.detailCard}>
+              <Text style={styles.detailLabel}>Prep Time (minutes)</Text>
+              <TextInput
+                style={[styles.input, styles.detailInput]}
+                value={recipe.time}
+                onChangeText={(text) => setRecipe({...recipe, time: text})}
+                placeholder="5"
+                placeholderTextColor={colors.subtext}
+                keyboardType="number-pad"
+              />
+            </View>
+
+            <View style={styles.detailCard}>
+              <Text style={styles.detailLabel}>Servings</Text>
+              <TextInput
+                style={[styles.input, styles.detailInput]}
+                value={recipe.servings.toString()}
+                onChangeText={(text) => setRecipe({...recipe, servings: parseInt(text) || 1})}
+                placeholder="1"
+                placeholderTextColor={colors.subtext}
+                keyboardType="number-pad"
+              />
+            </View>
+          </View>
+        </View>
+
+        {/* Difficulty */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Recipe Difficulty</Text>
           <TouchableOpacity
-            style={[styles.folderSelector, selectedFolder && styles.folderSelectorSelected]}
-            onPress={() => {
-              // Create a simple selection alert
-              const folderOptions = folders.map(f => f.name);
-              folderOptions.unshift('No folder');
-              Alert.alert(
-                'Select Folder',
-                'Choose a folder for this recipe:',
-                [
-                  ...folderOptions.map(name => ({
-                    text: name,
-                    onPress: () => {
-                      if (name === 'No folder') {
-                        setSelectedFolder(null);
-                      } else {
-                        const folder = folders.find(f => f.name === name);
-                        setSelectedFolder(folder || null);
-                      }
-                    }
-                  })),
-                  { text: 'Cancel', style: 'cancel' }
-                ]
-              );
-            }}
+            style={[styles.input, styles.dropdownButton]}
+            onPress={() => setShowDifficultyModal(true)}
           >
-            <Ionicons name="folder-outline" size={20} color={selectedFolder ? colors.accent : colors.subtext} />
-            <Text style={[styles.folderSelectorText, selectedFolder && { color: colors.text }]}>
-              {selectedFolder ? selectedFolder.name : 'Select folder (optional)'}
+            <Text style={[styles.dropdownText, !recipe.tags.length && styles.placeholderText]}>
+              {recipe.tags.length ? recipe.tags[0] : 'Select difficulty level'}
             </Text>
             <Ionicons name="chevron-down" size={16} color={colors.subtext} />
           </TouchableOpacity>
         </View>
 
+        {/* Save Button */}
         <TouchableOpacity
           style={[styles.saveButton, loading && styles.saveButtonDisabled]}
-          onPress={handleSave}
+          onPress={saveRecipe}
           disabled={loading}
         >
           <Text style={styles.saveButtonText}>
@@ -329,36 +564,146 @@ export default function AddRecipeScreen() {
         </TouchableOpacity>
       </ScrollView>
 
-      {/* Folder Creation Modal */}
+      {/* Measurement Modal */}
       <Modal
-        visible={showFolderModal}
+        visible={showMeasurementModal}
+        transparent={true}
         animationType="slide"
-        presentationStyle="pageSheet"
-        onRequestClose={() => setShowFolderModal(false)}
+        onRequestClose={() => setShowMeasurementModal(false)}
       >
-        <SafeAreaView style={styles.modalContainer}>
-          <View style={styles.modalHeader}>
-            <TouchableOpacity onPress={() => setShowFolderModal(false)}>
-              <Text style={styles.modalCancelText}>Cancel</Text>
-            </TouchableOpacity>
-            <Text style={styles.modalTitle}>Create Folder</Text>
-            <TouchableOpacity onPress={handleCreateFolder}>
-              <Text style={styles.modalSaveText}>Create</Text>
-            </TouchableOpacity>
-          </View>
-
+        <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
-            <Text style={styles.label}>Folder Name</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="Enter folder name..."
-              placeholderTextColor={colors.subtext}
-              value={newFolderName}
-              onChangeText={setNewFolderName}
-              autoFocus
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>Select Amount</Text>
+              <TouchableOpacity
+                onPress={() => setShowMeasurementModal(false)}
+                style={styles.modalCloseButton}
+              >
+                <Ionicons name="close" size={24} color={colors.text} />
+              </TouchableOpacity>
+            </View>
+            <FlatList
+              data={measurementOptions}
+              keyExtractor={(item) => item}
+              renderItem={({ item }) => (
+                <TouchableOpacity
+                  style={styles.measurementOption}
+                  onPress={() => selectMeasurement(item)}
+                >
+                  <Text style={styles.measurementText}>{item} oz</Text>
+                </TouchableOpacity>
+              )}
+              showsVerticalScrollIndicator={false}
             />
           </View>
-        </SafeAreaView>
+        </View>
+      </Modal>
+
+      {/* Ingredient Selection Modal */}
+      <Modal
+        visible={showIngredientModal}
+        transparent={true}
+        animationType="slide"
+        onRequestClose={() => setShowIngredientModal(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>
+                Select {ingredientModalType.charAt(0).toUpperCase() + ingredientModalType.slice(1)}
+              </Text>
+              <TouchableOpacity
+                onPress={() => setShowIngredientModal(false)}
+                style={styles.modalCloseButton}
+              >
+                <Ionicons name="close" size={24} color={colors.text} />
+              </TouchableOpacity>
+            </View>
+            <FlatList
+              data={getIngredientOptions()}
+              keyExtractor={(item) => item}
+              renderItem={({ item }) => (
+                <TouchableOpacity
+                  style={styles.measurementOption}
+                  onPress={() => selectIngredient(item)}
+                >
+                  <Text style={styles.measurementText}>{item}</Text>
+                </TouchableOpacity>
+              )}
+              showsVerticalScrollIndicator={false}
+            />
+          </View>
+        </View>
+      </Modal>
+
+      {/* Glassware Selection Modal */}
+      <Modal
+        visible={showGlasswareModal}
+        transparent={true}
+        animationType="slide"
+        onRequestClose={() => setShowGlasswareModal(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>Select Glassware</Text>
+              <TouchableOpacity
+                onPress={() => setShowGlasswareModal(false)}
+                style={styles.modalCloseButton}
+              >
+                <Ionicons name="close" size={24} color={colors.text} />
+              </TouchableOpacity>
+            </View>
+            <FlatList
+              data={glasswareOptions}
+              keyExtractor={(item) => item}
+              renderItem={({ item }) => (
+                <TouchableOpacity
+                  style={styles.measurementOption}
+                  onPress={() => selectGlassware(item)}
+                >
+                  <Text style={styles.measurementText}>{item}</Text>
+                </TouchableOpacity>
+              )}
+              showsVerticalScrollIndicator={false}
+            />
+          </View>
+        </View>
+      </Modal>
+
+      {/* Difficulty Selection Modal */}
+      <Modal
+        visible={showDifficultyModal}
+        transparent={true}
+        animationType="slide"
+        onRequestClose={() => setShowDifficultyModal(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>Select Difficulty</Text>
+              <TouchableOpacity
+                onPress={() => setShowDifficultyModal(false)}
+                style={styles.modalCloseButton}
+              >
+                <Ionicons name="close" size={24} color={colors.text} />
+              </TouchableOpacity>
+            </View>
+            <FlatList
+              data={difficultyOptions}
+              keyExtractor={(item) => item}
+              renderItem={({ item }) => (
+                <TouchableOpacity
+                  style={styles.measurementOption}
+                  onPress={() => selectDifficulty(item)}
+                >
+                  <Text style={styles.measurementText}>{item}</Text>
+                </TouchableOpacity>
+              )}
+              showsVerticalScrollIndicator={false}
+            />
+          </View>
+        </View>
       </Modal>
     </SafeAreaView>
   );
@@ -405,47 +750,151 @@ const styles = StyleSheet.create({
     minHeight: 50,
     color: colors.text,
   },
-  imageContainer: {
-    position: 'relative',
-    alignSelf: 'flex-start',
+  textArea: {
+    minHeight: 80,
+    textAlignVertical: 'top',
   },
-  image: {
-    width: 200,
-    height: 150,
-    borderRadius: radii.md,
-    backgroundColor: colors.line,
-  },
-  removeButton: {
-    position: 'absolute',
-    top: spacing(1),
-    right: spacing(1),
-    backgroundColor: 'rgba(0,0,0,0.6)',
-    borderRadius: radii.sm,
-    width: 24,
-    height: 24,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  imageButtons: {
+  sectionHeader: {
     flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: spacing(2),
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: colors.text,
+  },
+  sectionHeaderRight: {
+    flexDirection: 'row',
+    alignItems: 'center',
     gap: spacing(1.5),
   },
-  imageButton: {
+  ingredientCount: {
+    fontSize: 14,
+    color: colors.subtext,
+    fontWeight: '600',
+  },
+  stepCount: {
+    fontSize: 14,
+    color: colors.subtext,
+    fontWeight: '600',
+  },
+  addButton: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
     backgroundColor: colors.card,
+    borderWidth: 1,
+    borderColor: colors.accent,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  removeButton: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    backgroundColor: colors.card,
+    borderWidth: 1,
+    borderColor: colors.error,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  ingredientsContainer: {
+    gap: spacing(2),
+  },
+  ingredientCard: {
+    backgroundColor: colors.bg,
     borderRadius: radii.md,
     padding: spacing(2),
     borderWidth: 1,
     borderColor: colors.line,
-    alignItems: 'center',
-    flex: 1,
+    gap: spacing(2),
+  },
+  ingredientHeader: {
     flexDirection: 'row',
-    gap: spacing(1),
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  ingredientNumber: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    backgroundColor: colors.accent,
+    alignItems: 'center',
     justifyContent: 'center',
   },
-  imageButtonText: {
-    fontSize: 16,
-    color: colors.accent,
+  ingredientNumberText: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: colors.white,
+  },
+  ingredientInputs: {
+    flex: 1,
+    flexDirection: 'row',
+    gap: spacing(1.5),
+  },
+  ingredientAmount: {
+    width: 80,
+  },
+  ingredientName: {
+    flex: 1,
+  },
+  ingredientNotes: {
+    minHeight: 40,
+    fontSize: 14,
+    fontStyle: 'italic',
+  },
+  instructionsContainer: {
+    gap: spacing(3),
+  },
+  instructionCard: {
+    backgroundColor: colors.bg,
+    borderRadius: radii.md,
+    padding: spacing(2.5),
+    borderWidth: 1,
+    borderColor: colors.line,
+  },
+  stepHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: spacing(1.5),
+  },
+  stepBadge: {
+    backgroundColor: colors.accent,
+    borderRadius: radii.sm,
+    paddingHorizontal: spacing(2),
+    paddingVertical: spacing(0.5),
+  },
+  stepBadgeText: {
+    color: colors.white,
+    fontSize: 12,
+    fontWeight: '700',
+  },
+  instructionInput: {
+    minHeight: 50,
+    textAlignVertical: 'top',
+  },
+  detailsGrid: {
+    gap: spacing(2),
+    marginTop: spacing(2),
+  },
+  detailCard: {
+    backgroundColor: colors.bg,
+    borderRadius: radii.md,
+    padding: spacing(2),
+    borderWidth: 1,
+    borderColor: colors.line,
+  },
+  detailLabel: {
+    fontSize: 14,
     fontWeight: '600',
+    color: colors.text,
+    marginBottom: spacing(1),
+  },
+  detailInput: {
+    fontSize: 14,
   },
   saveButton: {
     backgroundColor: colors.accent,
@@ -459,7 +908,7 @@ const styles = StyleSheet.create({
     opacity: 0.6,
   },
   saveButtonText: {
-    color: colors.bg,
+    color: colors.white,
     fontSize: 18,
     fontWeight: '700',
   },
@@ -475,88 +924,83 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
   },
-  debugSection: {
-    backgroundColor: colors.card,
-    borderRadius: radii.md,
-    padding: spacing(2),
-    marginHorizontal: spacing(3),
-    marginBottom: spacing(2),
-    borderWidth: 1,
-    borderColor: colors.line,
-  },
-  debugText: {
-    fontSize: 14,
-    color: colors.text,
-    textAlign: 'center',
-    fontWeight: '600',
-  },
 
-  // Folder styles
-  sectionHeader: {
+  // Dropdown styles
+  dropdownButton: {
     flexDirection: 'row',
+    alignItems: 'center',
     justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: spacing(1),
   },
-  createFolderButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing(0.5),
-  },
-  createFolderText: {
-    color: colors.accent,
-    fontSize: 14,
-    fontWeight: '600',
-  },
-  folderSelector: {
-    backgroundColor: colors.card,
-    borderRadius: radii.md,
-    padding: spacing(2.5),
-    borderWidth: 1,
-    borderColor: colors.line,
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing(2),
-  },
-  folderSelectorSelected: {
-    borderColor: colors.accent,
-    backgroundColor: colors.accent + '10',
-  },
-  folderSelectorText: {
-    flex: 1,
-    color: colors.subtext,
+  dropdownText: {
     fontSize: 16,
+    color: colors.text,
+  },
+  placeholderText: {
+    color: colors.subtext,
   },
 
   // Modal styles
-  modalContainer: {
+  modalOverlay: {
     flex: 1,
-    backgroundColor: colors.bg,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'flex-end',
+  },
+  modalContent: {
+    backgroundColor: colors.card,
+    borderTopLeftRadius: radii.xl,
+    borderTopRightRadius: radii.xl,
+    maxHeight: '50%',
+    paddingBottom: spacing(4),
   },
   modalHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: spacing(3),
-    paddingVertical: spacing(2),
+    padding: spacing(2),
     borderBottomWidth: 1,
     borderBottomColor: colors.line,
   },
   modalTitle: {
     fontSize: 18,
-    fontWeight: '600',
+    fontWeight: '700',
     color: colors.text,
   },
-  modalCancelText: {
-    color: colors.subtext,
-    fontSize: 16,
+  modalCloseButton: {
+    padding: spacing(0.5),
   },
-  modalSaveText: {
-    color: colors.accent,
+  measurementOption: {
+    padding: spacing(2),
+    borderBottomWidth: 1,
+    borderBottomColor: colors.line,
+  },
+  measurementText: {
     fontSize: 16,
+    color: colors.text,
+    textAlign: 'center',
+  },
+
+  // Quick Add styles
+  quickAddContainer: {
+    flexDirection: 'row',
+    gap: spacing(1.5),
+    marginTop: spacing(1),
+  },
+  quickAddButton: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: colors.card,
+    borderWidth: 1,
+    borderColor: colors.accent,
+    borderRadius: radii.md,
+    paddingVertical: spacing(1.5),
+    paddingHorizontal: spacing(2),
+    gap: spacing(0.5),
+  },
+  quickAddText: {
+    fontSize: 14,
     fontWeight: '600',
-  },
-  modalContent: {
-    padding: spacing(3),
+    color: colors.accent,
   },
 });

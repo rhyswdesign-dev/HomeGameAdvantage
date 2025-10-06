@@ -3,7 +3,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, ScrollView, Pressable, FlatList } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, Pressable, FlatList, Alert } from 'react-native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../navigation/RootNavigator';
 import { Ionicons } from '@expo/vector-icons';
@@ -16,7 +16,7 @@ type MyRecipesScreenProps = {
 
 export default function MyRecipesScreen({ navigation }: MyRecipesScreenProps) {
   const [activeTab, setActiveTab] = useState<'all' | 'created' | 'ai' | 'modified'>('all');
-  const { recipes, isLoading, loadRecipes } = useUserRecipes();
+  const { recipes, isLoading, loadRecipes, deleteRecipe } = useUserRecipes();
 
   useEffect(() => {
     loadRecipes();
@@ -67,12 +67,24 @@ export default function MyRecipesScreen({ navigation }: MyRecipesScreenProps) {
   );
 
   const RecipeCard = ({ recipe }: { recipe: UserRecipe }) => (
-    <Pressable style={styles.recipeCard}>
-      <View style={styles.recipeCardContent}>
+    <View style={styles.recipeCard}>
+      <Pressable
+        style={styles.recipeCardContent}
+        onPress={() => navigation.navigate('RecipeDetail', { recipe })}
+      >
         <View style={styles.recipeHeader}>
           <Text style={styles.recipeName}>{recipe.name}</Text>
-          <View style={[styles.typeBadge, { backgroundColor: getTypeBadgeColor(recipe.type) }]}>
-            <Text style={styles.typeBadgeText}>{getTypeLabel(recipe.type)}</Text>
+          <View style={styles.recipeHeaderRight}>
+            <View style={[styles.typeBadge, { backgroundColor: getTypeBadgeColor(recipe.type) }]}>
+              <Text style={styles.typeBadgeText}>{getTypeLabel(recipe.type)}</Text>
+            </View>
+            <Pressable
+              style={styles.deleteButton}
+              onPress={() => handleDeleteRecipe(recipe)}
+              hitSlop={8}
+            >
+              <Ionicons name="trash-outline" size={18} color={colors.error} />
+            </Pressable>
           </View>
         </View>
         {recipe.description && (
@@ -86,8 +98,8 @@ export default function MyRecipesScreen({ navigation }: MyRecipesScreenProps) {
           </Text>
           <Ionicons name="chevron-forward" size={16} color={colors.muted} />
         </View>
-      </View>
-    </Pressable>
+      </Pressable>
+    </View>
   );
 
   const getTypeBadgeColor = (type: UserRecipe['type']) => {
@@ -116,6 +128,26 @@ export default function MyRecipesScreen({ navigation }: MyRecipesScreenProps) {
     return 0;
   };
 
+  const handleDeleteRecipe = (recipe: UserRecipe) => {
+    Alert.alert(
+      'Delete Recipe',
+      `Are you sure you want to delete "${recipe.name}"? This action cannot be undone.`,
+      [
+        {
+          text: 'Cancel',
+          style: 'cancel',
+        },
+        {
+          text: 'Delete',
+          style: 'destructive',
+          onPress: async () => {
+            await deleteRecipe(recipe.id);
+          },
+        },
+      ]
+    );
+  };
+
   return (
     <View style={styles.container}>
       {/* Header Actions */}
@@ -124,8 +156,19 @@ export default function MyRecipesScreen({ navigation }: MyRecipesScreenProps) {
           style={styles.actionButton}
           onPress={() => navigation.navigate('AddRecipe')}
         >
-          <Ionicons name="add-circle-outline" size={20} color={colors.accent} />
-          <Text style={styles.actionButtonText}>Create Recipe</Text>
+          <Ionicons name="link" size={20} color={colors.accent} />
+          <Text style={styles.actionButtonText}>From URL/Media</Text>
+        </Pressable>
+
+        <Pressable
+          style={styles.actionButton}
+          onPress={() => navigation.navigate('AIRecipeFormat', {
+            recipe: null,
+            startWithManual: true
+          })}
+        >
+          <Ionicons name="create-outline" size={20} color={colors.accent} />
+          <Text style={styles.actionButtonText}>Manual Entry</Text>
         </Pressable>
 
         <Pressable
@@ -282,6 +325,11 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
     marginBottom: spacing(1),
   },
+  recipeHeaderRight: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing(1.5),
+  },
   recipeName: {
     fontSize: 18,
     fontWeight: '700',
@@ -313,5 +361,12 @@ const styles = StyleSheet.create({
   recipeDate: {
     fontSize: 12,
     color: colors.muted,
+  },
+  deleteButton: {
+    padding: spacing(0.5),
+    borderRadius: radii.sm,
+    backgroundColor: colors.bg,
+    borderWidth: 1,
+    borderColor: colors.line,
   },
 });

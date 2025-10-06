@@ -16,6 +16,7 @@ import { FirebaseProvider } from './src/context/FirebaseContext';
 import { AnalyticsProvider } from './src/context/AnalyticsContext';
 import { MonetizationProvider } from './src/context/MonetizationContext';
 import { isNetworkError } from './src/config/firebase';
+import { initializeUserRecipes } from './src/store/useUserRecipes';
 
 // Override console.error to filter out Firebase offline errors
 const originalConsoleError = console.error;
@@ -45,7 +46,12 @@ console.error = (...args: any[]) => {
 
 export default function App() {
   const { appState, handleSplashFinish, completeBartendingWelcome, completeWelcome, completeOnboarding, completeSurvey, skipToXPReminder, completeXPReminder, goBackToOnboarding } = useOnboarding();
-  
+
+  // Initialize user recipes store on app startup
+  React.useEffect(() => {
+    initializeUserRecipes();
+  }, []);
+
   console.log('App state:', appState);
 
   // Show splash screen
