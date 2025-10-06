@@ -644,12 +644,29 @@ export default function RecipesScreen() {
     setAiRecipeModalVisible(true);
   }, []);
 
-  const handleSaveAiRecipe = useCallback((recipe: FormattedRecipe) => {
-    // Here you could save the AI recipe to user's collection
-    // For now, we'll just log it
-    console.log('Saving AI recipe:', recipe.title);
-    // Could call a firestore function to save the recipe
-  }, []);
+  const handleSaveAiRecipe = useCallback(async (recipe: FormattedRecipe) => {
+    try {
+      // Save AI recipe to user's local store
+      const { addRecipe } = useUserRecipes.getState();
+
+      await addRecipe({
+        name: recipe.title,
+        type: 'ai_generated',
+        description: recipe.description || 'AI-generated cocktail recipe',
+        ingredients: recipe.ingredients || [],
+        instructions: recipe.instructions || [],
+        image: recipe.image || 'https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=240&h=160&fit=crop',
+        tags: recipe.tags || [],
+      });
+
+      console.log('AI recipe saved successfully:', recipe.title);
+
+      // Refresh the recipes list to show the new recipe
+      loadRecipes();
+    } catch (error) {
+      console.error('Error saving AI recipe:', error);
+    }
+  }, [loadRecipes]);
 
   // Handler for when user needs more credits
   const handleCreditsNeeded = useCallback(() => {
@@ -1048,20 +1065,31 @@ export default function RecipesScreen() {
             <ScrollView horizontal nestedScrollEnabled showsHorizontalScrollIndicator={false} style={{ paddingLeft: spacing(2), marginBottom: spacing(2) }}>
               {userRecipes.length > 0 ? (
                 userRecipes.slice(0, 5).map((recipe) => {
-                  const cardProps = {
+                  // Convert UserRecipe to cocktail format for createRecipeCardProps
+                  const cocktailData = {
                     id: recipe.id,
                     name: recipe.name,
                     subtitle: recipe.type === 'ai_generated' ? 'AI Generated' : recipe.type === 'modified' ? 'Modified Recipe' : 'My Creation',
                     description: recipe.description || 'Custom recipe',
                     image: recipe.image || 'https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=240&h=160&fit=crop',
-                    onPress: () => {
-                      // Navigate to recipe detail - could create a custom recipe detail screen
-                      console.log('Viewing user recipe:', recipe.name);
-                    },
+                    tags: recipe.tags || [],
+                  };
+
+                  const cardProps = createRecipeCardProps(cocktailData, navigation, {
+                    toggleSavedCocktail,
+                    isCocktailSaved,
+                    setSelectedRecipe,
+                    setGroceryListVisible,
                     showSaveButton: false,
                     showCartButton: false,
                     showDeleteButton: false,
+                  });
+
+                  // Override the onPress to navigate to RecipeDetail with user recipe data
+                  cardProps.onPress = () => {
+                    navigation.navigate('RecipeDetail', { recipe });
                   };
+
                   return (
                     <RecipeCard key={recipe.id} {...cardProps} style={{ width: 240, marginRight: 16 }} />
                   );
@@ -1276,11 +1304,7 @@ export default function RecipesScreen() {
           setCurrentAiRecipe(null);
         }}
         recipe={currentAiRecipe}
-        onSave={(recipe) => {
-          // Save AI recipe to user's collection
-          console.log('Saving AI recipe:', recipe);
-          // TODO: Implement actual save functionality
-        }}
+        onSave={handleSaveAiRecipe}
         navigation={navigation}
       />
 

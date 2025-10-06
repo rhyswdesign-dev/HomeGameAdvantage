@@ -15,42 +15,153 @@ import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { Ionicons } from '@expo/vector-icons';
 import { colors, spacing, radii, fonts } from '../theme/tokens';
 import { AIRecipeFormatter, FormattedRecipe, RecipeInput } from '../services/aiRecipeFormatter';
+import VideoRecipeAnalyzer from '../services/videoRecipeAnalyzer';
+import { RecipeIntelligenceService, RecipeIntelligence } from '../services/recipeIntelligenceService';
 import { updateRecipe } from '../lib/firestore';
 import { useAuth } from '../contexts/AuthContext';
 
 export default function AIRecipeFormatScreen() {
   const nav = useNavigation<NativeStackNavigationProp<any>>();
   const route = useRoute();
-  const { recipe } = route.params as { recipe: any };
+
+  // Safely parse route parameters
+  const params = (route.params || {}) as { recipe?: any; startWithManual?: boolean };
+  const recipe = params.recipe;
+  const startWithManual = params.startWithManual;
   const { user, isAuthenticated } = useAuth();
+
+  // If no recipe is provided and we're not starting with manual mode, show error
+  if (!recipe && !startWithManual) {
+    return (
+      <SafeAreaView style={styles.container}>
+        <View style={styles.errorContainer}>
+          <Ionicons name="alert-circle-outline" size={64} color={colors.error} />
+          <Text style={styles.errorTitle}>No Recipe Data</Text>
+          <Text style={styles.errorText}>No recipe data was provided for formatting.</Text>
+          <TouchableOpacity style={styles.retryButton} onPress={() => nav.goBack()}>
+            <Text style={styles.retryButtonText}>Go Back</Text>
+          </TouchableOpacity>
+        </View>
+      </SafeAreaView>
+    );
+  }
 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [formattedRecipe, setFormattedRecipe] = useState<FormattedRecipe | null>(null);
+  const [recipeIntelligence, setRecipeIntelligence] = useState<RecipeIntelligence | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [showIntelligence, setShowIntelligence] = useState(false);
+  const [activeTab, setActiveTab] = useState<'ai' | 'manual'>(startWithManual ? 'manual' : 'ai');
+  const [manualRecipe, setManualRecipe] = useState<FormattedRecipe>({
+    title: '',
+    description: '',
+    ingredients: [
+      { name: '', amount: '', notes: '' }
+    ],
+    instructions: [''],
+    garnish: '',
+    glassware: '',
+    time: '',
+    servings: 1,
+    tags: []
+  });
   // Removed recipe type selection - AI will auto-detect
 
   useLayoutEffect(() => {
     nav.setOptions({
-      title: '✨ AI Recipe Formatting',
+      title: activeTab === 'ai' ? '✨ AI Recipe Formatting' : '📝 Create Recipe',
       headerStyle: { backgroundColor: colors.bg },
       headerTintColor: colors.text,
       headerTitleStyle: { color: colors.text, fontWeight: '900' },
       headerShadowVisible: false,
     });
-  }, [nav]);
+  }, [nav, activeTab]);
 
   useEffect(() => {
-    // Auto-format immediately - AI will detect recipe type
-    formatRecipeWithAI();
-  }, []);
+    // Auto-format immediately only if we have recipe data and are in AI mode
+    if (recipe && activeTab === 'ai') {
+      formatRecipeWithAI();
+    } else if (activeTab === 'manual' || startWithManual) {
+      // For manual mode, set loading to false immediately
+      setLoading(false);
+    }
+  }, [activeTab]);
+
+  // Enhanced helper function to detect if URL is a video
+  const isVideoUrl = (url: string): boolean => {
+    const normalizedUrl = url.toLowerCase();
+
+    // Social media video platforms
+    const videoIndicators = [
+      // TikTok
+      'tiktok.com',
+      'vm.tiktok.com',
+
+      // YouTube
+      'youtube.com',
+      'youtu.be',
+      'm.youtube.com',
+
+      // Instagram
+      'instagram.com/reel',
+      'instagram.com/p/',
+      'instagram.com/tv/',
+      'www.instagram.com/reel',
+      'www.instagram.com/p/',
+      'www.instagram.com/tv/',
+
+      // Twitter/X
+      'twitter.com',
+      'x.com',
+      'mobile.twitter.com',
+
+      // Facebook
+      'facebook.com/watch',
+      'fb.watch',
+      'www.facebook.com/watch',
+
+      // Snapchat
+      'snapchat.com/t/',
+
+      // General video indicators
+      '/video',
+      '/watch',
+      '/reel',
+      '/reels',
+      '/tv',
+      '/shorts'
+    ];
+
+    // Check for video file extensions
+    const videoExtensions = ['.mp4', '.mov', '.avi', '.webm', '.mkv', '.m4v'];
+    const hasVideoExtension = videoExtensions.some(ext => normalizedUrl.includes(ext));
+
+    // Check for video indicators or file extensions
+    const hasVideoIndicator = videoIndicators.some(indicator => normalizedUrl.includes(indicator));
+
+    return hasVideoIndicator || hasVideoExtension;
+  };
 
   const formatRecipeWithAI = async () => {
     try {
       setLoading(true);
       setError(null);
 
-      // Prepare input for AI formatting
+      // Check if this is a video URL and use video analyzer
+      if (recipe.sourceUrl && isVideoUrl(recipe.sourceUrl)) {
+        console.log('🎥 Detected video URL, using VideoRecipeAnalyzer');
+        try {
+          const result = await VideoRecipeAnalyzer.analyzeVideoFromURL(recipe.sourceUrl);
+          setFormattedRecipe(result);
+          return;
+        } catch (videoError) {
+          console.warn('Video analysis failed, falling back to standard URL extraction:', videoError);
+          // Fall through to standard processing
+        }
+      }
+
+      // Standard processing for non-video URLs
       const input: RecipeInput = {
         title: recipe.title || recipe.name,
         sourceUrl: recipe.sourceUrl,
@@ -73,6 +184,16 @@ export default function AIRecipeFormatScreen() {
       const result = await AIRecipeFormatter.formatRecipe(input);
       setFormattedRecipe(result);
 
+      // Generate recipe intelligence in the background
+      RecipeIntelligenceService.analyzeRecipe(result)
+        .then(intelligence => {
+          setRecipeIntelligence(intelligence);
+        })
+        .catch(error => {
+          console.warn('Recipe intelligence analysis failed:', error);
+          // Don't show error to user, intelligence is optional
+        });
+
     } catch (error: any) {
       setError(error.message || 'Failed to format recipe with AI');
       console.error('AI formatting error:', error);
@@ -82,8 +203,15 @@ export default function AIRecipeFormatScreen() {
   };
 
   const handleSave = async () => {
-    if (!formattedRecipe) {
-      Alert.alert('Error', 'No formatted recipe data available');
+    const recipeToSave = activeTab === 'manual' ? manualRecipe : formattedRecipe;
+
+    if (!recipeToSave) {
+      Alert.alert('Error', 'No recipe data available');
+      return;
+    }
+
+    if (activeTab === 'manual' && (!recipeToSave.title.trim() || recipeToSave.ingredients.length === 0)) {
+      Alert.alert('Required Fields', 'Please provide at least a title and one ingredient');
       return;
     }
 
@@ -102,13 +230,14 @@ export default function AIRecipeFormatScreen() {
       setSaving(true);
 
       // Check if this is a new recipe (from OCR/Vision) or existing recipe
-      const isNewRecipe = !recipe.id ||
+      const isNewRecipe = !recipe || !recipe.id ||
                          recipe.id.startsWith('ocr-') ||
                          recipe.id.startsWith('vision-') ||
                          recipe.id.startsWith('manual-') ||
-                         recipe.id.startsWith('temp-');
+                         recipe.id.startsWith('temp-') ||
+                         startWithManual;
 
-      console.log('AIRecipeFormatScreen: Recipe ID:', recipe.id);
+      console.log('AIRecipeFormatScreen: Recipe ID:', recipe?.id);
       console.log('AIRecipeFormatScreen: Is new recipe:', isNewRecipe);
 
       if (isNewRecipe) {
@@ -116,21 +245,22 @@ export default function AIRecipeFormatScreen() {
         const { createRecipe } = await import('../lib/firestore');
 
         const newRecipeData = {
-          title: formattedRecipe.title,
-          sourceUrl: recipe.sourceUrl || null,
-          imageUrl: recipe.imageUrl || null,
-          tags: formattedRecipe.tags || [],
+          title: recipeToSave.title,
+          sourceUrl: recipe?.sourceUrl || null,
+          imageUrl: recipe?.imageUrl || null,
+          tags: recipeToSave.tags || [],
         };
 
-        // Add custom fields for AI formatted recipes
-        const recipeWithAIData = {
+        // Add custom fields for formatted recipes
+        const recipeWithData = {
           ...newRecipeData,
-          aiFormatted: true,
-          aiFormattedData: formattedRecipe,
+          aiFormatted: activeTab === 'ai',
+          manuallyCreated: activeTab === 'manual',
+          [activeTab === 'ai' ? 'aiFormattedData' : 'manualRecipeData']: recipeToSave,
         };
 
-        console.log('AIRecipeFormatScreen: Creating new recipe with data:', recipeWithAIData);
-        await createRecipe(recipeWithAIData);
+        console.log('AIRecipeFormatScreen: Creating new recipe with data:', recipeWithData);
+        await createRecipe(recipeWithData);
         console.log('AIRecipeFormatScreen: Recipe created successfully');
 
         Alert.alert(
@@ -151,15 +281,16 @@ export default function AIRecipeFormatScreen() {
       } else {
         // Update existing recipe
         const updateData = {
-          title: formattedRecipe.title,
-          aiFormatted: true,
-          aiFormattedData: formattedRecipe,
+          title: recipeToSave.title,
+          aiFormatted: activeTab === 'ai',
+          manuallyCreated: activeTab === 'manual',
+          [activeTab === 'ai' ? 'aiFormattedData' : 'manualRecipeData']: recipeToSave,
           updatedAt: new Date(),
         };
 
-        console.log('AIRecipeFormatScreen: Updating existing recipe with ID:', recipe.id);
+        console.log('AIRecipeFormatScreen: Updating existing recipe with ID:', recipe?.id);
         console.log('AIRecipeFormatScreen: Update data:', updateData);
-        await updateRecipe(recipe.id, updateData);
+        await updateRecipe(recipe!.id, updateData);
         console.log('AIRecipeFormatScreen: Recipe updated successfully');
 
         Alert.alert(
@@ -195,15 +326,63 @@ export default function AIRecipeFormatScreen() {
   };
 
   const updateInstruction = (index: number, value: string) => {
-    if (!formattedRecipe) return;
+    if (activeTab === 'manual') {
+      const updatedInstructions = [...manualRecipe.instructions];
+      updatedInstructions[index] = value;
+      setManualRecipe({
+        ...manualRecipe,
+        instructions: updatedInstructions,
+      });
+    } else if (formattedRecipe) {
+      const updatedInstructions = [...formattedRecipe.instructions];
+      updatedInstructions[index] = value;
+      setFormattedRecipe({
+        ...formattedRecipe,
+        instructions: updatedInstructions,
+      });
+    }
+  };
 
-    const updatedInstructions = [...formattedRecipe.instructions];
-    updatedInstructions[index] = value;
-
-    setFormattedRecipe({
-      ...formattedRecipe,
-      instructions: updatedInstructions,
+  // Manual recipe helper functions
+  const updateManualIngredient = (index: number, field: 'name' | 'amount' | 'notes', value: string) => {
+    const updatedIngredients = [...manualRecipe.ingredients];
+    updatedIngredients[index] = { ...updatedIngredients[index], [field]: value };
+    setManualRecipe({
+      ...manualRecipe,
+      ingredients: updatedIngredients,
     });
+  };
+
+  const addManualIngredient = () => {
+    setManualRecipe({
+      ...manualRecipe,
+      ingredients: [...manualRecipe.ingredients, { name: '', amount: '', notes: '' }],
+    });
+  };
+
+  const removeManualIngredient = (index: number) => {
+    if (manualRecipe.ingredients.length > 1) {
+      setManualRecipe({
+        ...manualRecipe,
+        ingredients: manualRecipe.ingredients.filter((_, i) => i !== index),
+      });
+    }
+  };
+
+  const addManualInstruction = () => {
+    setManualRecipe({
+      ...manualRecipe,
+      instructions: [...manualRecipe.instructions, ''],
+    });
+  };
+
+  const removeManualInstruction = (index: number) => {
+    if (manualRecipe.instructions.length > 1) {
+      setManualRecipe({
+        ...manualRecipe,
+        instructions: manualRecipe.instructions.filter((_, i) => i !== index),
+      });
+    }
   };
 
   // Recipe type selection removed - AI auto-detects type from content
@@ -238,20 +417,61 @@ export default function AIRecipeFormatScreen() {
     );
   }
 
-  if (!formattedRecipe) {
+  // Don't render recipe content if we're in AI mode but don't have formatted recipe yet
+  if (activeTab === 'ai' && !formattedRecipe) {
     return null;
   }
+
+  const currentRecipe = activeTab === 'manual' ? manualRecipe : formattedRecipe;
 
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
+        {/* Tab Selector */}
+        <View style={styles.tabContainer}>
+          <TouchableOpacity
+            style={[styles.tab, activeTab === 'ai' && styles.activeTab]}
+            onPress={() => setActiveTab('ai')}
+          >
+            <Ionicons
+              name="sparkles"
+              size={16}
+              color={activeTab === 'ai' ? colors.white : colors.text}
+            />
+            <Text style={[styles.tabText, activeTab === 'ai' && styles.activeTabText]}>
+              AI Generated
+            </Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={[styles.tab, activeTab === 'manual' && styles.activeTab]}
+            onPress={() => setActiveTab('manual')}
+          >
+            <Ionicons
+              name="create-outline"
+              size={16}
+              color={activeTab === 'manual' ? colors.white : colors.text}
+            />
+            <Text style={[styles.tabText, activeTab === 'manual' && styles.activeTabText]}>
+              Manual Entry
+            </Text>
+          </TouchableOpacity>
+        </View>
+
         {/* Enhanced Header with Recipe Preview */}
         <View style={styles.header}>
-          <Text style={styles.title}>Recipe Card Preview</Text>
-          <Text style={styles.subtitle}>Review and refine your AI-generated recipe</Text>
+          <Text style={styles.title}>
+            {activeTab === 'ai' ? 'Recipe Card Preview' : 'Create Recipe'}
+          </Text>
+          <Text style={styles.subtitle}>
+            {activeTab === 'ai'
+              ? 'Review and refine your AI-generated recipe'
+              : 'Manually create your cocktail recipe'
+            }
+          </Text>
 
-          {/* Recipe Type Badge */}
-          {formattedRecipe.tags && formattedRecipe.tags.length > 0 && (
+          {/* Recipe Type Badge - only show for AI tab */}
+          {activeTab === 'ai' && formattedRecipe?.tags && formattedRecipe.tags.length > 0 && (
             <View style={styles.tagContainer}>
               {formattedRecipe.tags.slice(0, 3).map((tag, index) => (
                 <View key={index} style={styles.tag}>
@@ -269,8 +489,14 @@ export default function AIRecipeFormatScreen() {
             <Text style={styles.label}>Recipe Title</Text>
             <TextInput
               style={[styles.input, styles.titleInput]}
-              value={formattedRecipe.title}
-              onChangeText={(text) => setFormattedRecipe({...formattedRecipe, title: text})}
+              value={currentRecipe?.title || ''}
+              onChangeText={(text) => {
+                if (activeTab === 'manual') {
+                  setManualRecipe({...manualRecipe, title: text});
+                } else if (formattedRecipe) {
+                  setFormattedRecipe({...formattedRecipe, title: text});
+                }
+              }}
               placeholder="Recipe title..."
             />
           </View>
@@ -280,8 +506,14 @@ export default function AIRecipeFormatScreen() {
             <Text style={styles.label}>Description</Text>
             <TextInput
               style={[styles.input, styles.textArea]}
-              value={formattedRecipe.description}
-              onChangeText={(text) => setFormattedRecipe({...formattedRecipe, description: text})}
+              value={currentRecipe?.description || ''}
+              onChangeText={(text) => {
+                if (activeTab === 'manual') {
+                  setManualRecipe({...manualRecipe, description: text});
+                } else if (formattedRecipe) {
+                  setFormattedRecipe({...formattedRecipe, description: text});
+                }
+              }}
               placeholder="What makes this recipe special?"
               multiline
               numberOfLines={3}
@@ -292,10 +524,17 @@ export default function AIRecipeFormatScreen() {
           <View style={styles.ingredientsSection}>
             <View style={styles.sectionHeader}>
               <Text style={styles.sectionTitle}>Ingredients</Text>
-              <Text style={styles.ingredientCount}>{formattedRecipe.ingredients.length} items</Text>
+              <View style={styles.sectionHeaderRight}>
+                <Text style={styles.ingredientCount}>{currentRecipe?.ingredients.length || 0} items</Text>
+                {activeTab === 'manual' && (
+                  <TouchableOpacity onPress={addManualIngredient} style={styles.addButton}>
+                    <Ionicons name="add" size={16} color={colors.accent} />
+                  </TouchableOpacity>
+                )}
+              </View>
             </View>
             <View style={styles.ingredientsContainer}>
-              {formattedRecipe.ingredients.map((ingredient, index) => (
+              {currentRecipe?.ingredients.map((ingredient, index) => (
                 <View key={index} style={styles.ingredientCard}>
                   <View style={styles.ingredientNumber}>
                     <Text style={styles.ingredientNumberText}>{index + 1}</Text>
@@ -304,16 +543,36 @@ export default function AIRecipeFormatScreen() {
                     <TextInput
                       style={[styles.input, styles.ingredientAmount]}
                       value={ingredient.amount}
-                      onChangeText={(text) => updateIngredient(index, 'amount', text)}
+                      onChangeText={(text) => {
+                        if (activeTab === 'manual') {
+                          updateManualIngredient(index, 'amount', text);
+                        } else {
+                          updateIngredient(index, 'amount', text);
+                        }
+                      }}
                       placeholder="2 oz"
                     />
                     <TextInput
                       style={[styles.input, styles.ingredientName]}
                       value={ingredient.name}
-                      onChangeText={(text) => updateIngredient(index, 'name', text)}
+                      onChangeText={(text) => {
+                        if (activeTab === 'manual') {
+                          updateManualIngredient(index, 'name', text);
+                        } else {
+                          updateIngredient(index, 'name', text);
+                        }
+                      }}
                       placeholder="Ingredient name"
                     />
                   </View>
+                  {activeTab === 'manual' && currentRecipe.ingredients.length > 1 && (
+                    <TouchableOpacity
+                      onPress={() => removeManualIngredient(index)}
+                      style={styles.removeButton}
+                    >
+                      <Ionicons name="close" size={16} color={colors.error} />
+                    </TouchableOpacity>
+                  )}
                 </View>
               ))}
             </View>
@@ -323,13 +582,30 @@ export default function AIRecipeFormatScreen() {
           <View style={styles.instructionsSection}>
             <View style={styles.sectionHeader}>
               <Text style={styles.sectionTitle}>Instructions</Text>
-              <Text style={styles.stepCount}>{formattedRecipe.instructions.length} steps</Text>
+              <View style={styles.sectionHeaderRight}>
+                <Text style={styles.stepCount}>{currentRecipe?.instructions.length || 0} steps</Text>
+                {activeTab === 'manual' && (
+                  <TouchableOpacity onPress={addManualInstruction} style={styles.addButton}>
+                    <Ionicons name="add" size={16} color={colors.accent} />
+                  </TouchableOpacity>
+                )}
+              </View>
             </View>
             <View style={styles.instructionsContainer}>
-              {formattedRecipe.instructions.map((instruction, index) => (
+              {currentRecipe?.instructions.map((instruction, index) => (
                 <View key={index} style={styles.instructionCard}>
-                  <View style={styles.stepBadge}>
-                    <Text style={styles.stepBadgeText}>Step {index + 1}</Text>
+                  <View style={styles.stepHeader}>
+                    <View style={styles.stepBadge}>
+                      <Text style={styles.stepBadgeText}>Step {index + 1}</Text>
+                    </View>
+                    {activeTab === 'manual' && currentRecipe.instructions.length > 1 && (
+                      <TouchableOpacity
+                        onPress={() => removeManualInstruction(index)}
+                        style={styles.removeButton}
+                      >
+                        <Ionicons name="close" size={16} color={colors.error} />
+                      </TouchableOpacity>
+                    )}
                   </View>
                   <TextInput
                     style={[styles.input, styles.instructionInput]}
@@ -352,8 +628,14 @@ export default function AIRecipeFormatScreen() {
                 <Text style={styles.detailLabel}>Garnish</Text>
                 <TextInput
                   style={[styles.input, styles.detailInput]}
-                  value={formattedRecipe.garnish || ''}
-                  onChangeText={(text) => setFormattedRecipe({...formattedRecipe, garnish: text})}
+                  value={currentRecipe?.garnish || ''}
+                  onChangeText={(text) => {
+                    if (activeTab === 'manual') {
+                      setManualRecipe({...manualRecipe, garnish: text});
+                    } else if (formattedRecipe) {
+                      setFormattedRecipe({...formattedRecipe, garnish: text});
+                    }
+                  }}
                   placeholder="Cherry, lemon twist..."
                 />
               </View>
@@ -362,8 +644,14 @@ export default function AIRecipeFormatScreen() {
                 <Text style={styles.detailLabel}>Glassware</Text>
                 <TextInput
                   style={[styles.input, styles.detailInput]}
-                  value={formattedRecipe.glassware || ''}
-                  onChangeText={(text) => setFormattedRecipe({...formattedRecipe, glassware: text})}
+                  value={currentRecipe?.glassware || ''}
+                  onChangeText={(text) => {
+                    if (activeTab === 'manual') {
+                      setManualRecipe({...manualRecipe, glassware: text});
+                    } else if (formattedRecipe) {
+                      setFormattedRecipe({...formattedRecipe, glassware: text});
+                    }
+                  }}
                   placeholder="Rocks glass, coupe..."
                 />
               </View>
@@ -372,8 +660,14 @@ export default function AIRecipeFormatScreen() {
                 <Text style={styles.detailLabel}>Prep Time</Text>
                 <TextInput
                   style={[styles.input, styles.detailInput]}
-                  value={formattedRecipe.time || ''}
-                  onChangeText={(text) => setFormattedRecipe({...formattedRecipe, time: text})}
+                  value={currentRecipe?.time || ''}
+                  onChangeText={(text) => {
+                    if (activeTab === 'manual') {
+                      setManualRecipe({...manualRecipe, time: text});
+                    } else if (formattedRecipe) {
+                      setFormattedRecipe({...formattedRecipe, time: text});
+                    }
+                  }}
                   placeholder="5 minutes"
                 />
               </View>
@@ -394,7 +688,7 @@ export default function AIRecipeFormatScreen() {
               <Ionicons name="checkmark-circle" size={20} color={colors.white} />
             )}
             <Text style={styles.saveButtonText}>
-              {saving ? 'Saving...' : 'Save Formatted Recipe'}
+              {saving ? 'Saving...' : activeTab === 'manual' ? 'Save Recipe' : 'Save Formatted Recipe'}
             </Text>
           </TouchableOpacity>
 
@@ -751,5 +1045,70 @@ const styles = StyleSheet.create({
   },
   detailInput: {
     fontSize: 14,
+  },
+
+  // Tab styles
+  tabContainer: {
+    flexDirection: 'row',
+    backgroundColor: colors.card,
+    borderRadius: radii.lg,
+    padding: spacing(0.5),
+    marginBottom: spacing(3),
+    borderWidth: 1,
+    borderColor: colors.line,
+  },
+  tab: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: spacing(1.5),
+    paddingHorizontal: spacing(2),
+    borderRadius: radii.md,
+    gap: spacing(1),
+  },
+  activeTab: {
+    backgroundColor: colors.accent,
+  },
+  tabText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: colors.text,
+  },
+  activeTabText: {
+    color: colors.white,
+  },
+
+  // Section header improvements
+  sectionHeaderRight: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing(1.5),
+  },
+  addButton: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    backgroundColor: colors.card,
+    borderWidth: 1,
+    borderColor: colors.accent,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  removeButton: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    backgroundColor: colors.card,
+    borderWidth: 1,
+    borderColor: colors.error,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  stepHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: spacing(1.5),
   },
 });

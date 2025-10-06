@@ -115,16 +115,25 @@ export default function RecipeDetailScreen() {
           </View>
         )}
 
-        {/* Ingredients/Tags */}
+        {/* Ingredients */}
         {(recipe.ingredients || recipe.tags) && (
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>
-              {recipe.ingredients ? 'Ingredients' : 'Tags'}
-            </Text>
-            <View style={styles.tagsContainer}>
-              {(recipe.ingredients || recipe.tags || []).map((item: string, index: number) => (
-                <View key={index} style={styles.tag}>
-                  <Text style={styles.tagText}>{item}</Text>
+            <Text style={styles.sectionTitle}>Ingredients</Text>
+            <View style={styles.ingredientsContainer}>
+              {(recipe.ingredients || recipe.tags || []).map((item: any, index: number) => (
+                <View key={index} style={styles.ingredientCard}>
+                  <Text style={styles.ingredientTitle}>
+                    {typeof item === 'string'
+                      ? item
+                      : `${item.name || item}`
+                    }
+                  </Text>
+                  <Text style={styles.ingredientDescription}>
+                    {typeof item === 'string'
+                      ? ''
+                      : `${item.amount ? item.amount : ''}${item.notes ? ` ${item.notes}` : ''}`
+                    }
+                  </Text>
                 </View>
               ))}
             </View>
@@ -160,7 +169,13 @@ export default function RecipeDetailScreen() {
           visible={groceryListVisible}
           onClose={() => setGroceryListVisible(false)}
           recipeName={recipe.name || recipe.title || 'Recipe'}
-          ingredients={recipe.ingredients || recipe.tags || []}
+          ingredients={
+            (recipe.ingredients || recipe.tags || []).map((item: any) =>
+              typeof item === 'string'
+                ? item
+                : `${item.amount ? item.amount + ' ' : ''}${item.name || item}`
+            )
+          }
           recipeId={recipe.id}
         />
       )}
@@ -250,6 +265,27 @@ const styles = StyleSheet.create({
   tagText: {
     fontSize: 14,
     color: colors.text,
+  },
+  ingredientsContainer: {
+    gap: spacing(2),
+  },
+  ingredientCard: {
+    backgroundColor: colors.card,
+    borderRadius: radii.lg,
+    padding: spacing(3),
+    borderWidth: 1,
+    borderColor: colors.line,
+  },
+  ingredientTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: colors.text,
+    marginBottom: spacing(0.5),
+  },
+  ingredientDescription: {
+    fontSize: 14,
+    color: colors.subtext,
+    lineHeight: 20,
   },
   folderContainer: {
     flexDirection: 'row',
