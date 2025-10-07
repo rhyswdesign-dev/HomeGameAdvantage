@@ -186,7 +186,7 @@ export class VideoRecipeAnalyzer {
   private static async analyzeRecipeFrame(frameBase64: string): Promise<any> {
     try {
       const completion = await openai.chat.completions.create({
-        model: "gpt-4-vision-preview",
+        model: "gpt-4o-mini",
         messages: [
           {
             role: "system",
@@ -267,7 +267,7 @@ INSTRUCTIONS: [numbered steps]
 ADDITIONAL: [other relevant details]`;
 
       const completion = await openai.chat.completions.create({
-        model: "gpt-4",
+        model: "gpt-3.5-turbo",
         messages: [
           {
             role: "system",
@@ -421,10 +421,14 @@ ADDITIONAL: [other relevant details]`;
         };
       }
 
-      // In production, this would integrate with video download services
-      // and then process the video file through the main analysis pipeline
-
-      throw new Error('URL video analysis not yet implemented for production');
+      // For now, fallback to text extraction from the URL page
+      const extractedText = await AIRecipeFormatter.extractTextFromUrl(videoUrl);
+      return await AIRecipeFormatter.formatRecipe({
+        title: 'Video Recipe',
+        extractedText,
+        sourceUrl: videoUrl,
+        recipeType: 'cocktail'
+      });
 
     } catch (error: any) {
       console.error('URL video analysis error:', error);

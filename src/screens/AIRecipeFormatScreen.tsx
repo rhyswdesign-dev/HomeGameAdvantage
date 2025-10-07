@@ -25,13 +25,14 @@ export default function AIRecipeFormatScreen() {
   const route = useRoute();
 
   // Safely parse route parameters
-  const params = (route.params || {}) as { recipe?: any; startWithManual?: boolean };
+  const params = (route.params || {}) as { recipe?: any; startWithManual?: boolean; recipeUrl?: string };
   const recipe = params.recipe;
   const startWithManual = params.startWithManual;
+  const recipeUrl = params.recipeUrl;
   const { user, isAuthenticated } = useAuth();
 
-  // If no recipe is provided and we're not starting with manual mode, show error
-  if (!recipe && !startWithManual) {
+  // If no recipe, URL, or manual mode is provided, show error
+  if (!recipe && !startWithManual && !recipeUrl) {
     return (
       <SafeAreaView style={styles.container}>
         <View style={styles.errorContainer}>
@@ -79,8 +80,8 @@ export default function AIRecipeFormatScreen() {
   }, [nav, activeTab]);
 
   useEffect(() => {
-    // Auto-format immediately only if we have recipe data and are in AI mode
-    if (recipe && activeTab === 'ai') {
+    // Auto-format immediately if we have recipe data or URL and are in AI mode
+    if ((recipe || recipeUrl) && activeTab === 'ai') {
       formatRecipeWithAI();
     } else if (activeTab === 'manual' || startWithManual) {
       // For manual mode, set loading to false immediately
@@ -148,11 +149,18 @@ export default function AIRecipeFormatScreen() {
       setLoading(true);
       setError(null);
 
+      // Determine the URL to use - either from recipe object or direct URL parameter
+      const urlToProcess = recipe?.sourceUrl || recipeUrl;
+
+      if (!urlToProcess) {
+        throw new Error('No URL provided for recipe extraction');
+      }
+
       // Check if this is a video URL and use video analyzer
-      if (recipe.sourceUrl && isVideoUrl(recipe.sourceUrl)) {
+      if (isVideoUrl(urlToProcess)) {
         console.log('🎥 Detected video URL, using VideoRecipeAnalyzer');
         try {
-          const result = await VideoRecipeAnalyzer.analyzeVideoFromURL(recipe.sourceUrl);
+          const result = await VideoRecipeAnalyzer.analyzeVideoFromURL(urlToProcess);
           setFormattedRecipe(result);
           return;
         } catch (videoError) {
@@ -163,21 +171,19 @@ export default function AIRecipeFormatScreen() {
 
       // Standard processing for non-video URLs
       const input: RecipeInput = {
-        title: recipe.title || recipe.name,
-        sourceUrl: recipe.sourceUrl,
-        imageUrl: recipe.imageUrl,
-        userNotes: `Recipe from ${recipe.sourceUrl || 'user input'}`,
+        title: recipe?.title || recipe?.name || '',
+        sourceUrl: urlToProcess,
+        imageUrl: recipe?.imageUrl,
+        userNotes: `Recipe from ${urlToProcess}`,
         // recipeType will be auto-detected by AI
       };
 
       // Extract text from URL if available
-      if (recipe.sourceUrl) {
-        try {
-          const extractedText = await AIRecipeFormatter.extractTextFromUrl(recipe.sourceUrl);
-          input.extractedText = extractedText;
-        } catch (error) {
-          console.log('Could not extract URL text:', error);
-        }
+      try {
+        const extractedText = await AIRecipeFormatter.extractTextFromUrl(urlToProcess);
+        input.extractedText = extractedText;
+      } catch (error) {
+        console.log('Could not extract URL text:', error);
       }
 
       // Format with AI

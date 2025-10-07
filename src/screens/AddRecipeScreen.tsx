@@ -24,7 +24,6 @@ type ManualRecipe = {
   ingredients: Array<{
     name: string;
     amount: string;
-    notes: string;
   }>;
   instructions: string[];
   garnish: string;
@@ -123,7 +122,7 @@ export default function AddRecipeScreen() {
   const [recipe, setRecipe] = useState<ManualRecipe>({
     title: '',
     description: '',
-    ingredients: [{ name: '', amount: '', notes: '' }],
+    ingredients: [{ name: '', amount: '' }],
     instructions: [''],
     garnish: '',
     glassware: '',
@@ -142,7 +141,7 @@ export default function AddRecipeScreen() {
     });
   }, [nav]);
 
-  const updateIngredient = (index: number, field: 'name' | 'amount' | 'notes', value: string) => {
+  const updateIngredient = (index: number, field: 'name' | 'amount', value: string) => {
     const updatedIngredients = [...recipe.ingredients];
     updatedIngredients[index] = { ...updatedIngredients[index], [field]: value };
     setRecipe({ ...recipe, ingredients: updatedIngredients });
@@ -151,7 +150,7 @@ export default function AddRecipeScreen() {
   const addIngredient = () => {
     setRecipe({
       ...recipe,
-      ingredients: [...recipe.ingredients, { name: '', amount: '', notes: '' }]
+      ingredients: [...recipe.ingredients, { name: '', amount: '' }]
     });
   };
 
@@ -214,7 +213,7 @@ export default function AddRecipeScreen() {
             name: ing.name.trim(),
             amount: ing.amount.trim(),
             unit: '',
-            notes: ing.notes.trim()
+            notes: ''
           })),
         instructions: recipe.instructions.filter(inst => inst.trim()),
         tags: recipe.tags,
@@ -240,7 +239,7 @@ export default function AddRecipeScreen() {
     setRecipe({
       title: '',
       description: '',
-      ingredients: [{ name: '', amount: '', notes: '' }],
+      ingredients: [{ name: '', amount: '' }],
       instructions: [''],
       garnish: '',
       glassware: '',
@@ -275,7 +274,7 @@ export default function AddRecipeScreen() {
       // Add a new ingredient
       setRecipe({
         ...recipe,
-        ingredients: [...recipe.ingredients, { name: ingredient, amount: '', notes: '' }]
+        ingredients: [...recipe.ingredients, { name: ingredient, amount: '' }]
       });
     }
     setShowIngredientModal(false);
@@ -381,14 +380,6 @@ export default function AddRecipeScreen() {
                   />
                 </View>
 
-                <TextInput
-                  style={[styles.input, styles.ingredientNotes]}
-                  value={ingredient.notes}
-                  onChangeText={(text) => updateIngredient(index, 'notes', text)}
-                  placeholder="freshly squeezed, to taste, etc."
-                  placeholderTextColor={colors.subtext}
-                  multiline
-                />
               </View>
             ))}
           </View>
