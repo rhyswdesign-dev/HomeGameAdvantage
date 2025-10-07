@@ -257,6 +257,21 @@ export default function FeaturedScreen() {
       </ScrollView>
 
 
+      {/* Personalization Demo Button */}
+      <TouchableOpacity
+        style={styles.demoButton}
+        onPress={() => nav.navigate('PersonalizedHome' as never)}
+      >
+        <View style={styles.demoContent}>
+          <Text style={styles.demoEmoji}>🧠</Text>
+          <View style={styles.demoTextContainer}>
+            <Text style={styles.demoTitle}>Try Personalized Recommendations</Text>
+            <Text style={styles.demoSubtitle}>See mood-based feeds & real-time learning</Text>
+          </View>
+          <Ionicons name="arrow-forward" size={24} color={colors.gold} />
+        </View>
+      </TouchableOpacity>
+
       {/* Featured Content - show all sections */}
       <Section title="Featured Spirit Picks" onPress={() => nav.navigate('Spirits' as never)}>
         <HScroll cards={goldSpirits} onPress={(item) => {
@@ -686,6 +701,39 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0,0,0,0.5)',
     alignItems: 'center',
     justifyContent: 'center',
+  },
+
+  // Demo Button
+  demoButton: {
+    marginHorizontal: spacing(2),
+    marginVertical: spacing(2),
+    backgroundColor: colors.gold + '20',
+    borderRadius: radii.lg,
+    borderWidth: 2,
+    borderColor: colors.gold,
+    overflow: 'hidden',
+  },
+  demoContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: spacing(2.5),
+    gap: spacing(2),
+  },
+  demoEmoji: {
+    fontSize: 40,
+  },
+  demoTextContainer: {
+    flex: 1,
+  },
+  demoTitle: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: colors.text,
+    marginBottom: spacing(0.5),
+  },
+  demoSubtitle: {
+    fontSize: 13,
+    color: colors.subtext,
   },
 
 });

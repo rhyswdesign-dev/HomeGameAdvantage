@@ -1,5 +1,5 @@
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import RecipesScreen from '../screens/RecipesScreen';
+import PersonalizedHomeScreen from '../screens/PersonalizedHomeScreen';
 
 export type RecipesStackParamList = {
   RecipesMain: undefined;
@@ -19,7 +19,7 @@ export default function RecipesStack() {
         animationDuration: 200,
       }}
     >
-      <Stack.Screen name="RecipesMain" component={RecipesScreen} options={{ title: 'Recipes' }} />
+      <Stack.Screen name="RecipesMain" component={PersonalizedHomeScreen} options={{ title: 'For You' }} />
     </Stack.Navigator>
   );
 }

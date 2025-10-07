@@ -151,24 +151,26 @@ export default function MyRecipesScreen({ navigation }: MyRecipesScreenProps) {
   return (
     <View style={styles.container}>
       {/* Header Actions */}
-      <View style={styles.headerActions}>
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        style={styles.headerActionsScroll}
+        contentContainerStyle={styles.headerActions}
+      >
         <Pressable
           style={styles.actionButton}
           onPress={() => navigation.navigate('AddRecipe')}
         >
-          <Ionicons name="link" size={20} color={colors.accent} />
-          <Text style={styles.actionButtonText}>From URL/Media</Text>
+          <Ionicons name="create-outline" size={20} color={colors.accent} />
+          <Text style={styles.actionButtonText}>Create Cocktail</Text>
         </Pressable>
 
         <Pressable
           style={styles.actionButton}
-          onPress={() => navigation.navigate('AIRecipeFormat', {
-            recipe: null,
-            startWithManual: true
-          })}
+          onPress={() => navigation.navigate('URLRecipeInput')}
         >
-          <Ionicons name="create-outline" size={20} color={colors.accent} />
-          <Text style={styles.actionButtonText}>Manual Entry</Text>
+          <Ionicons name="link" size={20} color={colors.accent} />
+          <Text style={styles.actionButtonText}>From URL</Text>
         </Pressable>
 
         <Pressable
@@ -178,7 +180,7 @@ export default function MyRecipesScreen({ navigation }: MyRecipesScreenProps) {
           <Ionicons name="sparkles" size={20} color={colors.primary} />
           <Text style={styles.actionButtonText}>AI Generate</Text>
         </Pressable>
-      </View>
+      </ScrollView>
 
       {/* Filter Tabs */}
       <ScrollView
@@ -214,20 +216,25 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: colors.bg,
   },
+  headerActionsScroll: {
+    maxHeight: 60,
+    marginBottom: spacing(1),
+  },
   headerActions: {
     flexDirection: 'row',
-    padding: spacing(2),
-    gap: spacing(1),
+    paddingHorizontal: spacing(2),
+    paddingVertical: spacing(1),
+    gap: spacing(1.5),
   },
   actionButton: {
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: colors.card,
-    paddingHorizontal: spacing(2),
+    paddingHorizontal: spacing(2.5),
     paddingVertical: spacing(1.5),
     borderRadius: radii.lg,
     gap: 8,
-    flex: 1,
+    minWidth: 120,
     justifyContent: 'center',
   },
   actionButtonText: {
