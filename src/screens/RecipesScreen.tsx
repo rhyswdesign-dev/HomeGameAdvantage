@@ -860,6 +860,35 @@ export default function RecipesScreen() {
       });
     }
 
+    // Filter by difficulty
+    if (currentFilters.difficulty && currentFilters.difficulty.length > 0) {
+      recipes = recipes.filter(recipe => {
+        const recipeDifficulty = recipe.difficulty?.toLowerCase();
+        return currentFilters.difficulty.some(diff => diff === recipeDifficulty);
+      });
+    }
+
+    // Filter by category
+    if (currentFilters.category && currentFilters.category.length > 0) {
+      recipes = recipes.filter(recipe => {
+        const recipeCategory = recipe.category?.toLowerCase();
+        const recipeSubtitle = recipe.subtitle?.toLowerCase() || '';
+        const recipeDescription = recipe.description?.toLowerCase() || '';
+
+        return currentFilters.category.some(cat => {
+          const categoryLower = cat.toLowerCase();
+          // Check if category matches the recipe's category field or appears in subtitle/description
+          return recipeCategory === categoryLower ||
+                 recipeSubtitle.includes(categoryLower) ||
+                 recipeDescription.includes(categoryLower);
+        });
+      });
+    }
+
+    // Sort alphabetically if filter is applied
+    if (currentFilters.sortAlphabetically) {
+      recipes = recipes.sort((a, b) => a.name.localeCompare(b.name));
+    }
 
     return recipes;
   };
@@ -1587,7 +1616,7 @@ export default function RecipesScreen() {
                           gap: spacing(1),
                           paddingRight: spacing(2)
                         }}>
-                        {['All', 'Whiskey', 'Gin', 'Vodka', 'Rum', 'Tequila', 'Cognac', 'Mezcal', 'Brandy'].map((spirit) => {
+                        {['All', 'Brandy', 'Cognac', 'Gin', 'Mezcal', 'Rum', 'Tequila', 'Vodka', 'Whiskey'].map((spirit) => {
                           const isSelected = currentFilters.ingredients?.includes(spirit.toLowerCase()) || (spirit === 'All' && !currentFilters.ingredients?.length);
                           return (
                             <Pressable
@@ -1635,47 +1664,49 @@ export default function RecipesScreen() {
                         marginBottom: spacing(2)
                       }}>Difficulty</Text>
 
-                      <View style={{
-                        flexDirection: 'row',
-                        gap: spacing(1),
-                        flexWrap: 'wrap'
-                      }}>
-                        {['All', 'Easy', 'Medium', 'Hard'].map((difficulty) => {
-                          const isSelected = currentFilters.difficulty?.includes(difficulty.toLowerCase()) || (difficulty === 'All' && !currentFilters.difficulty?.length);
-                          return (
-                            <Pressable
-                              key={difficulty}
-                              onPress={() => {
-                                if (difficulty === 'All') {
-                                  setCurrentFilters({ ...currentFilters, difficulty: [] });
-                                } else {
-                                  const difficulties = currentFilters.difficulty || [];
-                                  const newDifficulties = difficulties.includes(difficulty.toLowerCase())
-                                    ? difficulties.filter(d => d !== difficulty.toLowerCase())
-                                    : [difficulty.toLowerCase()];
-                                  setCurrentFilters({ ...currentFilters, difficulty: newDifficulties });
-                                }
-                              }}
-                              style={{
-                                backgroundColor: isSelected ? colors.accent : colors.card,
-                                paddingHorizontal: spacing(2),
-                                paddingVertical: spacing(1.5),
-                                borderRadius: radii.md,
-                                borderWidth: 1,
-                                borderColor: isSelected ? colors.accent : colors.border
-                              }}
-                            >
-                              <Text style={{
-                                color: isSelected ? colors.white : colors.text,
-                                fontSize: 16,
-                                fontWeight: isSelected ? '600' : '400'
-                              }}>
-                                {difficulty}
-                              </Text>
-                            </Pressable>
-                          );
-                        })}
-                      </View>
+                      <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+                        <View style={{
+                          flexDirection: 'row',
+                          gap: spacing(1),
+                          paddingRight: spacing(2)
+                        }}>
+                          {['All', 'Easy', 'Medium', 'Hard'].map((difficulty) => {
+                            const isSelected = currentFilters.difficulty?.includes(difficulty.toLowerCase()) || (difficulty === 'All' && !currentFilters.difficulty?.length);
+                            return (
+                              <Pressable
+                                key={difficulty}
+                                onPress={() => {
+                                  if (difficulty === 'All') {
+                                    setCurrentFilters({ ...currentFilters, difficulty: [] });
+                                  } else {
+                                    const difficulties = currentFilters.difficulty || [];
+                                    const newDifficulties = difficulties.includes(difficulty.toLowerCase())
+                                      ? difficulties.filter(d => d !== difficulty.toLowerCase())
+                                      : [difficulty.toLowerCase()];
+                                    setCurrentFilters({ ...currentFilters, difficulty: newDifficulties });
+                                  }
+                                }}
+                                style={{
+                                  backgroundColor: isSelected ? colors.accent : colors.card,
+                                  paddingHorizontal: spacing(2),
+                                  paddingVertical: spacing(1.5),
+                                  borderRadius: radii.md,
+                                  borderWidth: 1,
+                                  borderColor: isSelected ? colors.accent : colors.border
+                                }}
+                              >
+                                <Text style={{
+                                  color: isSelected ? colors.white : colors.text,
+                                  fontSize: 16,
+                                  fontWeight: isSelected ? '600' : '400'
+                                }}>
+                                  {difficulty}
+                                </Text>
+                              </Pressable>
+                            );
+                          })}
+                        </View>
+                      </ScrollView>
                     </View>
 
                     {/* Category Filter */}
@@ -1693,7 +1724,7 @@ export default function RecipesScreen() {
                           gap: spacing(1),
                           paddingRight: spacing(2)
                         }}>
-                          {['All', 'Shots', 'Mocktails', 'Classic', 'Tropical', 'Fruity', 'Strong', 'Creamy'].map((category) => {
+                          {['All', 'Classic', 'Creamy', 'Fruity', 'Mocktails', 'Shots', 'Strong', 'Tropical'].map((category) => {
                             const isSelected = currentFilters.category?.includes(category.toLowerCase()) || (category === 'All' && !currentFilters.category?.length);
                             return (
                               <Pressable
@@ -1730,6 +1761,47 @@ export default function RecipesScreen() {
                           })}
                         </View>
                       </ScrollView>
+                    </View>
+
+                    {/* Sort Alphabetically */}
+                    <View style={{ marginBottom: spacing(3) }}>
+                      <Text style={{
+                        fontSize: 16,
+                        fontWeight: '600',
+                        color: colors.text,
+                        marginBottom: spacing(2)
+                      }}>Sort</Text>
+
+                      <Pressable
+                        onPress={() => {
+                          setCurrentFilters({
+                            ...currentFilters,
+                            sortAlphabetically: !currentFilters.sortAlphabetically
+                          });
+                        }}
+                        style={{
+                          flexDirection: 'row',
+                          alignItems: 'center',
+                          justifyContent: 'space-between',
+                          backgroundColor: colors.card,
+                          paddingHorizontal: spacing(2),
+                          paddingVertical: spacing(1.5),
+                          borderRadius: radii.md,
+                          borderWidth: 1,
+                          borderColor: currentFilters.sortAlphabetically ? colors.accent : colors.border
+                        }}
+                      >
+                        <Text style={{
+                          color: currentFilters.sortAlphabetically ? colors.accent : colors.text,
+                          fontSize: 16,
+                          fontWeight: currentFilters.sortAlphabetically ? '600' : '400'
+                        }}>
+                          Sort Alphabetically (A-Z)
+                        </Text>
+                        {currentFilters.sortAlphabetically && (
+                          <Ionicons name="checkmark-circle" size={20} color={colors.accent} />
+                        )}
+                      </Pressable>
                     </View>
 
                     {/* Clear All Button */}
