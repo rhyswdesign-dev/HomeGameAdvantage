@@ -25,7 +25,7 @@ import { useSavedItems } from '../hooks/useSavedItems';
 import { getUserRecipes, Recipe, deleteRecipe } from '../lib/firestore';
 import { auth } from '../config/firebase';
 import GroceryListModal from '../components/GroceryListModal';
-import { recommendationEngine, type RecommendationSet, type Recommendation } from '../services/recommendationEngine';
+import { getPersonalizedFeed, RecommendationEngine } from '../services/recommendationEngine';
 import { AIRecipeFormatter, FormattedRecipe } from '../services/aiRecipeFormatter';
 import { searchService, type SearchableItem, FilterOptions } from '../services/searchService';
 import AIRecipeSearch from '../components/AIRecipeSearch';
@@ -40,6 +40,7 @@ import {
 } from '../data/cocktails';
 import { usePersonalization } from '../store/usePersonalization';
 import { useUserRecipes } from '../store/useUserRecipes';
+import RecipePreferencesModal from '../components/RecipePreferencesModal';
 
 type Nav = NativeStackNavigationProp<RootStackParamList>;
 const { width } = Dimensions.get('window');
@@ -617,8 +618,12 @@ export default function RecipesScreen() {
   const navigation = useNavigation<Nav>();
   const { savedItems, toggleSavedCocktail, isCocktailSaved } = useSavedItems();
   const { credits, isPremium, getActionCost } = useAICredits();
-  const { getPersonalizedMoodOrder, getFeaturedCocktails, scoreMoodCategory, recordInteraction } = usePersonalization();
+  const { getPersonalizedMoodOrder, getFeaturedCocktails, scoreMoodCategory, recordInteraction, profile } = usePersonalization();
   const { recipes: userRecipes, loadRecipes } = useUserRecipes();
+
+  // View mode toggle - Browse All vs For You
+  const [viewMode, setViewMode] = useState<'browse' | 'personalized'>('personalized');
+  const [personalizedRecommendations, setPersonalizedRecommendations] = useState<any[]>([]);
 
   // Search and filter states
   const [searchQuery, setSearchQuery] = useState('');
@@ -627,6 +632,7 @@ export default function RecipesScreen() {
   const [currentFilters, setCurrentFilters] = useState<Partial<FilterOptions>>({});
   const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const [showFilterModal, setShowFilterModal] = useState(false);
+  const [showSearchInput, setShowSearchInput] = useState(false);
 
   // Modal states
   const [groceryListVisible, setGroceryListVisible] = useState(false);
@@ -637,6 +643,9 @@ export default function RecipesScreen() {
   const [currentAiRecipe, setCurrentAiRecipe] = useState<FormattedRecipe | null>(null);
   const [creditsPurchaseVisible, setCreditsPurchaseVisible] = useState(false);
   const [creditsInfoVisible, setCreditsInfoVisible] = useState(false);
+
+  // Preferences modal
+  const [preferencesModalVisible, setPreferencesModalVisible] = useState(false);
 
   // AI recipe handler
   const handleAiRecipeFound = useCallback((recipe: FormattedRecipe) => {
@@ -762,6 +771,76 @@ export default function RecipesScreen() {
     };
   }, []);
 
+  // Load personalized recommendations when switching to "For You" mode
+  useEffect(() => {
+    if (viewMode === 'personalized') {
+      try {
+        // Get featured cocktails from personalization store
+        const featured = getFeaturedCocktails();
+        const moodOrder = getPersonalizedMoodOrder();
+
+        // Format recommendations into sections
+        const formattedSections: Array<{
+          title: string;
+          reason: string;
+          cocktails: any[];
+        }> = [];
+
+        // Add top picks section if we have featured cocktails
+        if (featured && featured.length > 0) {
+          formattedSections.push({
+            title: 'Top Picks For You',
+            reason: 'Based on your taste profile and preferences',
+            cocktails: featured.slice(0, 8)
+          });
+        }
+
+        // Add mood-based sections based on personalized mood order
+        if (moodOrder && moodOrder.length > 0) {
+          // Get top 3 mood categories
+          moodOrder.slice(0, 3).forEach(moodTitle => {
+            const mood = COCKTAIL_MOODS.find(m => m.title === moodTitle);
+            if (mood) {
+              const cocktails = mood.cocktails
+                .slice(0, 6)
+                .map(id => ALL_COCKTAILS.find(c => c.id === id))
+                .filter(Boolean);
+
+              if (cocktails.length > 0) {
+                formattedSections.push({
+                  title: `${moodTitle} Favorites`,
+                  reason: `Based on your preference for ${moodTitle.toLowerCase()} cocktails`,
+                  cocktails
+                });
+              }
+            }
+          });
+        }
+
+        // If no personalized content, show some general recommendations
+        if (formattedSections.length === 0) {
+          // Show top rated cocktails as fallback
+          const topRated = [...ALL_COCKTAILS]
+            .sort((a, b) => (b.rating || 0) - (a.rating || 0))
+            .slice(0, 8);
+
+          if (topRated.length > 0) {
+            formattedSections.push({
+              title: 'Popular Picks',
+              reason: 'Highly rated cocktails to try',
+              cocktails: topRated
+            });
+          }
+        }
+
+        setPersonalizedRecommendations(formattedSections);
+      } catch (error) {
+        console.error('Error loading personalized recommendations:', error);
+        setPersonalizedRecommendations([]);
+      }
+    }
+  }, [viewMode, getFeaturedCocktails, getPersonalizedMoodOrder]);
+
   // Get current displayed recipes
   const getCurrentRecipes = () => {
     if (searchQuery.trim()) {
@@ -816,33 +895,26 @@ export default function RecipesScreen() {
               {isPremium ? '∞' : credits.toLocaleString()}
             </Text>
           </Pressable>
-          <Pressable
-            hitSlop={12}
-            onPress={() => setCreditsInfoVisible(true)}
-          >
-            <Ionicons
-              name="information-circle-outline"
-              size={18}
-              color={colors.subtext}
-            />
-          </Pressable>
         </View>
       ),
       headerRight: () => (
-        <View style={{ flexDirection: 'row', gap: 16 }}>
+        <View style={{ flexDirection: 'row', gap: 16, marginRight: 16 }}>
           <Pressable hitSlop={12} onPress={() => navigation.navigate('AddRecipe')}>
             <Ionicons name="add-circle-outline" size={24} color={colors.accent} />
-          </Pressable>
-          <Pressable hitSlop={12} onPress={() => navigation.navigate('ShoppingCart')}>
-            <Ionicons name="cart" size={24} color={colors.accent} />
           </Pressable>
           <Pressable hitSlop={12} onPress={() => navigation.navigate('HomeBar')}>
             <Ionicons name="library" size={24} color={colors.accent} />
           </Pressable>
+          <Pressable
+            hitSlop={12}
+            onPress={() => setPreferencesModalVisible(true)}
+          >
+            <Ionicons name="settings-outline" size={24} color={colors.accent} />
+          </Pressable>
         </View>
       ),
     });
-  }, [navigation, credits, isPremium, setCreditsPurchaseVisible, setCreditsInfoVisible]);
+  }, [navigation, credits, isPremium, setCreditsPurchaseVisible, setCreditsInfoVisible, setViewMode]);
 
   const renderRecipeItem: ListRenderItem<any> = ({ item }) => {
     const cardProps = createRecipeCardProps(item, navigation, {
@@ -867,7 +939,7 @@ export default function RecipesScreen() {
     <View style={{ flex: 1, backgroundColor: colors.bg }}>
       <StatusBar style="light" />
       <FlatList
-        data={getCurrentRecipes() || []}
+        data={viewMode === 'browse' ? (getCurrentRecipes() || []) : []}
         keyExtractor={(item) => item.id}
         renderItem={renderRecipeItem}
         numColumns={2}
@@ -876,126 +948,78 @@ export default function RecipesScreen() {
         ListHeaderComponent={
           <View>
 
-            {/* Search Bar */}
-            <View style={{
-              marginHorizontal: spacing(2),
-              marginTop: spacing(2),
-              marginBottom: spacing(1.5),
-              backgroundColor: colors.card,
-              borderRadius: radii.lg,
-              flexDirection: 'row',
-              alignItems: 'center',
-              paddingHorizontal: spacing(1.5)
-            }}>
-              <Ionicons name="search" size={20} color={colors.muted} style={{ marginRight: spacing(1) }} />
-              <TextInput
-                value={searchQuery}
-                onChangeText={handleSearch}
-                placeholder="Search cocktails by name, spirit, or ingredient..."
-                placeholderTextColor={colors.muted}
-                style={{
-                  flex: 1,
-                  color: colors.text,
-                  fontSize: 16,
-                  paddingVertical: spacing(1.5),
-                }}
-                returnKeyType="search"
-                autoCapitalize="none"
-                autoCorrect={false}
-              />
-              {searchQuery ? (
-                <Pressable onPress={() => {
-                  setSearchQuery('');
-                  setSearchResults([]);
-                }} hitSlop={8}>
-                  <Ionicons name="close-circle" size={20} color={colors.muted} />
-                </Pressable>
-              ) : null}
-            </View>
-
-
-            {/* Search Results Info */}
-            {searchQuery.trim() && (
+            {/* View Mode Toggle */}
+            {(
               <View style={{
                 marginHorizontal: spacing(2),
-                marginBottom: spacing(1)
+                marginTop: spacing(2),
+                marginBottom: spacing(1.5),
+                flexDirection: 'row',
+                backgroundColor: colors.card,
+                borderRadius: radii.lg,
+                padding: 4,
               }}>
-                <Text style={{
-                  color: colors.muted,
-                  fontSize: 14
-                }}>
-                  {isSearching ? 'Searching...' : `Found ${searchResults.length} cocktail${searchResults.length !== 1 ? 's' : ''}`}
-                </Text>
+                <Pressable
+                  onPress={() => setViewMode('personalized')}
+                  style={{
+                    flex: 1,
+                    paddingVertical: spacing(1),
+                    borderRadius: radii.md,
+                    backgroundColor: viewMode === 'personalized' ? colors.accent : 'transparent',
+                    alignItems: 'center',
+                  }}
+                >
+                  <Text style={{
+                    color: viewMode === 'personalized' ? colors.bg : colors.muted,
+                    fontWeight: viewMode === 'personalized' ? '700' : '600',
+                    fontSize: 15,
+                  }}>
+                    For You
+                  </Text>
+                </Pressable>
+                <Pressable
+                  onPress={() => setViewMode('browse')}
+                  style={{
+                    flex: 1,
+                    paddingVertical: spacing(1),
+                    borderRadius: radii.md,
+                    backgroundColor: viewMode === 'browse' ? colors.accent : 'transparent',
+                    alignItems: 'center',
+                  }}
+                >
+                  <Text style={{
+                    color: viewMode === 'browse' ? colors.bg : colors.muted,
+                    fontWeight: viewMode === 'browse' ? '700' : '600',
+                    fontSize: 15,
+                  }}>
+                    Browse All
+                  </Text>
+                </Pressable>
               </View>
             )}
 
-            {/* AI-Powered Recipe Search */}
-            {!searchQuery.trim() && (
-              <AIRecipeSearch
-                onRecipeFound={handleAiRecipeFound}
-                onCreditsNeeded={handleCreditsNeeded}
-                style={{ marginHorizontal: spacing(2) }}
-              />
-            )}
-
-
-            {/* Only show featured content when not searching */}
-            {!searchQuery.trim() && (
+            {/* Browse All Content */}
+            {viewMode === 'browse' && (
               <>
-                {/* Cocktail of the Month */}
-                <View style={{ marginTop: spacing(1) }}>
+                {/* AI-Powered Recipe Search */}
+                {!searchQuery.trim() && (
+                  <AIRecipeSearch
+                    onRecipeFound={handleAiRecipeFound}
+                    onCreditsNeeded={handleCreditsNeeded}
+                    style={{ marginHorizontal: spacing(2), marginBottom: spacing(2) }}
+                  />
+                )}
+
+                {/* Only show featured content when not searching */}
+                {!searchQuery.trim() && (
+                  <>
+                    {/* Cocktail of the Month */}
+                    <View style={{ marginTop: spacing(1) }}>
               <HeroCard
                 cocktail={COCKTAIL_OF_THE_MONTH}
                 onPress={() => navigation.navigate('CocktailDetail', { cocktailId: COCKTAIL_OF_THE_MONTH.id })}
               />
             </View>
-
-            {/* Explore by Mood (expanded) */}
-            <SectionHeader title="Explore by Mood" />
-            <ScrollView horizontal nestedScrollEnabled showsHorizontalScrollIndicator={false} style={{ paddingLeft: spacing(2), marginBottom: spacing(2) }}>
-              {(() => {
-                // Get personalized mood order from user preferences
-                const personalizedOrder = getPersonalizedMoodOrder();
-
-                // Sort moods based on personalization, fallback to original order
-                const sortedMoods = personalizedOrder.length > 0
-                  ? personalizedOrder.map(categoryName =>
-                      COCKTAIL_MOODS.find(mood => mood.title === categoryName)
-                    ).filter(Boolean).concat(
-                      COCKTAIL_MOODS.filter(mood =>
-                        !personalizedOrder.includes(mood.title)
-                      )
-                    )
-                  : COCKTAIL_MOODS;
-
-                return sortedMoods.map((mood) => (
-                  <MoodCard
-                    key={mood.title}
-                    title={mood.title}
-                    subtitle={mood.subtitle}
-                    image={mood.image}
-                    onPress={() => {
-                      // Record mood interaction for personalization
-                      recordInteraction('mood_selected', mood.category, {
-                        moodTitle: mood.title,
-                        userScore: scoreMoodCategory(mood.title)
-                      });
-
-                      // Ensure we're passing simple string IDs, not objects
-                      const cocktailIds = Array.isArray(mood.cocktails)
-                        ? mood.cocktails.map(item => typeof item === 'string' ? item : item.id)
-                        : [];
-
-                      navigation.navigate('CocktailList', {
-                        title: mood.title,
-                        cocktailIds: cocktailIds,
-                        category: mood.category
-                      });
-                    }}
-                  />
-                ));
-              })()}
-            </ScrollView>
 
             {/* Shots */}
             <SectionHeader
@@ -1127,50 +1151,389 @@ export default function RecipesScreen() {
 
 
 
+                  </>
+                )}
               </>
             )}
 
-            {/* All Cocktails Header with Filter Button */}
-            <View style={{
-              flexDirection: 'row',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-              marginHorizontal: spacing(2),
-              marginTop: spacing(2),
-              marginBottom: spacing(1.5)
-            }}>
-              <Text style={{
-                color: colors.text,
-                fontSize: 24,
-                fontWeight: '900'
-              }}>
-                All Cocktails
-              </Text>
-              {!searchQuery.trim() && (
-                <Pressable
-                  onPress={() => setShowFilterModal(true)}
+            {/* Personalized Feed - For You View */}
+            {viewMode === 'personalized' && (
+              <>
+
+                {/* Your Preferences Card */}
+                <TouchableOpacity
+                  onPress={() => setPreferencesModalVisible(true)}
                   style={{
-                    flexDirection: 'row',
-                    alignItems: 'center',
+                    marginHorizontal: spacing(2),
+                    marginBottom: spacing(2),
+                    padding: spacing(2.5),
                     backgroundColor: colors.card,
-                    paddingHorizontal: spacing(1.5),
-                    paddingVertical: spacing(1),
-                    borderRadius: radii.md,
+                    borderRadius: radii.lg,
                     borderWidth: 1,
-                    borderColor: colors.border
+                    borderColor: colors.line,
                   }}
                 >
-                  <Ionicons name="filter" size={16} color={colors.accent} style={{ marginRight: spacing(0.5) }} />
                   <Text style={{
                     color: colors.text,
-                    fontSize: 14,
-                    fontWeight: '500'
+                    fontSize: 18,
+                    fontWeight: '700',
+                    marginBottom: spacing(2),
                   }}>
-                    Filter
+                    🧠 Your Preferences
                   </Text>
-                </Pressable>
-              )}
-            </View>
+                  <View style={{
+                    flexDirection: 'row',
+                    justifyContent: 'space-between',
+                    marginBottom: spacing(2),
+                  }}>
+                    <View style={{ flex: 1 }}>
+                      <Text style={{
+                        color: colors.muted,
+                        fontSize: 12,
+                        marginBottom: spacing(0.5),
+                      }}>
+                        Favorite Spirit
+                      </Text>
+                      <Text style={{
+                        color: colors.text,
+                        fontSize: 14,
+                        fontWeight: '600',
+                        textTransform: 'capitalize',
+                      }}>
+                        {profile?.favoriteSpirits?.[0] || 'Not set'}
+                      </Text>
+                    </View>
+                    <View style={{ flex: 1 }}>
+                      <Text style={{
+                        color: colors.muted,
+                        fontSize: 12,
+                        marginBottom: spacing(0.5),
+                      }}>
+                        Skill Level
+                      </Text>
+                      <Text style={{
+                        color: colors.text,
+                        fontSize: 14,
+                        fontWeight: '600',
+                        textTransform: 'capitalize',
+                      }}>
+                        {profile?.skillLevel || 'Not set'}
+                      </Text>
+                    </View>
+                    <View style={{ flex: 1 }}>
+                      <Text style={{
+                        color: colors.muted,
+                        fontSize: 12,
+                        marginBottom: spacing(0.5),
+                      }}>
+                        Flavor Match
+                      </Text>
+                      <Text style={{
+                        color: colors.text,
+                        fontSize: 14,
+                        fontWeight: '600',
+                        textTransform: 'capitalize',
+                      }}>
+                        {profile?.flavorPreferences && profile.flavorPreferences.length > 0
+                          ? profile.flavorPreferences.slice(0, 2).join(', ')
+                          : 'Not set'}
+                      </Text>
+                    </View>
+                  </View>
+                  <Text style={{
+                    color: colors.muted,
+                    fontSize: 12,
+                    fontStyle: 'italic',
+                  }}>
+                    💡 These update as you interact with recipes
+                  </Text>
+                </TouchableOpacity>
+
+                {/* What should I make tonight - AI Prompt */}
+                <TouchableOpacity
+                  onPress={() => {
+                    console.log('Open AI prompt');
+                  }}
+                  style={{
+                    marginHorizontal: spacing(2),
+                    marginBottom: spacing(3),
+                    padding: spacing(2.5),
+                    backgroundColor: colors.gold,
+                    borderRadius: radii.lg,
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                  }}
+                >
+                  <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1 }}>
+                    <Text style={{ fontSize: 32, marginRight: spacing(2) }}>✨</Text>
+                    <View style={{ flex: 1 }}>
+                      <Text style={{
+                        color: colors.bg,
+                        fontSize: 18,
+                        fontWeight: '700',
+                        marginBottom: spacing(0.5),
+                      }}>
+                        What should I make tonight?
+                      </Text>
+                      <Text style={{
+                        color: colors.bg,
+                        fontSize: 13,
+                      }}>
+                        AI-powered suggestions • 1 prompt left
+                      </Text>
+                    </View>
+                  </View>
+                  <View style={{
+                    paddingVertical: spacing(0.75),
+                    paddingHorizontal: spacing(1.5),
+                    backgroundColor: colors.bg,
+                    borderRadius: radii.md,
+                  }}>
+                    <Text style={{
+                      color: colors.gold,
+                      fontSize: 13,
+                      fontWeight: '700',
+                    }}>
+                      +50 XP
+                    </Text>
+                  </View>
+                </TouchableOpacity>
+
+                {/* Your Moods Section */}
+                <View style={{
+                  marginBottom: spacing(3),
+                }}>
+                  <View style={{
+                    paddingHorizontal: spacing(2),
+                    marginBottom: spacing(2),
+                  }}>
+                    <Text style={{
+                      color: colors.text,
+                      fontSize: 22,
+                      fontWeight: '900',
+                      marginBottom: spacing(0.5),
+                    }}>
+                      Your Moods
+                    </Text>
+                    <Text style={{
+                      color: colors.muted,
+                      fontSize: 14,
+                    }}>
+                      Ordered based on your tequila preference
+                    </Text>
+                  </View>
+                  <ScrollView
+                    horizontal
+                    showsHorizontalScrollIndicator={false}
+                    style={{ paddingLeft: spacing(2) }}
+                    contentContainerStyle={{ paddingRight: spacing(2) }}
+                  >
+                    {getPersonalizedMoodOrder().slice(0, 5).map((moodTitle, index) => {
+                      const mood = COCKTAIL_MOODS.find(m => m.title === moodTitle);
+                      if (!mood) return null;
+
+                      const isTop2 = index < 2;
+
+                      return (
+                        <TouchableOpacity
+                          key={mood.title}
+                          onPress={() => {
+                            recordInteraction('mood_selected', mood.category, {
+                              moodTitle: mood.title,
+                              userScore: scoreMoodCategory(mood.title)
+                            });
+
+                            const cocktailIds = Array.isArray(mood.cocktails)
+                              ? mood.cocktails.map(item => typeof item === 'string' ? item : item.id)
+                              : [];
+
+                            navigation.navigate('CocktailList', {
+                              title: mood.title,
+                              cocktailIds: cocktailIds,
+                              category: mood.category
+                            });
+                          }}
+                          style={{
+                            width: 280,
+                            marginRight: spacing(2),
+                            padding: spacing(2),
+                            backgroundColor: colors.card,
+                            borderRadius: radii.lg,
+                            borderWidth: 2,
+                            borderColor: isTop2 ? colors.accent : colors.line,
+                          }}
+                        >
+                          {isTop2 && (
+                            <View style={{
+                              position: 'absolute',
+                              top: spacing(1),
+                              right: spacing(1),
+                              paddingVertical: spacing(0.5),
+                              paddingHorizontal: spacing(1),
+                              backgroundColor: colors.accent,
+                              borderRadius: radii.sm,
+                            }}>
+                              <Text style={{
+                                color: colors.bg,
+                                fontSize: 11,
+                                fontWeight: '700',
+                              }}>
+                                TOP {index + 1}
+                              </Text>
+                            </View>
+                          )}
+                          <Text style={{ fontSize: 32, marginBottom: spacing(1) }}>
+                            {mood.title === 'Tropical Escape' ? '🌴' :
+                             mood.title === 'Playful & Fun' ? '🎉' :
+                             mood.title === 'Bold & Serious' ? '🥃' :
+                             mood.title === 'Romantic & Elegant' ? '🥂' :
+                             mood.title === 'Cozy & Comforting' ? '🔥' : '🍹'}
+                          </Text>
+                          <Text style={{
+                            color: colors.text,
+                            fontSize: 18,
+                            fontWeight: '700',
+                            marginBottom: spacing(0.5),
+                          }}>
+                            {mood.title}
+                          </Text>
+                          <Text style={{
+                            color: colors.muted,
+                            fontSize: 13,
+                            marginBottom: spacing(1.5),
+                          }}>
+                            {mood.subtitle}
+                          </Text>
+                          {isTop2 && (
+                            <View style={{
+                              flexDirection: 'row',
+                              alignItems: 'center',
+                            }}>
+                              <Ionicons name="star" size={14} color={colors.accent} style={{ marginRight: spacing(0.5) }} />
+                              <Text style={{
+                                color: colors.accent,
+                                fontSize: 12,
+                                fontWeight: '600',
+                              }}>
+                                Perfect for tequila lovers
+                              </Text>
+                            </View>
+                          )}
+                        </TouchableOpacity>
+                      );
+                    })}
+                  </ScrollView>
+                </View>
+
+                {/* For You Section */}
+                <View style={{
+                  paddingHorizontal: spacing(2),
+                  marginBottom: spacing(2),
+                }}>
+                  <Text style={{
+                    color: colors.text,
+                    fontSize: 22,
+                    fontWeight: '900',
+                    marginBottom: spacing(0.5),
+                  }}>
+                    For You
+                  </Text>
+                  <Text style={{
+                    color: colors.muted,
+                    fontSize: 14,
+                  }}>
+                    Based on your tequila preference
+                  </Text>
+                </View>
+
+                {/* Empty state for now - will be filled with cocktails later */}
+                <View style={{
+                  marginHorizontal: spacing(2),
+                  padding: spacing(3),
+                  backgroundColor: colors.card,
+                  borderRadius: radii.lg,
+                  alignItems: 'center',
+                  marginBottom: spacing(4),
+                }}>
+                  <Text style={{
+                    color: colors.muted,
+                    fontSize: 14,
+                    textAlign: 'center',
+                  }}>
+                    Personalized cocktail recommendations will appear here
+                  </Text>
+                </View>
+              </>
+            )}
+
+            {/* All Cocktails Header with Search and Filter Buttons - Only show in Browse mode or when searching */}
+            {(searchQuery.trim() || viewMode === 'browse') && (
+              <View style={{
+                flexDirection: 'row',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                marginHorizontal: spacing(2),
+                marginTop: spacing(2),
+                marginBottom: spacing(1.5)
+              }}>
+                <Text style={{
+                  color: colors.text,
+                  fontSize: 24,
+                  fontWeight: '900'
+                }}>
+                  All Cocktails
+                </Text>
+                {!searchQuery.trim() && !showSearchInput && (
+                  <View style={{ flexDirection: 'row', gap: spacing(1) }}>
+                    <Pressable
+                      onPress={() => setShowSearchInput(true)}
+                      style={{
+                        flexDirection: 'row',
+                        alignItems: 'center',
+                        backgroundColor: colors.card,
+                        paddingHorizontal: spacing(1.5),
+                        paddingVertical: spacing(1),
+                        borderRadius: radii.md,
+                        borderWidth: 1,
+                        borderColor: colors.border
+                      }}
+                    >
+                      <Ionicons name="search" size={16} color={colors.accent} style={{ marginRight: spacing(0.5) }} />
+                      <Text style={{
+                        color: colors.text,
+                        fontSize: 14,
+                        fontWeight: '500'
+                      }}>
+                        Search
+                      </Text>
+                    </Pressable>
+                    <Pressable
+                      onPress={() => setShowFilterModal(true)}
+                      style={{
+                        flexDirection: 'row',
+                        alignItems: 'center',
+                        backgroundColor: colors.card,
+                        paddingHorizontal: spacing(1.5),
+                        paddingVertical: spacing(1),
+                        borderRadius: radii.md,
+                        borderWidth: 1,
+                        borderColor: colors.border
+                      }}
+                    >
+                      <Ionicons name="filter" size={16} color={colors.accent} style={{ marginRight: spacing(0.5) }} />
+                      <Text style={{
+                        color: colors.text,
+                        fontSize: 14,
+                        fontWeight: '500'
+                      }}>
+                        Filter
+                      </Text>
+                    </Pressable>
+                  </View>
+                )}
+              </View>
+            )}
 
             {/* Spirit Filter Modal */}
             <Modal visible={showFilterModal} transparent animationType="fade">
@@ -1500,6 +1863,83 @@ export default function RecipesScreen() {
           </View>
         </View>
       </Modal>
+
+      {/* Recipe Preferences Modal */}
+      <RecipePreferencesModal
+        visible={preferencesModalVisible}
+        onClose={() => setPreferencesModalVisible(false)}
+      />
+
+      {/* Floating Search Bar */}
+      {showSearchInput && (
+        <View style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          right: 0,
+          backgroundColor: colors.bg,
+          paddingTop: spacing(2),
+          paddingHorizontal: spacing(2),
+          paddingBottom: spacing(2),
+          borderBottomWidth: 1,
+          borderBottomColor: colors.line,
+          zIndex: 1000,
+        }}>
+          <View style={{
+            backgroundColor: colors.card,
+            borderRadius: radii.lg,
+            flexDirection: 'row',
+            alignItems: 'center',
+            paddingHorizontal: spacing(1.5),
+            borderWidth: 1,
+            borderColor: colors.border,
+          }}>
+            <Ionicons name="search" size={20} color={colors.muted} style={{ marginRight: spacing(1) }} />
+            <TextInput
+              value={searchQuery}
+              onChangeText={handleSearch}
+              placeholder="Search cocktails by name, spirit, or ingredient..."
+              placeholderTextColor={colors.muted}
+              style={{
+                flex: 1,
+                color: colors.text,
+                fontSize: 16,
+                paddingVertical: spacing(1.5),
+              }}
+              returnKeyType="search"
+              autoCapitalize="none"
+              autoCorrect={false}
+              autoFocus
+            />
+            {searchQuery ? (
+              <Pressable onPress={() => {
+                setSearchQuery('');
+                setSearchResults([]);
+              }} hitSlop={8}>
+                <Ionicons name="close-circle" size={20} color={colors.muted} />
+              </Pressable>
+            ) : (
+              <Pressable onPress={() => {
+                setShowSearchInput(false);
+                setSearchQuery('');
+                setSearchResults([]);
+              }} hitSlop={8}>
+                <Ionicons name="close" size={20} color={colors.muted} />
+              </Pressable>
+            )}
+          </View>
+          {searchQuery.trim() && (
+            <View style={{ marginTop: spacing(1) }}>
+              <Text style={{
+                color: colors.muted,
+                fontSize: 14
+              }}>
+                {isSearching ? 'Searching...' : `Found ${searchResults.length} cocktail${searchResults.length !== 1 ? 's' : ''}`}
+              </Text>
+            </View>
+          )}
+        </View>
+      )}
 
     </View>
   );
