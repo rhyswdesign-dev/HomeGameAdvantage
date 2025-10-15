@@ -885,9 +885,15 @@ export default function RecipesScreen() {
       });
     }
 
-    // Sort alphabetically if filter is applied
-    if (currentFilters.sortAlphabetically) {
+    // Sort recipes
+    if (currentFilters.sortOrder === 'alphabetical-asc') {
       recipes = recipes.sort((a, b) => a.name.localeCompare(b.name));
+    } else if (currentFilters.sortOrder === 'alphabetical-desc') {
+      recipes = recipes.sort((a, b) => b.name.localeCompare(a.name));
+    } else if (currentFilters.sortOrder === 'rating-desc') {
+      recipes = recipes.sort((a, b) => (b.rating || 0) - (a.rating || 0));
+    } else if (currentFilters.sortOrder === 'rating-asc') {
+      recipes = recipes.sort((a, b) => (a.rating || 0) - (b.rating || 0));
     }
 
     return recipes;
@@ -1724,7 +1730,7 @@ export default function RecipesScreen() {
                           gap: spacing(1),
                           paddingRight: spacing(2)
                         }}>
-                          {['All', 'Classic', 'Creamy', 'Fruity', 'Mocktails', 'Shots', 'Strong', 'Tropical'].map((category) => {
+                          {['All', 'Bitter', 'Classic', 'Coffee', 'Creamy', 'Fizzy', 'Fruity', 'Herbal', 'Italian', 'Minty', 'Mocktails', 'Modern', 'Refreshing', 'Shots', 'Sour', 'Spicy', 'Sweet', 'Tiki', 'Tropical'].map((category) => {
                             const isSelected = currentFilters.category?.includes(category.toLowerCase()) || (category === 'All' && !currentFilters.category?.length);
                             return (
                               <Pressable
@@ -1763,45 +1769,56 @@ export default function RecipesScreen() {
                       </ScrollView>
                     </View>
 
-                    {/* Sort Alphabetically */}
+                    {/* Sort Options */}
                     <View style={{ marginBottom: spacing(3) }}>
                       <Text style={{
                         fontSize: 16,
                         fontWeight: '600',
                         color: colors.text,
                         marginBottom: spacing(2)
-                      }}>Sort</Text>
+                      }}>Sort By</Text>
 
-                      <Pressable
-                        onPress={() => {
-                          setCurrentFilters({
-                            ...currentFilters,
-                            sortAlphabetically: !currentFilters.sortAlphabetically
-                          });
-                        }}
-                        style={{
-                          flexDirection: 'row',
-                          alignItems: 'center',
-                          justifyContent: 'space-between',
-                          backgroundColor: colors.card,
-                          paddingHorizontal: spacing(2),
-                          paddingVertical: spacing(1.5),
-                          borderRadius: radii.md,
-                          borderWidth: 1,
-                          borderColor: currentFilters.sortAlphabetically ? colors.accent : colors.border
-                        }}
-                      >
-                        <Text style={{
-                          color: currentFilters.sortAlphabetically ? colors.accent : colors.text,
-                          fontSize: 16,
-                          fontWeight: currentFilters.sortAlphabetically ? '600' : '400'
-                        }}>
-                          Sort Alphabetically (A-Z)
-                        </Text>
-                        {currentFilters.sortAlphabetically && (
-                          <Ionicons name="checkmark-circle" size={20} color={colors.accent} />
-                        )}
-                      </Pressable>
+                      <View style={{
+                        flexDirection: 'row',
+                        flexWrap: 'wrap',
+                        gap: spacing(1)
+                      }}>
+                        {[
+                          { label: 'A → Z', value: 'alphabetical-asc' },
+                          { label: 'Z → A', value: 'alphabetical-desc' },
+                          { label: 'Rating ↑', value: 'rating-desc' },
+                          { label: 'Rating ↓', value: 'rating-asc' },
+                        ].map((sortOption) => {
+                          const isSelected = currentFilters.sortOrder === sortOption.value;
+                          return (
+                            <Pressable
+                              key={sortOption.value}
+                              onPress={() => {
+                                setCurrentFilters({
+                                  ...currentFilters,
+                                  sortOrder: isSelected ? undefined : sortOption.value
+                                });
+                              }}
+                              style={{
+                                backgroundColor: isSelected ? colors.accent : colors.card,
+                                paddingHorizontal: spacing(2),
+                                paddingVertical: spacing(1.5),
+                                borderRadius: radii.md,
+                                borderWidth: 1,
+                                borderColor: isSelected ? colors.accent : colors.border
+                              }}
+                            >
+                              <Text style={{
+                                color: isSelected ? colors.white : colors.text,
+                                fontSize: 16,
+                                fontWeight: isSelected ? '600' : '400'
+                              }}>
+                                {sortOption.label}
+                              </Text>
+                            </Pressable>
+                          );
+                        })}
+                      </View>
                     </View>
 
                     {/* Clear All Button */}
