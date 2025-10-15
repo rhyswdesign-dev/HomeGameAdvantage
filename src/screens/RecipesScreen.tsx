@@ -992,7 +992,7 @@ export default function RecipesScreen() {
                     fontWeight: viewMode === 'browse' ? '700' : '600',
                     fontSize: 15,
                   }}>
-                    Browse All
+                    Browse
                   </Text>
                 </Pressable>
               </View>
@@ -1535,7 +1535,7 @@ export default function RecipesScreen() {
               </View>
             )}
 
-            {/* Spirit Filter Modal */}
+            {/* Filter Modal */}
             <Modal visible={showFilterModal} transparent animationType="fade">
               <View style={{
                 flex: 1,
@@ -1549,7 +1549,8 @@ export default function RecipesScreen() {
                   borderRadius: radii.lg,
                   padding: spacing(4),
                   width: '100%',
-                  maxWidth: 400
+                  maxWidth: 400,
+                  maxHeight: '85%'
                 }}>
                   <View style={{
                     flexDirection: 'row',
@@ -1564,62 +1565,192 @@ export default function RecipesScreen() {
                       fontSize: 20,
                       fontWeight: '600',
                       color: colors.text
-                    }}>Filter</Text>
+                    }}>Filters</Text>
                     <Pressable onPress={() => setShowFilterModal(false)}>
                       <Ionicons name="close" size={24} color={colors.text} />
                     </Pressable>
                   </View>
 
+                  <ScrollView showsVerticalScrollIndicator={false}>
+                    {/* Spirit Filter */}
+                    <View style={{ marginBottom: spacing(3) }}>
+                      <Text style={{
+                        fontSize: 16,
+                        fontWeight: '600',
+                        color: colors.text,
+                        marginBottom: spacing(2)
+                      }}>Spirit</Text>
 
-                  <Text style={{
-                    fontSize: 16,
-                    fontWeight: '600',
-                    color: colors.text,
-                    marginBottom: spacing(2)
-                  }}>Filter by Spirit</Text>
-
-                  <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginBottom: spacing(2) }}>
-                    <View style={{
-                      flexDirection: 'row',
-                      gap: spacing(1),
-                      paddingRight: spacing(2)
-                    }}>
-                    {['All', 'Whiskey', 'Gin', 'Vodka', 'Rum', 'Tequila', 'Cognac'].map((spirit) => {
-                      const isSelected = currentFilters.ingredients?.includes(spirit.toLowerCase()) || (spirit === 'All' && !currentFilters.ingredients?.length);
-                      return (
-                        <Pressable
-                          key={spirit}
-                          onPress={() => {
-                            if (spirit === 'All') {
-                              setCurrentFilters({ ...currentFilters, ingredients: [] });
-                            } else {
-                              const ingredients = currentFilters.ingredients || [];
-                              const newIngredients = ingredients.includes(spirit.toLowerCase())
-                                ? ingredients.filter(i => i !== spirit.toLowerCase())
-                                : [spirit.toLowerCase()];
-                              setCurrentFilters({ ...currentFilters, ingredients: newIngredients });
-                            }
-                          }}
-                          style={{
-                            backgroundColor: isSelected ? colors.accent : colors.card,
-                            paddingHorizontal: spacing(2),
-                            paddingVertical: spacing(1.5),
-                            borderRadius: radii.md,
-                            borderWidth: 1,
-                            borderColor: isSelected ? colors.accent : colors.border
-                          }}
-                        >
-                          <Text style={{
-                            color: isSelected ? colors.white : colors.text,
-                            fontSize: 16,
-                            fontWeight: isSelected ? '600' : '400'
-                          }}>
-                            {spirit}
-                          </Text>
-                        </Pressable>
-                      );
-                    })}
+                      <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginBottom: spacing(2) }}>
+                        <View style={{
+                          flexDirection: 'row',
+                          gap: spacing(1),
+                          paddingRight: spacing(2)
+                        }}>
+                        {['All', 'Whiskey', 'Gin', 'Vodka', 'Rum', 'Tequila', 'Cognac', 'Mezcal', 'Brandy'].map((spirit) => {
+                          const isSelected = currentFilters.ingredients?.includes(spirit.toLowerCase()) || (spirit === 'All' && !currentFilters.ingredients?.length);
+                          return (
+                            <Pressable
+                              key={spirit}
+                              onPress={() => {
+                                if (spirit === 'All') {
+                                  setCurrentFilters({ ...currentFilters, ingredients: [] });
+                                } else {
+                                  const ingredients = currentFilters.ingredients || [];
+                                  const newIngredients = ingredients.includes(spirit.toLowerCase())
+                                    ? ingredients.filter(i => i !== spirit.toLowerCase())
+                                    : [spirit.toLowerCase()];
+                                  setCurrentFilters({ ...currentFilters, ingredients: newIngredients });
+                                }
+                              }}
+                              style={{
+                                backgroundColor: isSelected ? colors.accent : colors.card,
+                                paddingHorizontal: spacing(2),
+                                paddingVertical: spacing(1.5),
+                                borderRadius: radii.md,
+                                borderWidth: 1,
+                                borderColor: isSelected ? colors.accent : colors.border
+                              }}
+                            >
+                              <Text style={{
+                                color: isSelected ? colors.white : colors.text,
+                                fontSize: 16,
+                                fontWeight: isSelected ? '600' : '400'
+                              }}>
+                                {spirit}
+                              </Text>
+                            </Pressable>
+                          );
+                        })}
+                        </View>
+                      </ScrollView>
                     </View>
+
+                    {/* Difficulty Filter */}
+                    <View style={{ marginBottom: spacing(3) }}>
+                      <Text style={{
+                        fontSize: 16,
+                        fontWeight: '600',
+                        color: colors.text,
+                        marginBottom: spacing(2)
+                      }}>Difficulty</Text>
+
+                      <View style={{
+                        flexDirection: 'row',
+                        gap: spacing(1),
+                        flexWrap: 'wrap'
+                      }}>
+                        {['All', 'Easy', 'Medium', 'Hard'].map((difficulty) => {
+                          const isSelected = currentFilters.difficulty?.includes(difficulty.toLowerCase()) || (difficulty === 'All' && !currentFilters.difficulty?.length);
+                          return (
+                            <Pressable
+                              key={difficulty}
+                              onPress={() => {
+                                if (difficulty === 'All') {
+                                  setCurrentFilters({ ...currentFilters, difficulty: [] });
+                                } else {
+                                  const difficulties = currentFilters.difficulty || [];
+                                  const newDifficulties = difficulties.includes(difficulty.toLowerCase())
+                                    ? difficulties.filter(d => d !== difficulty.toLowerCase())
+                                    : [difficulty.toLowerCase()];
+                                  setCurrentFilters({ ...currentFilters, difficulty: newDifficulties });
+                                }
+                              }}
+                              style={{
+                                backgroundColor: isSelected ? colors.accent : colors.card,
+                                paddingHorizontal: spacing(2),
+                                paddingVertical: spacing(1.5),
+                                borderRadius: radii.md,
+                                borderWidth: 1,
+                                borderColor: isSelected ? colors.accent : colors.border
+                              }}
+                            >
+                              <Text style={{
+                                color: isSelected ? colors.white : colors.text,
+                                fontSize: 16,
+                                fontWeight: isSelected ? '600' : '400'
+                              }}>
+                                {difficulty}
+                              </Text>
+                            </Pressable>
+                          );
+                        })}
+                      </View>
+                    </View>
+
+                    {/* Category Filter */}
+                    <View style={{ marginBottom: spacing(3) }}>
+                      <Text style={{
+                        fontSize: 16,
+                        fontWeight: '600',
+                        color: colors.text,
+                        marginBottom: spacing(2)
+                      }}>Category</Text>
+
+                      <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+                        <View style={{
+                          flexDirection: 'row',
+                          gap: spacing(1),
+                          paddingRight: spacing(2)
+                        }}>
+                          {['All', 'Shots', 'Mocktails', 'Classic', 'Tropical', 'Fruity', 'Strong', 'Creamy'].map((category) => {
+                            const isSelected = currentFilters.category?.includes(category.toLowerCase()) || (category === 'All' && !currentFilters.category?.length);
+                            return (
+                              <Pressable
+                                key={category}
+                                onPress={() => {
+                                  if (category === 'All') {
+                                    setCurrentFilters({ ...currentFilters, category: [] });
+                                  } else {
+                                    const categories = currentFilters.category || [];
+                                    const newCategories = categories.includes(category.toLowerCase())
+                                      ? categories.filter(c => c !== category.toLowerCase())
+                                      : [category.toLowerCase()];
+                                    setCurrentFilters({ ...currentFilters, category: newCategories });
+                                  }
+                                }}
+                                style={{
+                                  backgroundColor: isSelected ? colors.accent : colors.card,
+                                  paddingHorizontal: spacing(2),
+                                  paddingVertical: spacing(1.5),
+                                  borderRadius: radii.md,
+                                  borderWidth: 1,
+                                  borderColor: isSelected ? colors.accent : colors.border
+                                }}
+                              >
+                                <Text style={{
+                                  color: isSelected ? colors.white : colors.text,
+                                  fontSize: 16,
+                                  fontWeight: isSelected ? '600' : '400'
+                                }}>
+                                  {category}
+                                </Text>
+                              </Pressable>
+                            );
+                          })}
+                        </View>
+                      </ScrollView>
+                    </View>
+
+                    {/* Clear All Button */}
+                    <Pressable
+                      style={{
+                        backgroundColor: colors.card,
+                        paddingVertical: spacing(1.5),
+                        borderRadius: radii.md,
+                        alignItems: 'center',
+                        marginBottom: spacing(2),
+                        borderWidth: 1,
+                        borderColor: colors.border
+                      }}
+                      onPress={() => setCurrentFilters({})}
+                    >
+                      <Text style={{
+                        color: colors.text,
+                        fontSize: 16,
+                        fontWeight: '600'
+                      }}>Clear All Filters</Text>
+                    </Pressable>
                   </ScrollView>
 
                   <Pressable
@@ -1628,7 +1759,7 @@ export default function RecipesScreen() {
                       paddingVertical: spacing(1.5),
                       borderRadius: radii.md,
                       alignItems: 'center',
-                      marginTop: spacing(4)
+                      marginTop: spacing(2)
                     }}
                     onPress={() => setShowFilterModal(false)}
                   >
