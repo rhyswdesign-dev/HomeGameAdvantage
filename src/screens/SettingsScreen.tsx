@@ -1,12 +1,14 @@
 import React, { useState, useLayoutEffect } from 'react';
 import {
-  View, Text, ScrollView, Pressable, StyleSheet, Alert, 
+  View, Text, ScrollView, Pressable, StyleSheet, Alert,
   TouchableOpacity, Switch
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { Ionicons } from '@expo/vector-icons';
+import { signOut, deleteUser } from 'firebase/auth';
+import { auth } from '../config/firebase';
 import { colors, spacing, radii } from '../theme/tokens';
 import type { RootStackParamList } from '../navigation/RootNavigator';
 
@@ -56,12 +58,18 @@ export default function SettingsScreen() {
       'Are you sure you want to sign out of your account?',
       [
         { text: 'Cancel', style: 'cancel' },
-        { 
-          text: 'Sign Out', 
-          style: 'destructive', 
-          onPress: () => {
-            // TODO: Implement sign out logic
-            console.log('User signed out');
+        {
+          text: 'Sign Out',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              await signOut(auth);
+              console.log('✅ User signed out successfully');
+              // AuthContext will handle the state change and redirect automatically
+            } catch (error: any) {
+              console.error('❌ Sign out error:', error);
+              Alert.alert('Error', 'Failed to sign out. Please try again.');
+            }
           }
         },
       ]
@@ -74,12 +82,40 @@ export default function SettingsScreen() {
       'This will permanently delete your account and all associated data. This action cannot be undone.',
       [
         { text: 'Cancel', style: 'cancel' },
-        { 
-          text: 'Delete Account', 
-          style: 'destructive', 
-          onPress: () => {
-            // TODO: Implement account deletion
-            console.log('Account deletion requested');
+        {
+          text: 'Delete Account',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              const user = auth.currentUser;
+
+              if (!user) {
+                Alert.alert('Error', 'No user is currently signed in');
+                return;
+              }
+
+              // Delete the user account
+              await deleteUser(user);
+              console.log('✅ Account deleted successfully');
+
+              // User will be automatically signed out and redirected
+            } catch (error: any) {
+              console.error('❌ Account deletion error:', error);
+
+              let errorMessage = 'Failed to delete account. Please try again.';
+
+              // Handle specific Firebase error codes
+              switch (error.code) {
+                case 'auth/requires-recent-login':
+                  errorMessage = 'For security reasons, please sign out and sign back in before deleting your account.';
+                  break;
+                case 'auth/network-request-failed':
+                  errorMessage = 'Network error. Please check your connection';
+                  break;
+              }
+
+              Alert.alert('Error', errorMessage);
+            }
           }
         },
       ]

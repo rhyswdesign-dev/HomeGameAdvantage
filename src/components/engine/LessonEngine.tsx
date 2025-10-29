@@ -33,6 +33,7 @@ import { Ionicons } from '@expo/vector-icons';
 // import { useCompletionAnimation } from '../../hooks/useCompletionAnimation';
 import { useAudio } from '../../hooks/useAudio';
 import { useAnalyticsContext } from '../../context/AnalyticsContext';
+import { useAuth } from '../../contexts/AuthContext';
 
 interface LessonEngineProps {
   lessonId: string;
@@ -53,6 +54,7 @@ export const LessonEngine: React.FC<LessonEngineProps> = ({ lessonId, onComplete
   // const completionAnimation = useCompletionAnimation();
   const audio = useAudio();
   const analytics = useAnalyticsContext();
+  const { user } = useAuth();
   const userStore = useUser();
   const { lives = 3, loseLife: loseUserLife, completeLesson: completeUserLesson } = userStore || {};
   
@@ -187,7 +189,7 @@ export const LessonEngine: React.FC<LessonEngineProps> = ({ lessonId, onComplete
 
     const attempt: Attempt = {
       id: `${Date.now()}_${Math.random()}`,
-      userId: 'current_user', // TODO: Get from user store
+      userId: user?.uid || 'anonymous',
       itemId: currentItem.id,
       correct: result.correct,
       msToAnswer: result.msToAnswer,

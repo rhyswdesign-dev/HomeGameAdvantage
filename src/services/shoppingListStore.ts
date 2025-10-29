@@ -27,7 +27,8 @@ export class ShoppingListStore {
    */
   static async saveShoppingList(
     groceryList: Omit<GroceryList, 'id' | 'createdAt' | 'updatedAt' | 'userId'>,
-    recipeName: string
+    recipeName: string,
+    userId: string
   ): Promise<SavedShoppingList> {
     try {
       // Generate unique IDs for each item in each recipe
@@ -50,7 +51,7 @@ export class ShoppingListStore {
         items: itemsWithUniqueIds,
         id: `shopping_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
         recipeName,
-        userId: 'current_user', // TODO: Replace with actual user ID
+        userId,
         isCompleted: false,
         createdAt: new Date(),
         updatedAt: new Date(),

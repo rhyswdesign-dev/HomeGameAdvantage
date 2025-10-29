@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
 import {
-  View, Text, TextInput, Pressable, StyleSheet, Alert, 
+  View, Text, TextInput, Pressable, StyleSheet, Alert,
   KeyboardAvoidingView, Platform, ScrollView, TouchableOpacity
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
+import { signInWithEmailAndPassword } from 'firebase/auth';
+import { auth } from '../config/firebase';
 import { colors, spacing, radii, textStyles } from '../theme/tokens';
 
 interface SignInScreenProps {
@@ -35,17 +37,45 @@ export default function SignInScreen({ onComplete, onSignUp, onForgotPassword }:
     }
 
     setLoading(true);
-    
+
     try {
-      // TODO: Implement actual authentication
-      console.log('Sign in with:', { email, password });
-      await new Promise(resolve => setTimeout(resolve, 1500)); // Simulate API call
-      
+      await signInWithEmailAndPassword(auth, email.trim(), password);
+      console.log('✅ Sign in successful');
+
       if (onComplete) {
         onComplete();
       }
-    } catch (error) {
-      Alert.alert('Sign In Failed', 'Please check your credentials and try again');
+    } catch (error: any) {
+      console.error('❌ Sign in error:', error);
+
+      let errorMessage = 'Please check your credentials and try again';
+
+      // Handle specific Firebase error codes
+      switch (error.code) {
+        case 'auth/invalid-email':
+          errorMessage = 'Invalid email address';
+          break;
+        case 'auth/user-disabled':
+          errorMessage = 'This account has been disabled';
+          break;
+        case 'auth/user-not-found':
+          errorMessage = 'No account found with this email';
+          break;
+        case 'auth/wrong-password':
+          errorMessage = 'Incorrect password';
+          break;
+        case 'auth/invalid-credential':
+          errorMessage = 'Invalid email or password';
+          break;
+        case 'auth/network-request-failed':
+          errorMessage = 'Network error. Please check your connection';
+          break;
+        case 'auth/too-many-requests':
+          errorMessage = 'Too many failed attempts. Please try again later';
+          break;
+      }
+
+      Alert.alert('Sign In Failed', errorMessage);
     } finally {
       setLoading(false);
     }

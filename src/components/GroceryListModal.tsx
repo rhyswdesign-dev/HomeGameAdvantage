@@ -13,6 +13,7 @@ import { colors, spacing, radii, fonts } from '../theme/tokens';
 import { Ionicons } from '@expo/vector-icons';
 import { GroceryListService, GroceryList, GroceryItem } from '../services/groceryListService';
 import { ShoppingListStore } from '../services/shoppingListStore';
+import { useAuth } from '../contexts/AuthContext';
 
 interface GroceryListModalProps {
   visible: boolean;
@@ -29,6 +30,7 @@ export default function GroceryListModal({
   ingredients,
   recipeId,
 }: GroceryListModalProps) {
+  const { user } = useAuth();
   const [groceryList] = useState<Omit<GroceryList, 'id' | 'createdAt' | 'updatedAt' | 'userId'>>(() =>
     GroceryListService.generateGroceryList(recipeName, ingredients, recipeId)
   );
@@ -119,7 +121,7 @@ export default function GroceryListModal({
         items: selectedItems
       };
 
-      await ShoppingListStore.saveShoppingList(selectedGroceryList, recipeName);
+      await ShoppingListStore.saveShoppingList(selectedGroceryList, recipeName, user?.uid || 'anonymous');
       Alert.alert(
         'Added to Cart!',
         `${selectedItems.length} item${selectedItems.length !== 1 ? 's' : ''} added to your shopping cart.`,

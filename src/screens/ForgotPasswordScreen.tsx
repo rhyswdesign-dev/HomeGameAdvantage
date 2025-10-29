@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
 import {
-  View, Text, TextInput, Pressable, StyleSheet, Alert, 
+  View, Text, TextInput, Pressable, StyleSheet, Alert,
   KeyboardAvoidingView, Platform, TouchableOpacity
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
+import { sendPasswordResetEmail } from 'firebase/auth';
+import { auth } from '../config/firebase';
 import { colors, spacing, radii } from '../theme/tokens';
 
 interface ForgotPasswordScreenProps {
@@ -33,15 +35,34 @@ export default function ForgotPasswordScreen({ onBack, onComplete }: ForgotPassw
     }
 
     setLoading(true);
-    
+
     try {
-      // TODO: Implement actual password reset
-      console.log('Password reset requested for:', email);
-      await new Promise(resolve => setTimeout(resolve, 1500)); // Simulate API call
-      
+      await sendPasswordResetEmail(auth, email.trim());
+      console.log('✅ Password reset email sent to:', email);
+
       setEmailSent(true);
-    } catch (error) {
-      Alert.alert('Error', 'Failed to send reset email. Please try again.');
+    } catch (error: any) {
+      console.error('❌ Password reset error:', error);
+
+      let errorMessage = 'Failed to send reset email. Please try again.';
+
+      // Handle specific Firebase error codes
+      switch (error.code) {
+        case 'auth/user-not-found':
+          errorMessage = 'No account found with this email address';
+          break;
+        case 'auth/invalid-email':
+          errorMessage = 'Invalid email address';
+          break;
+        case 'auth/network-request-failed':
+          errorMessage = 'Network error. Please check your connection';
+          break;
+        case 'auth/too-many-requests':
+          errorMessage = 'Too many requests. Please try again later';
+          break;
+      }
+
+      Alert.alert('Error', errorMessage);
     } finally {
       setLoading(false);
     }

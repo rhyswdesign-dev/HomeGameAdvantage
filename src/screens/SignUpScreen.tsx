@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
 import {
-  View, Text, TextInput, Pressable, StyleSheet, Alert, 
+  View, Text, TextInput, Pressable, StyleSheet, Alert,
   KeyboardAvoidingView, Platform, ScrollView, TouchableOpacity
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
+import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
+import { auth } from '../config/firebase';
 import { colors, spacing, radii, textStyles } from '../theme/tokens';
 
 interface SignUpScreenProps {
@@ -75,17 +77,46 @@ export default function SignUpScreen({ onComplete, onSignIn, onTermsPress, onPri
     }
 
     setLoading(true);
-    
+
     try {
-      // TODO: Implement actual registration
-      console.log('Sign up with:', { name, email, password });
-      await new Promise(resolve => setTimeout(resolve, 1500)); // Simulate API call
-      
+      // Create user account
+      const userCredential = await createUserWithEmailAndPassword(auth, email.trim(), password);
+
+      // Update user profile with display name
+      await updateProfile(userCredential.user, {
+        displayName: name.trim()
+      });
+
+      console.log('✅ Sign up successful:', userCredential.user.uid);
+
       if (onComplete) {
         onComplete();
       }
-    } catch (error) {
-      Alert.alert('Sign Up Failed', 'Please try again');
+    } catch (error: any) {
+      console.error('❌ Sign up error:', error);
+
+      let errorMessage = 'Please try again';
+
+      // Handle specific Firebase error codes
+      switch (error.code) {
+        case 'auth/email-already-in-use':
+          errorMessage = 'This email is already registered. Please sign in instead.';
+          break;
+        case 'auth/invalid-email':
+          errorMessage = 'Invalid email address';
+          break;
+        case 'auth/operation-not-allowed':
+          errorMessage = 'Email/password accounts are not enabled. Please contact support.';
+          break;
+        case 'auth/weak-password':
+          errorMessage = 'Password is too weak. Please use a stronger password.';
+          break;
+        case 'auth/network-request-failed':
+          errorMessage = 'Network error. Please check your connection';
+          break;
+      }
+
+      Alert.alert('Sign Up Failed', errorMessage);
     } finally {
       setLoading(false);
     }
