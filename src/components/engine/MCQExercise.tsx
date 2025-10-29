@@ -1,5 +1,6 @@
 /**
  * Multiple Choice Question Exercise
+ * Clean modern design with grid layout
  */
 
 import React, { useState, useEffect, useRef } from 'react';
@@ -8,34 +9,31 @@ import { Item } from '../../types/domain';
 import { ExerciseCommonProps } from './OrderExercise';
 import { colors, spacing, radii } from '../../theme/tokens';
 import { LinearGradient } from 'expo-linear-gradient';
-import { Ionicons } from '@expo/vector-icons';
 
 export const MCQExercise: React.FC<ExerciseCommonProps> = ({ item, onResult }) => {
   const [selectedOption, setSelectedOption] = useState<number | null>(null);
-  const [answered, setAnswered] = useState(false);
   const [startTime] = useState(Date.now());
-  
+
   // Animation values
-  const fadeAnim = useRef(new Animated.Value(0)).current;
-  const optionAnims = useRef(item.options?.map(() => new Animated.Value(0)) || []).current;
+  const fadeAnim = useRef(new Animated.Value(1)).current;
+  const optionAnims = useRef(item.options?.map(() => new Animated.Value(1)) || []).current;
 
   // Reset state when item changes
   useEffect(() => {
     setSelectedOption(null);
-    setAnswered(false);
-    
+
     // Reset animations
     fadeAnim.setValue(0);
     optionAnims.forEach(anim => anim.setValue(0));
-    
+
     // Start entrance animation
     Animated.parallel([
       Animated.timing(fadeAnim, {
         toValue: 1,
-        duration: 600,
+        duration: 400,
         useNativeDriver: true,
       }),
-      Animated.stagger(100, 
+      Animated.stagger(60,
         optionAnims.map(anim =>
           Animated.spring(anim, {
             toValue: 1,
@@ -46,129 +44,78 @@ export const MCQExercise: React.FC<ExerciseCommonProps> = ({ item, onResult }) =
         )
       ),
     ]).start();
-  }, [item.id]); // Depend on item.id to reset when question changes
+  }, [item.id]);
 
   const handleOptionPress = (optionIndex: number) => {
-    if (answered) return;
-    
+    if (selectedOption !== null) return;
+
     setSelectedOption(optionIndex);
-    setAnswered(true);
-    
+
     const isCorrect = optionIndex === item.answerIndex;
     const timeToAnswer = Date.now() - startTime;
-    
-    // Animate selection feedback
-    Animated.spring(optionAnims[optionIndex], {
-      toValue: 0.95,
-      tension: 300,
-      friction: 10,
-      useNativeDriver: true,
-    }).start(() => {
-      Animated.spring(optionAnims[optionIndex], {
-        toValue: 1,
-        tension: 300,
-        friction: 10,
-        useNativeDriver: true,
-      }).start();
-    });
-    
+
     setTimeout(() => {
       onResult({ correct: isCorrect, msToAnswer: timeToAnswer });
-    }, 1000); // Show feedback for 1 second
+    }, 800);
   };
 
   const getOptionStyle = (optionIndex: number) => {
-    if (!answered) {
+    if (selectedOption === null) {
       return styles.option;
     }
-    
-    if (optionIndex === item.answerIndex) {
-      return [styles.option, styles.correctOption];
-    }
-    
-    if (optionIndex === selectedOption && optionIndex !== item.answerIndex) {
-      return [styles.option, styles.incorrectOption];
-    }
-    
-    return [styles.option, styles.disabledOption];
-  };
 
-  const getOptionGradient = (optionIndex: number) => {
-    if (!answered) {
-      return ['rgba(255, 255, 255, 0.08)', 'rgba(255, 255, 255, 0.02)'];
+    if (optionIndex === selectedOption) {
+      return [styles.option, styles.selectedOption];
     }
-    
-    if (optionIndex === item.answerIndex) {
-      return ['rgba(76, 175, 80, 0.2)', 'rgba(76, 175, 80, 0.05)'];
-    }
-    
-    if (optionIndex === selectedOption && optionIndex !== item.answerIndex) {
-      return ['rgba(244, 67, 54, 0.2)', 'rgba(244, 67, 54, 0.05)'];
-    }
-    
-    return ['rgba(255, 255, 255, 0.03)', 'rgba(255, 255, 255, 0.01)'];
-  };
 
-  const getOptionTextStyle = (optionIndex: number) => {
-    if (!answered) return {};
-    
-    if (optionIndex === item.answerIndex) {
-      return { color: colors.success, fontWeight: '700' };
-    }
-    
-    if (optionIndex === selectedOption && optionIndex !== item.answerIndex) {
-      return { color: colors.error, fontWeight: '700' };
-    }
-    
-    return { opacity: 0.6 };
+    return [styles.option, styles.unselectedOption];
   };
 
   return (
-    <Animated.View 
+    <Animated.View
       style={[
         styles.container,
         {
           opacity: fadeAnim,
-          transform: [{
-            translateY: fadeAnim.interpolate({
-              inputRange: [0, 1],
-              outputRange: [20, 0],
-            }),
-          }],
         },
       ]}
     >
       <Text style={styles.prompt}>{item.prompt}</Text>
-      
-      <View style={styles.optionsContainer}>
+
+      <View style={styles.optionsGrid}>
         {item.options?.map((option, index) => (
           <Animated.View
             key={index}
-            style={{
-              opacity: optionAnims[index],
-              transform: [{
-                translateY: optionAnims[index].interpolate({
-                  inputRange: [0, 1],
-                  outputRange: [30, 0],
-                }),
-              }, {
-                scale: optionAnims[index],
-              }],
-            }}
+            style={[
+              styles.optionWrapper,
+              {
+                opacity: optionAnims[index],
+                transform: [{
+                  scale: optionAnims[index],
+                }],
+              },
+            ]}
           >
             <Pressable
               style={({ pressed }) => [
                 getOptionStyle(index),
-                pressed && !answered && styles.optionPressed,
+                pressed && selectedOption === null && styles.optionPressed,
               ]}
               onPress={() => handleOptionPress(index)}
-              disabled={answered}
+              disabled={selectedOption !== null}
             >
               <LinearGradient
-                colors={getOptionGradient(index)}
+                colors={
+                  selectedOption === index
+                    ? ['rgba(215, 161, 94, 0.2)', 'rgba(228, 147, 62, 0.1)']
+                    : ['rgba(255, 255, 255, 0.08)', 'rgba(255, 255, 255, 0.02)']
+                }
                 style={styles.optionGradient}
               >
-                <Text style={[styles.optionText, getOptionTextStyle(index)]}>
+                <Text style={[
+                  styles.optionText,
+                  selectedOption === index && styles.selectedOptionText
+                ]}>
                   {option}
                 </Text>
               </LinearGradient>
@@ -176,120 +123,70 @@ export const MCQExercise: React.FC<ExerciseCommonProps> = ({ item, onResult }) =
           </Animated.View>
         ))}
       </View>
-      
-      {answered && (
-        <Animated.View 
-          style={[
-            styles.feedback,
-            {
-              opacity: fadeAnim,
-              transform: [{
-                scale: fadeAnim.interpolate({
-                  inputRange: [0, 1],
-                  outputRange: [0.8, 1],
-                }),
-              }],
-            },
-          ]}
-        >
-          <View style={styles.feedbackContent}>
-            <Ionicons 
-              name={selectedOption === item.answerIndex ? 'checkmark-circle' : 'fitness'} 
-              size={24} 
-              color={selectedOption === item.answerIndex ? colors.success : colors.gold} 
-            />
-            <Text style={[
-              styles.feedbackText,
-              selectedOption === item.answerIndex ? styles.correctText : styles.incorrectText
-            ]}>
-              {selectedOption === item.answerIndex ? 'Perfect!' : 'Almost there!'}
-            </Text>
-          </View>
-        </Animated.View>
-      )}
     </Animated.View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
+    width: '100%',
   },
   prompt: {
-    fontSize: 24,
-    fontWeight: '700',
+    fontSize: 22,
+    fontWeight: '600',
     marginBottom: spacing(4),
-    lineHeight: 32,
-    textAlign: 'center',
+    lineHeight: 30,
+    textAlign: 'left',
     color: colors.text,
     letterSpacing: -0.3,
   },
-  optionsContainer: {
+  optionsGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
     gap: spacing(2),
+  },
+  optionWrapper: {
+    width: '48%',
   },
   option: {
     borderRadius: radii.lg,
     overflow: 'hidden',
     borderWidth: 2,
-    borderColor: 'rgba(255, 255, 255, 0.1)',
+    borderColor: 'rgba(255, 255, 255, 0.15)',
     shadowColor: colors.shadow,
-    shadowOffset: { width: 0, height: 4 },
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 3,
+  },
+  selectedOption: {
+    borderColor: colors.gold,
+    shadowColor: colors.gold,
+    shadowOpacity: 0.3,
     shadowRadius: 12,
-    elevation: 4,
+    elevation: 6,
+  },
+  unselectedOption: {
+    opacity: 0.5,
   },
   optionPressed: {
-    transform: [{ scale: 0.98 }],
+    transform: [{ scale: 0.97 }],
   },
   optionGradient: {
     padding: spacing(3),
     alignItems: 'center',
     justifyContent: 'center',
-    minHeight: 60,
-  },
-  correctOption: {
-    borderColor: colors.success,
-    shadowColor: colors.success,
-    shadowOpacity: 0.3,
-  },
-  incorrectOption: {
-    borderColor: colors.error,
-    shadowColor: colors.error,
-    shadowOpacity: 0.3,
-  },
-  disabledOption: {
-    opacity: 0.4,
+    minHeight: 100,
   },
   optionText: {
-    fontSize: 18,
+    fontSize: 16,
     textAlign: 'center',
     fontWeight: '600',
     color: colors.text,
-    lineHeight: 24,
+    lineHeight: 22,
   },
-  feedback: {
-    marginTop: spacing(4),
-    alignItems: 'center',
-    backgroundColor: 'rgba(255, 255, 255, 0.05)',
-    borderRadius: radii.lg,
-    padding: spacing(3),
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.1)',
-  },
-  feedbackContent: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing(1),
-  },
-  feedbackText: {
-    fontSize: 20,
+  selectedOptionText: {
+    color: colors.gold,
     fontWeight: '700',
-    textAlign: 'center',
-  },
-  correctText: {
-    color: colors.success,
-  },
-  incorrectText: {
-    color: colors.error,
   },
 });

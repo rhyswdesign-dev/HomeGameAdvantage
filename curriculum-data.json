@@ -5,184 +5,412 @@
       "title": "Bartending Basics",
       "chapterIndex": 1,
       "estimatedMinutes": 45,
-      "tags": ["fundamentals", "home-bar", "mindset"]
+      "tags": [
+        "fundamentals",
+        "home-bar",
+        "mindset"
+      ]
     },
     {
       "id": "ch2-tools-terms",
       "title": "Tools & Terms",
       "chapterIndex": 2,
       "estimatedMinutes": 35,
-      "tags": ["tools", "terminology", "setup"]
+      "tags": [
+        "tools",
+        "terminology",
+        "setup"
+      ]
     },
     {
       "id": "ch3-techniques-prep",
       "title": "Techniques & Prep",
       "chapterIndex": 3,
       "estimatedMinutes": 40,
-      "tags": ["techniques", "syrups", "prep"]
+      "tags": [
+        "techniques",
+        "syrups",
+        "prep"
+      ]
     },
     {
       "id": "ch4-spirits-pairing",
       "title": "Spirits & Pairing",
       "chapterIndex": 4,
       "estimatedMinutes": 50,
-      "tags": ["spirits", "ingredients", "pairing"]
+      "tags": [
+        "spirits",
+        "ingredients",
+        "pairing"
+      ]
     },
     {
       "id": "ch5-classics-remix",
       "title": "Classics & Remixes",
       "chapterIndex": 5,
       "estimatedMinutes": 55,
-      "tags": ["recipes", "classics", "variations"]
+      "tags": [
+        "recipes",
+        "classics",
+        "variations"
+      ]
     },
     {
       "id": "ch5b-batching-punches",
       "title": "Batching & Punches",
       "chapterIndex": 6,
       "estimatedMinutes": 30,
-      "tags": ["batching", "parties", "service"]
+      "tags": [
+        "batching",
+        "parties",
+        "service"
+      ]
     },
     {
       "id": "ch6-hosting-vibes",
       "title": "Hosting & Vibes",
       "chapterIndex": 7,
       "estimatedMinutes": 25,
-      "tags": ["hosting", "atmosphere", "service"]
+      "tags": [
+        "hosting",
+        "atmosphere",
+        "service"
+      ]
     },
     {
       "id": "sp101-gin",
       "title": "Gin 101",
       "chapterIndex": 8,
       "estimatedMinutes": 15,
-      "tags": ["gin", "spirits", "spirit-101"]
+      "tags": [
+        "gin",
+        "spirits",
+        "spirit-101"
+      ]
     },
     {
       "id": "sp101-rum",
       "title": "Rum 101",
       "chapterIndex": 9,
       "estimatedMinutes": 15,
-      "tags": ["rum", "spirits", "spirit-101"]
+      "tags": [
+        "rum",
+        "spirits",
+        "spirit-101"
+      ]
     },
     {
       "id": "sp101-tequila",
       "title": "Tequila 101",
       "chapterIndex": 10,
       "estimatedMinutes": 15,
-      "tags": ["tequila", "spirits", "spirit-101"]
+      "tags": [
+        "tequila",
+        "spirits",
+        "spirit-101"
+      ]
     },
     {
       "id": "sp101-whiskey",
       "title": "Whiskey 101",
       "chapterIndex": 11,
       "estimatedMinutes": 15,
-      "tags": ["whiskey", "spirits", "spirit-101"]
+      "tags": [
+        "whiskey",
+        "spirits",
+        "spirit-101"
+      ]
     },
     {
       "id": "sp101-brandy-liqueurs",
       "title": "Brandy & Liqueurs 101",
       "chapterIndex": 12,
       "estimatedMinutes": 15,
-      "tags": ["brandy", "liqueurs", "spirits", "spirit-101"]
+      "tags": [
+        "brandy",
+        "liqueurs",
+        "spirits",
+        "spirit-101"
+      ]
     }
   ],
-
   "lessons": [
     {
-      "id": "ch1-traits-lesson1",
+      "id": "great-bartender-traits",
       "moduleId": "ch1-basics",
       "title": "Great Bartender Traits",
-      "types": ["mcq", "order", "short", "checkbox", "match"],
-      "itemIds": ["q1","q2","q3","q4","q5","q6","q7","q8","q9","q10"],
+      "types": [
+        "mcq",
+        "checkbox",
+        "short",
+        "match"
+      ],
+      "itemIds": [
+        "ch1-001",
+        "ch1-002",
+        "ch1-003",
+        "ch1-004",
+        "ch1-005",
+        "ch1-006",
+        "ch1-007",
+        "ch1-008",
+        "ch1-009",
+        "ch1-010"
+      ],
       "estimatedMinutes": 5,
       "prereqs": []
     },
     {
-      "id": "lesson-ch1-002",
+      "id": "core-spirits-setup",
       "moduleId": "ch1-basics",
       "title": "Core Spirits Setup",
-      "types": ["mcq", "match", "checkbox", "short"],
-      "itemIds": ["item-008", "item-009", "item-010", "item-011", "item-012", "item-013", "item-014", "item-015"],
+      "types": [
+        "mcq",
+        "match",
+        "checkbox",
+        "short",
+        "order"
+      ],
+      "itemIds": [
+        "ch1-011",
+        "ch1-012",
+        "ch1-013",
+        "ch1-014",
+        "ch1-015",
+        "ch1-016",
+        "ch1-017",
+        "ch1-018",
+        "ch1-019",
+        "ch1-020"
+      ],
       "estimatedMinutes": 5,
       "prereqs": []
     },
     {
-      "id": "lesson-ch1-003",
+      "id": "glassware-essentials",
       "moduleId": "ch1-basics",
       "title": "Glassware Essentials",
-      "types": ["mcq", "match", "short", "roleplay"],
-      "itemIds": ["item-016", "item-017", "item-018", "item-019", "item-020", "item-021", "item-022"],
-      "estimatedMinutes": 4,
+      "types": [
+        "mcq",
+        "match",
+        "checkbox",
+        "short",
+        "order"
+      ],
+      "itemIds": [
+        "ch1-021",
+        "ch1-022",
+        "ch1-023",
+        "ch1-024",
+        "ch1-025",
+        "ch1-026",
+        "ch1-027",
+        "ch1-028",
+        "ch1-029",
+        "ch1-030"
+      ],
+      "estimatedMinutes": 5,
       "prereqs": []
     },
     {
-      "id": "lesson-ch1-004",
+      "id": "bar-setup-zones",
       "moduleId": "ch1-basics",
       "title": "Bar Setup & Zones",
-      "types": ["order", "mcq", "roleplay", "short"],
-      "itemIds": ["item-023", "item-024", "item-025", "item-026", "item-027", "item-028", "item-029"],
+      "types": [
+        "mcq",
+        "order",
+        "checkbox",
+        "match",
+        "short"
+      ],
+      "itemIds": [
+        "ch1-031",
+        "ch1-032",
+        "ch1-033",
+        "ch1-034",
+        "ch1-035",
+        "ch1-036",
+        "ch1-037",
+        "ch1-038",
+        "ch1-039",
+        "ch1-040"
+      ],
       "estimatedMinutes": 5,
       "prereqs": []
     },
     {
-      "id": "lesson-ch1-005",
+      "id": "ice-strategy-pro",
       "moduleId": "ch1-basics",
       "title": "Ice Strategy Pro",
-      "types": ["mcq", "match", "short", "roleplay"],
-      "itemIds": ["item-030", "item-031", "item-032", "item-033", "item-034", "item-035", "item-036"],
-      "estimatedMinutes": 4,
-      "prereqs": []
-    },
-    {
-      "id": "lesson-ch1-006",
-      "moduleId": "ch1-basics",
-      "title": "Tasting Like a Pro",
-      "types": ["order", "mcq", "short", "roleplay"],
-      "itemIds": ["item-037", "item-038", "item-039", "item-040", "item-041", "item-042", "item-043"],
+      "types": [
+        "mcq",
+        "match",
+        "checkbox",
+        "short",
+        "order"
+      ],
+      "itemIds": [
+        "ch1-041",
+        "ch1-042",
+        "ch1-043",
+        "ch1-044",
+        "ch1-045",
+        "ch1-046",
+        "ch1-047",
+        "ch1-048",
+        "ch1-049",
+        "ch1-050"
+      ],
       "estimatedMinutes": 5,
       "prereqs": []
     },
     {
-      "id": "lesson-ch1-007",
+      "id": "tasting-like-a-pro",
+      "moduleId": "ch1-basics",
+      "title": "Tasting Like a Pro",
+      "types": [
+        "order",
+        "mcq",
+        "match",
+        "checkbox",
+        "short"
+      ],
+      "itemIds": [
+        "ch1-051",
+        "ch1-052",
+        "ch1-053",
+        "ch1-054",
+        "ch1-055",
+        "ch1-056",
+        "ch1-057",
+        "ch1-058",
+        "ch1-059",
+        "ch1-060"
+      ],
+      "estimatedMinutes": 5,
+      "prereqs": []
+    },
+    {
+      "id": "safety-homegame-spirit",
       "moduleId": "ch1-basics",
       "title": "Safety & HomeGame Spirit",
-      "types": ["checkbox", "mcq", "roleplay", "short"],
-      "itemIds": ["item-044", "item-045", "item-046", "item-047", "item-048", "item-049", "item-050"],
-      "estimatedMinutes": 4,
+      "types": [
+        "checkbox",
+        "mcq",
+        "match",
+        "short"
+      ],
+      "itemIds": [
+        "ch1-061",
+        "ch1-062",
+        "ch1-063",
+        "ch1-064",
+        "ch1-065",
+        "ch1-066",
+        "ch1-067",
+        "ch1-068",
+        "ch1-069",
+        "ch1-070"
+      ],
+      "estimatedMinutes": 5,
       "prereqs": []
     },
     {
-      "id": "lesson-ch1-008",
+      "id": "fresh-goods-citrus-game",
       "moduleId": "ch1-basics",
       "title": "Fresh Goods & Citrus Game",
-      "types": ["match", "short", "mcq", "roleplay"],
-      "itemIds": ["item-051", "item-052", "item-053", "item-054", "item-055", "item-056", "item-057"],
-      "estimatedMinutes": 4,
+      "types": [
+        "mcq",
+        "match",
+        "checkbox",
+        "short",
+        "order"
+      ],
+      "itemIds": [
+        "ch1-071",
+        "ch1-072",
+        "ch1-073",
+        "ch1-074",
+        "ch1-075",
+        "ch1-076",
+        "ch1-077",
+        "ch1-078",
+        "ch1-079",
+        "ch1-080"
+      ],
+      "estimatedMinutes": 5,
       "prereqs": []
     },
     {
-      "id": "lesson-ch1-009",
+      "id": "equipment-mastery",
       "moduleId": "ch1-basics",
       "title": "Equipment Mastery",
-      "types": ["mcq", "checkbox", "match", "short"],
-      "itemIds": ["item-058", "item-059", "item-060", "item-061", "item-062", "item-063", "item-064"],
-      "estimatedMinutes": 4,
+      "types": [
+        "mcq",
+        "match",
+        "checkbox",
+        "short",
+        "order"
+      ],
+      "itemIds": [
+        "ch1-081",
+        "ch1-082",
+        "ch1-083",
+        "ch1-084",
+        "ch1-085",
+        "ch1-086",
+        "ch1-087",
+        "ch1-088",
+        "ch1-089",
+        "ch1-090"
+      ],
+      "estimatedMinutes": 5,
       "prereqs": []
     },
     {
-      "id": "lesson-ch1-checkpoint",
+      "id": "checkpoint-basics-mixoff",
       "moduleId": "ch1-basics",
       "title": "Checkpoint: Basics Mix-Off",
-      "types": ["roleplay", "short", "mcq", "match"],
-      "itemIds": ["item-065", "item-066", "item-067", "item-068", "item-069", "item-070"],
-      "estimatedMinutes": 6,
-      "prereqs": ["lesson-ch1-001", "lesson-ch1-002", "lesson-ch1-003"]
+      "types": [
+        "mcq",
+        "short",
+        "match",
+        "checkbox",
+        "order"
+      ],
+      "itemIds": [
+        "ch1-091",
+        "ch1-092",
+        "ch1-093",
+        "ch1-094",
+        "ch1-095",
+        "ch1-096",
+        "ch1-097",
+        "ch1-098",
+        "ch1-099",
+        "ch1-100"
+      ],
+      "estimatedMinutes": 5,
+      "prereqs": []
     },
     {
       "id": "lesson-ch2-001",
       "moduleId": "ch2-tools-terms",
       "title": "Core 6 Tools",
-      "types": ["mcq", "match", "short", "checkbox"],
-      "itemIds": ["item-071", "item-072", "item-073", "item-074", "item-075", "item-076"],
+      "types": [
+        "mcq",
+        "match",
+        "short",
+        "checkbox"
+      ],
+      "itemIds": [
+        "item-071",
+        "item-072",
+        "item-073",
+        "item-074",
+        "item-075",
+        "item-076"
+      ],
       "estimatedMinutes": 4,
       "prereqs": []
     },
@@ -190,8 +418,20 @@
       "id": "lesson-ch2-002",
       "moduleId": "ch2-tools-terms",
       "title": "Bar Terms: Spec, Build, Float",
-      "types": ["mcq", "short", "match", "roleplay"],
-      "itemIds": ["item-077", "item-078", "item-079", "item-080", "item-081", "item-082"],
+      "types": [
+        "mcq",
+        "short",
+        "match",
+        "roleplay"
+      ],
+      "itemIds": [
+        "item-077",
+        "item-078",
+        "item-079",
+        "item-080",
+        "item-081",
+        "item-082"
+      ],
       "estimatedMinutes": 4,
       "prereqs": []
     },
@@ -199,8 +439,20 @@
       "id": "lesson-ch2-003",
       "moduleId": "ch2-tools-terms",
       "title": "Bar Slang Decoded",
-      "types": ["match", "mcq", "checkbox", "short"],
-      "itemIds": ["item-083", "item-084", "item-085", "item-086", "item-087", "item-088"],
+      "types": [
+        "match",
+        "mcq",
+        "checkbox",
+        "short"
+      ],
+      "itemIds": [
+        "item-083",
+        "item-084",
+        "item-085",
+        "item-086",
+        "item-087",
+        "item-088"
+      ],
       "estimatedMinutes": 4,
       "prereqs": []
     },
@@ -208,8 +460,20 @@
       "id": "lesson-ch2-004",
       "moduleId": "ch2-tools-terms",
       "title": "Tools by Cocktail Style",
-      "types": ["match", "mcq", "short", "roleplay"],
-      "itemIds": ["item-089", "item-090", "item-091", "item-092", "item-093", "item-094"],
+      "types": [
+        "match",
+        "mcq",
+        "short",
+        "roleplay"
+      ],
+      "itemIds": [
+        "item-089",
+        "item-090",
+        "item-091",
+        "item-092",
+        "item-093",
+        "item-094"
+      ],
       "estimatedMinutes": 5,
       "prereqs": []
     },
@@ -217,8 +481,20 @@
       "id": "lesson-ch2-005",
       "moduleId": "ch2-tools-terms",
       "title": "Triangle Workflow Magic",
-      "types": ["order", "roleplay", "mcq", "short"],
-      "itemIds": ["item-095", "item-096", "item-097", "item-098", "item-099", "item-100"],
+      "types": [
+        "order",
+        "roleplay",
+        "mcq",
+        "short"
+      ],
+      "itemIds": [
+        "item-095",
+        "item-096",
+        "item-097",
+        "item-098",
+        "item-099",
+        "item-100"
+      ],
       "estimatedMinutes": 5,
       "prereqs": []
     },
@@ -226,136 +502,2119 @@
       "id": "lesson-ch2-checkpoint",
       "moduleId": "ch2-tools-terms",
       "title": "Checkpoint: Tool Mastery Mix-Off",
-      "types": ["roleplay", "short", "match", "mcq"],
-      "itemIds": ["item-101", "item-102", "item-103", "item-104", "item-105"],
+      "types": [
+        "roleplay",
+        "short",
+        "match",
+        "mcq"
+      ],
+      "itemIds": [
+        "item-101",
+        "item-102",
+        "item-103",
+        "item-104",
+        "item-105"
+      ],
       "estimatedMinutes": 5,
-      "prereqs": ["lesson-ch2-001", "lesson-ch2-002"]
+      "prereqs": [
+        "lesson-ch2-001",
+        "lesson-ch2-002"
+      ]
     }
   ],
-
   "items": [
     {
-      "id": "q1",
+      "id": "ch1-001",
       "type": "mcq",
-      "prompt": "Which of these is NOT one of the four core traits of a great bartender?",
-      "options": ["Confidence","Cleanliness","Precision + Speed","Laziness","Curiosity"],
-      "answerIndex": 3,
-      "tags": ["traits","basics"],
-      "conceptId": "traits.core",
-      "difficulty": 0.1,
-      "xpAward": 12,
-      "reviewWeight": 0.7
-    },
-    {
-      "id": "q2",
-      "type": "order",
-      "prompt": "Put the four traits in the order they were introduced.",
-      "orderTarget": ["Confidence","Cleanliness","Precision + Speed","Curiosity"],
-      "tags": ["traits","memory"],
-      "conceptId": "traits.order",
-      "difficulty": 0.15,
-      "xpAward": 12,
-      "reviewWeight": 0.6
-    },
-    {
-      "id": "q3",
-      "type": "short",
-      "prompt": "Finish the quote: \"A good drink is like a ______ — firm, balanced, and unforgettable.\"",
-      "answerText": "handshake",
-      "acceptableAnswers": ["handshake"],
-      "tags": ["traits","quote"],
-      "conceptId": "quote.handshake",
-      "difficulty": 0.05,
-      "xpAward": 10,
-      "reviewWeight": 0.5
-    },
-    {
-      "id": "q4",
-      "type": "mcq",
-      "prompt": "Which trait ensures drinks are measured consistently every time?",
-      "options": ["Confidence","Precision + Speed","Cleanliness","Curiosity"],
-      "answerIndex": 1,
-      "tags": ["traits","precision"],
-      "conceptId": "traits.precisionSpeed",
-      "difficulty": 0.12,
-      "xpAward": 12,
-      "reviewWeight": 0.7
-    },
-    {
-      "id": "q5",
-      "type": "checkbox",
-      "prompt": "Select ALL the traits of a great bartender.",
-      "options": ["Confidence","Cleanliness","Precision + Speed","Curiosity","Forgetfulness"],
-      "correct": ["Confidence","Cleanliness","Precision + Speed","Curiosity"],
-      "tags": ["traits","recap"],
-      "conceptId": "traits.core.set",
-      "difficulty": 0.14,
-      "xpAward": 13,
-      "reviewWeight": 0.8
-    },
-    {
-      "id": "q6",
-      "type": "mcq",
-      "prompt": "If a bartender shows up bold, even while nervous, which trait are they demonstrating?",
-      "options": ["Cleanliness","Confidence","Curiosity","Precision + Speed"],
-      "answerIndex": 1,
-      "tags": ["traits","confidence"],
-      "conceptId": "traits.confidence",
-      "difficulty": 0.08,
-      "xpAward": 11,
-      "reviewWeight": 0.7
-    },
-    {
-      "id": "q7",
-      "type": "match",
-      "prompt": "Match the trait with its meaning.",
-      "pairs": [
-        {"left":"Confidence","right":"Show up bold — even if you fake it til round two"},
-        {"left":"Cleanliness","right":"Sticky counters = sloppy energy"},
-        {"left":"Precision + Speed","right":"Fast, but never reckless"},
-        {"left":"Curiosity","right":"Keep tasting, learning, sharpening"}
+      "prompt": "What’s the most important skill of a great bartender?",
+      "tags": [
+        "great-bartender-traits",
+        "ch1-basics"
       ],
-      "tags": ["traits","meaning"],
-      "conceptId": "traits.meanings",
-      "difficulty": 0.18,
-      "xpAward": 15,
-      "reviewWeight": 0.9
-    },
-    {
-      "id": "q8",
-      "type": "short",
-      "prompt": "Which trait is linked to keeping garnishes prepped, counters tidy, and tools clean?",
-      "answerText": "Cleanliness",
-      "acceptableAnswers": ["cleanliness","clean"],
-      "tags": ["traits","cleanliness"],
-      "conceptId": "traits.cleanliness",
+      "conceptId": "great_bartender_traits.1",
       "difficulty": 0.1,
-      "xpAward": 11,
-      "reviewWeight": 0.7
+      "xpAward": 10,
+      "reviewWeight": 0.7,
+      "options": [
+        "Speed",
+        "Listening to guests",
+        "Flair tricks",
+        "Memorizing recipes"
+      ],
+      "answerIndex": 1
     },
     {
-      "id": "q9",
+      "id": "ch1-002",
       "type": "mcq",
-      "prompt": "A guest asks about a spirit you've never tried. What's the best response?",
-      "options": ["Pretend you know","Stay curious and taste it","Avoid the question","Pour randomly"],
-      "answerIndex": 1,
-      "tags": ["traits","curiosity","service"],
-      "conceptId": "traits.curiosity",
-      "difficulty": 0.12,
-      "xpAward": 12,
-      "reviewWeight": 0.75
+      "prompt": "Which quality builds long-term regulars?",
+      "tags": [
+        "great-bartender-traits",
+        "ch1-basics"
+      ],
+      "conceptId": "great_bartender_traits.2",
+      "difficulty": 0.11,
+      "xpAward": 10,
+      "reviewWeight": 0.7,
+      "options": [
+        "Consistency",
+        "Mystery",
+        "Strictness",
+        "Silence"
+      ],
+      "answerIndex": 0
     },
     {
-      "id": "q10",
+      "id": "ch1-003",
       "type": "checkbox",
-      "prompt": "Which actions show Precision + Speed?",
-      "options": ["Free-pouring without measuring","Using a jigger for accuracy","Shaking recklessly","Stirring calmly for ~20 seconds"],
-      "correct": ["Using a jigger for accuracy","Stirring calmly for ~20 seconds"],
-      "tags": ["traits","precision","speed"],
-      "conceptId": "traits.precisionSpeed.actions",
+      "prompt": "Select all that describe a pro bartender:",
+      "tags": [
+        "great-bartender-traits",
+        "ch1-basics"
+      ],
+      "conceptId": "great_bartender_traits.3",
+      "difficulty": 0.12000000000000001,
+      "xpAward": 10,
+      "reviewWeight": 0.7,
+      "options": [
+        "Clean workstation",
+        "Good memory",
+        "Positive energy",
+        "Shows off too much"
+      ],
+      "correct": [
+        "Clean workstation",
+        "Good memory",
+        "Positive energy"
+      ]
+    },
+    {
+      "id": "ch1-004",
+      "type": "short",
+      "prompt": "Describe one way to make guests feel welcome in the first 30 seconds.",
+      "tags": [
+        "great-bartender-traits",
+        "ch1-basics"
+      ],
+      "conceptId": "great_bartender_traits.4",
+      "difficulty": 0.13,
+      "xpAward": 10,
+      "reviewWeight": 0.7,
+      "answerText": "Smile and greet with eye contact",
+      "acceptableAnswers": [
+        "Smile and greet with eye contact",
+        "Warm greeting and ask how you can help",
+        "Friendly greeting with eye contact"
+      ]
+    },
+    {
+      "id": "ch1-005",
+      "type": "mcq",
+      "prompt": "What does “situational awareness” mean behind the bar?",
+      "tags": [
+        "great-bartender-traits",
+        "ch1-basics"
+      ],
+      "conceptId": "great_bartender_traits.5",
+      "difficulty": 0.14,
+      "xpAward": 10,
+      "reviewWeight": 0.7,
+      "options": [
+        "Always looking busy",
+        "Knowing what’s happening with guests, orders, and your station",
+        "Memorizing all recipes",
+        "Watching the TV"
+      ],
+      "answerIndex": 1
+    },
+    {
+      "id": "ch1-006",
+      "type": "mcq",
+      "prompt": "A guest looks upset. What do you do?",
+      "tags": [
+        "great-bartender-traits",
+        "ch1-basics"
+      ],
+      "conceptId": "great_bartender_traits.6",
+      "difficulty": 0.15000000000000002,
+      "xpAward": 10,
+      "reviewWeight": 0.7,
+      "options": [
+        "Ignore them",
+        "Ask politely if everything’s okay",
+        "Offer a shot immediately",
+        "Tell them to relax"
+      ],
+      "answerIndex": 1
+    },
+    {
+      "id": "ch1-007",
+      "type": "match",
+      "prompt": "Match trait to why it matters.",
+      "tags": [
+        "great-bartender-traits",
+        "ch1-basics"
+      ],
+      "conceptId": "great_bartender_traits.7",
       "difficulty": 0.16,
-      "xpAward": 14,
-      "reviewWeight": 0.85
+      "xpAward": 10,
+      "reviewWeight": 0.7,
+      "pairs": [
+        {
+          "left": "Patience",
+          "right": "Keeps service calm"
+        },
+        {
+          "left": "Curiosity",
+          "right": "Learns new recipes and stories"
+        },
+        {
+          "left": "Cleanliness",
+          "right": "Ensures safety and trust"
+        },
+        {
+          "left": "Confidence",
+          "right": "Builds guest trust"
+        }
+      ]
+    },
+    {
+      "id": "ch1-008",
+      "type": "mcq",
+      "prompt": "What’s the quickest way to lose a guest’s trust?",
+      "tags": [
+        "great-bartender-traits",
+        "ch1-basics"
+      ],
+      "conceptId": "great_bartender_traits.8",
+      "difficulty": 0.17,
+      "xpAward": 10,
+      "reviewWeight": 0.7,
+      "options": [
+        "Over-explaining",
+        "Poor hygiene or sloppy service",
+        "Talking too quietly",
+        "Smiling"
+      ],
+      "answerIndex": 1
+    },
+    {
+      "id": "ch1-009",
+      "type": "checkbox",
+      "prompt": "Select the best communication habits:",
+      "tags": [
+        "great-bartender-traits",
+        "ch1-basics"
+      ],
+      "conceptId": "great_bartender_traits.9",
+      "difficulty": 0.18,
+      "xpAward": 10,
+      "reviewWeight": 0.7,
+      "options": [
+        "Repeat orders back",
+        "Use eye contact",
+        "Mumble quietly",
+        "Talk over guests"
+      ],
+      "correct": [
+        "Repeat orders back",
+        "Use eye contact"
+      ]
+    },
+    {
+      "id": "ch1-010",
+      "type": "short",
+      "prompt": "Finish the phrase: “A bartender isn’t just a server—they’re a ____.”",
+      "tags": [
+        "great-bartender-traits",
+        "ch1-basics"
+      ],
+      "conceptId": "great_bartender_traits.10",
+      "difficulty": 0.19,
+      "xpAward": 10,
+      "reviewWeight": 0.7,
+      "answerText": "Host",
+      "acceptableAnswers": [
+        "Host",
+        "Storyteller",
+        "Experience builder"
+      ]
+    },
+    {
+      "id": "ch1-011",
+      "type": "mcq",
+      "prompt": "Which grain is most often used for vodka?",
+      "tags": [
+        "core-spirits-setup",
+        "ch1-basics"
+      ],
+      "conceptId": "core_spirits_setup.1",
+      "difficulty": 0.1,
+      "xpAward": 10,
+      "reviewWeight": 0.7,
+      "options": [
+        "Wheat",
+        "Barley",
+        "Corn",
+        "Rye"
+      ],
+      "answerIndex": 0
+    },
+    {
+      "id": "ch1-012",
+      "type": "mcq",
+      "prompt": "Which spirit must legally age in oak barrels?",
+      "tags": [
+        "core-spirits-setup",
+        "ch1-basics"
+      ],
+      "conceptId": "core_spirits_setup.2",
+      "difficulty": 0.11,
+      "xpAward": 10,
+      "reviewWeight": 0.7,
+      "options": [
+        "Vodka",
+        "Whiskey",
+        "Gin",
+        "Tequila"
+      ],
+      "answerIndex": 1
+    },
+    {
+      "id": "ch1-013",
+      "type": "mcq",
+      "prompt": "Which base defines rum?",
+      "tags": [
+        "core-spirits-setup",
+        "ch1-basics"
+      ],
+      "conceptId": "core_spirits_setup.3",
+      "difficulty": 0.12000000000000001,
+      "xpAward": 10,
+      "reviewWeight": 0.7,
+      "options": [
+        "Grain mash",
+        "Potato",
+        "Sugarcane molasses",
+        "Grape must"
+      ],
+      "answerIndex": 2
+    },
+    {
+      "id": "ch1-014",
+      "type": "mcq",
+      "prompt": "Which region protects the name 'Tequila'?",
+      "tags": [
+        "core-spirits-setup",
+        "ch1-basics"
+      ],
+      "conceptId": "core_spirits_setup.4",
+      "difficulty": 0.13,
+      "xpAward": 10,
+      "reviewWeight": 0.7,
+      "options": [
+        "Scotland",
+        "Jalisco, Mexico",
+        "Tuscany",
+        "Bavaria"
+      ],
+      "answerIndex": 1
+    },
+    {
+      "id": "ch1-015",
+      "type": "match",
+      "prompt": "Match spirit to primary ingredient.",
+      "tags": [
+        "core-spirits-setup",
+        "ch1-basics"
+      ],
+      "conceptId": "core_spirits_setup.5",
+      "difficulty": 0.14,
+      "xpAward": 10,
+      "reviewWeight": 0.7,
+      "pairs": [
+        {
+          "left": "Vodka",
+          "right": "Neutral grains or potatoes"
+        },
+        {
+          "left": "Gin",
+          "right": "Botanicals (juniper-led)"
+        },
+        {
+          "left": "Rum",
+          "right": "Sugarcane or molasses"
+        },
+        {
+          "left": "Tequila",
+          "right": "Blue Weber agave"
+        },
+        {
+          "left": "Brandy",
+          "right": "Grapes (distilled wine)"
+        }
+      ]
+    },
+    {
+      "id": "ch1-016",
+      "type": "checkbox",
+      "prompt": "Select all clear spirits.",
+      "tags": [
+        "core-spirits-setup",
+        "ch1-basics"
+      ],
+      "conceptId": "core_spirits_setup.6",
+      "difficulty": 0.15000000000000002,
+      "xpAward": 10,
+      "reviewWeight": 0.7,
+      "options": [
+        "Vodka",
+        "Gin",
+        "Whiskey",
+        "Brandy"
+      ],
+      "correct": [
+        "Vodka",
+        "Gin"
+      ]
+    },
+    {
+      "id": "ch1-017",
+      "type": "short",
+      "prompt": "Name two agave spirits other than tequila.",
+      "tags": [
+        "core-spirits-setup",
+        "ch1-basics"
+      ],
+      "conceptId": "core_spirits_setup.7",
+      "difficulty": 0.16,
+      "xpAward": 10,
+      "reviewWeight": 0.7,
+      "answerText": "Mezcal",
+      "acceptableAnswers": [
+        "Mezcal",
+        "Raicilla",
+        "Bacanora",
+        "Sotol"
+      ]
+    },
+    {
+      "id": "ch1-018",
+      "type": "order",
+      "prompt": "Put production stages in order.",
+      "tags": [
+        "core-spirits-setup",
+        "ch1-basics"
+      ],
+      "conceptId": "core_spirits_setup.8",
+      "difficulty": 0.17,
+      "xpAward": 10,
+      "reviewWeight": 0.7,
+      "orderTarget": [
+        "Fermentation",
+        "Distillation",
+        "Maturation",
+        "Bottling"
+      ]
+    },
+    {
+      "id": "ch1-019",
+      "type": "mcq",
+      "prompt": "A guest asks why their whiskey is darker than vodka—respond in one line.",
+      "tags": [
+        "core-spirits-setup",
+        "ch1-basics"
+      ],
+      "conceptId": "core_spirits_setup.9",
+      "difficulty": 0.18,
+      "xpAward": 10,
+      "reviewWeight": 0.7,
+      "options": [
+        "Because whiskey ages in oak; vodka does not",
+        "Because of food coloring",
+        "Because whiskey has more sugar",
+        "Because vodka is filtered with charcoal"
+      ],
+      "answerIndex": 0
+    },
+    {
+      "id": "ch1-020",
+      "type": "mcq",
+      "prompt": "Typical ABV of base spirits is approximately:",
+      "tags": [
+        "core-spirits-setup",
+        "ch1-basics"
+      ],
+      "conceptId": "core_spirits_setup.10",
+      "difficulty": 0.19,
+      "xpAward": 10,
+      "reviewWeight": 0.7,
+      "options": [
+        "20%",
+        "30%",
+        "40%",
+        "55%"
+      ],
+      "answerIndex": 2
+    },
+    {
+      "id": "ch1-021",
+      "type": "mcq",
+      "prompt": "Which drink commonly uses a coupe glass?",
+      "tags": [
+        "glassware-essentials",
+        "ch1-basics"
+      ],
+      "conceptId": "glassware_essentials.1",
+      "difficulty": 0.1,
+      "xpAward": 10,
+      "reviewWeight": 0.7,
+      "options": [
+        "Martini",
+        "Highball",
+        "Negroni",
+        "Paloma"
+      ],
+      "answerIndex": 0
+    },
+    {
+      "id": "ch1-022",
+      "type": "mcq",
+      "prompt": "What defines a Collins glass?",
+      "tags": [
+        "glassware-essentials",
+        "ch1-basics"
+      ],
+      "conceptId": "glassware_essentials.2",
+      "difficulty": 0.11,
+      "xpAward": 10,
+      "reviewWeight": 0.7,
+      "options": [
+        "Short and wide",
+        "Tall and narrow",
+        "Stemmed and shallow",
+        "Handled"
+      ],
+      "answerIndex": 1
+    },
+    {
+      "id": "ch1-023",
+      "type": "match",
+      "prompt": "Match cocktail to glass type.",
+      "tags": [
+        "glassware-essentials",
+        "ch1-basics"
+      ],
+      "conceptId": "glassware_essentials.3",
+      "difficulty": 0.12000000000000001,
+      "xpAward": 10,
+      "reviewWeight": 0.7,
+      "pairs": [
+        {
+          "left": "Margarita",
+          "right": "Coupe or Margarita glass"
+        },
+        {
+          "left": "Negroni",
+          "right": "Rocks glass"
+        },
+        {
+          "left": "Mojito",
+          "right": "Highball glass"
+        },
+        {
+          "left": "Champagne",
+          "right": "Flute"
+        }
+      ]
+    },
+    {
+      "id": "ch1-024",
+      "type": "mcq",
+      "prompt": "Which glass best preserves carbonation?",
+      "tags": [
+        "glassware-essentials",
+        "ch1-basics"
+      ],
+      "conceptId": "glassware_essentials.4",
+      "difficulty": 0.13,
+      "xpAward": 10,
+      "reviewWeight": 0.7,
+      "options": [
+        "Flute",
+        "Coupe",
+        "Rocks",
+        "Nick & Nora"
+      ],
+      "answerIndex": 0
+    },
+    {
+      "id": "ch1-025",
+      "type": "checkbox",
+      "prompt": "Select proper stemmed glasses.",
+      "tags": [
+        "glassware-essentials",
+        "ch1-basics"
+      ],
+      "conceptId": "glassware_essentials.5",
+      "difficulty": 0.14,
+      "xpAward": 10,
+      "reviewWeight": 0.7,
+      "options": [
+        "Coupe",
+        "Flute",
+        "Rocks",
+        "Highball"
+      ],
+      "correct": [
+        "Coupe",
+        "Flute"
+      ]
+    },
+    {
+      "id": "ch1-026",
+      "type": "short",
+      "prompt": "Why chill glassware before stirred cocktails?",
+      "tags": [
+        "glassware-essentials",
+        "ch1-basics"
+      ],
+      "conceptId": "glassware_essentials.6",
+      "difficulty": 0.15000000000000002,
+      "xpAward": 10,
+      "reviewWeight": 0.7,
+      "answerText": "To reduce dilution and maintain temperature",
+      "acceptableAnswers": [
+        "To reduce dilution and maintain temperature"
+      ]
+    },
+    {
+      "id": "ch1-027",
+      "type": "order",
+      "prompt": "Arrange from smallest to largest typical volume.",
+      "tags": [
+        "glassware-essentials",
+        "ch1-basics"
+      ],
+      "conceptId": "glassware_essentials.7",
+      "difficulty": 0.16,
+      "xpAward": 10,
+      "reviewWeight": 0.7,
+      "orderTarget": [
+        "Nick & Nora",
+        "Rocks",
+        "Coupe",
+        "Highball"
+      ]
+    },
+    {
+      "id": "ch1-028",
+      "type": "mcq",
+      "prompt": "Customer requests a Whiskey Sour served 'up'. Which glass do you choose?",
+      "tags": [
+        "glassware-essentials",
+        "ch1-basics"
+      ],
+      "conceptId": "glassware_essentials.8",
+      "difficulty": 0.17,
+      "xpAward": 10,
+      "reviewWeight": 0.7,
+      "options": [
+        "Coupe",
+        "Rocks",
+        "Highball",
+        "Flute"
+      ],
+      "answerIndex": 0
+    },
+    {
+      "id": "ch1-029",
+      "type": "mcq",
+      "prompt": "Which vessel signals a tropical theme?",
+      "tags": [
+        "glassware-essentials",
+        "ch1-basics"
+      ],
+      "conceptId": "glassware_essentials.9",
+      "difficulty": 0.18,
+      "xpAward": 10,
+      "reviewWeight": 0.7,
+      "options": [
+        "Tiki mug",
+        "Rocks",
+        "Flute",
+        "Nick & Nora"
+      ],
+      "answerIndex": 0
+    },
+    {
+      "id": "ch1-030",
+      "type": "short",
+      "prompt": "List two visual benefits of polished, clear glassware.",
+      "tags": [
+        "glassware-essentials",
+        "ch1-basics"
+      ],
+      "conceptId": "glassware_essentials.10",
+      "difficulty": 0.19,
+      "xpAward": 10,
+      "reviewWeight": 0.7,
+      "answerText": "Shows color",
+      "acceptableAnswers": [
+        "Shows color",
+        "Shows clarity"
+      ]
+    },
+    {
+      "id": "ch1-031",
+      "type": "mcq",
+      "prompt": "What is the speed rail used for?",
+      "tags": [
+        "bar-setup-zones",
+        "ch1-basics"
+      ],
+      "conceptId": "bar_setup_zones.1",
+      "difficulty": 0.1,
+      "xpAward": 10,
+      "reviewWeight": 0.7,
+      "options": [
+        "Holding ice",
+        "Holding frequently used liquors",
+        "Holding garnishes",
+        "Drying glassware"
+      ],
+      "answerIndex": 1
+    },
+    {
+      "id": "ch1-032",
+      "type": "order",
+      "prompt": "Put opening setup steps in order.",
+      "tags": [
+        "bar-setup-zones",
+        "ch1-basics"
+      ],
+      "conceptId": "bar_setup_zones.2",
+      "difficulty": 0.11,
+      "xpAward": 10,
+      "reviewWeight": 0.7,
+      "orderTarget": [
+        "Sanitize surfaces",
+        "Restock liquor shelves",
+        "Fill ice bins",
+        "Cut garnishes"
+      ]
+    },
+    {
+      "id": "ch1-033",
+      "type": "mcq",
+      "prompt": "What belongs in the garnish zone?",
+      "tags": [
+        "bar-setup-zones",
+        "ch1-basics"
+      ],
+      "conceptId": "bar_setup_zones.3",
+      "difficulty": 0.12000000000000001,
+      "xpAward": 10,
+      "reviewWeight": 0.7,
+      "options": [
+        "Citrus and herbs with tools",
+        "Only bottles",
+        "Only napkins",
+        "Cleaning chemicals"
+      ],
+      "answerIndex": 0
+    },
+    {
+      "id": "ch1-034",
+      "type": "checkbox",
+      "prompt": "Select items for cold storage.",
+      "tags": [
+        "bar-setup-zones",
+        "ch1-basics"
+      ],
+      "conceptId": "bar_setup_zones.4",
+      "difficulty": 0.13,
+      "xpAward": 10,
+      "reviewWeight": 0.7,
+      "options": [
+        "Fresh juices",
+        "Vermouth",
+        "Bitters",
+        "Dry goods"
+      ],
+      "correct": [
+        "Fresh juices",
+        "Vermouth"
+      ]
+    },
+    {
+      "id": "ch1-035",
+      "type": "match",
+      "prompt": "Match zone to purpose.",
+      "tags": [
+        "bar-setup-zones",
+        "ch1-basics"
+      ],
+      "conceptId": "bar_setup_zones.5",
+      "difficulty": 0.14,
+      "xpAward": 10,
+      "reviewWeight": 0.7,
+      "pairs": [
+        {
+          "left": "Prep zone",
+          "right": "Cutting and juicing"
+        },
+        {
+          "left": "Service zone",
+          "right": "Mixing and building drinks"
+        },
+        {
+          "left": "Back bar",
+          "right": "Display and storage"
+        }
+      ]
+    },
+    {
+      "id": "ch1-036",
+      "type": "mcq",
+      "prompt": "First task after closing?",
+      "tags": [
+        "bar-setup-zones",
+        "ch1-basics"
+      ],
+      "conceptId": "bar_setup_zones.6",
+      "difficulty": 0.15000000000000002,
+      "xpAward": 10,
+      "reviewWeight": 0.7,
+      "options": [
+        "Leave immediately",
+        "Clean and sanitize station",
+        "Restock liquor shelves",
+        "Count cash"
+      ],
+      "answerIndex": 1
+    },
+    {
+      "id": "ch1-037",
+      "type": "mcq",
+      "prompt": "Ice bin is leaking mid-shift. Immediate action?",
+      "tags": [
+        "bar-setup-zones",
+        "ch1-basics"
+      ],
+      "conceptId": "bar_setup_zones.7",
+      "difficulty": 0.16,
+      "xpAward": 10,
+      "reviewWeight": 0.7,
+      "options": [
+        "Replace bin liner and mop area",
+        "Ignore it",
+        "Serve slower",
+        "Close the bar"
+      ],
+      "answerIndex": 0
+    },
+    {
+      "id": "ch1-038",
+      "type": "short",
+      "prompt": "Define 'mise en place' in one line.",
+      "tags": [
+        "bar-setup-zones",
+        "ch1-basics"
+      ],
+      "conceptId": "bar_setup_zones.8",
+      "difficulty": 0.17,
+      "xpAward": 10,
+      "reviewWeight": 0.7,
+      "answerText": "Everything in its place",
+      "acceptableAnswers": [
+        "Everything in its place"
+      ]
+    },
+    {
+      "id": "ch1-039",
+      "type": "mcq",
+      "prompt": "What does FIFO stand for?",
+      "tags": [
+        "bar-setup-zones",
+        "ch1-basics"
+      ],
+      "conceptId": "bar_setup_zones.9",
+      "difficulty": 0.18,
+      "xpAward": 10,
+      "reviewWeight": 0.7,
+      "options": [
+        "Fast In Fast Out",
+        "First In First Out",
+        "First In Fast Out",
+        "Full Inventory Fast Out"
+      ],
+      "answerIndex": 1
+    },
+    {
+      "id": "ch1-040",
+      "type": "short",
+      "prompt": "Why is a dry floor critical behind the bar?",
+      "tags": [
+        "bar-setup-zones",
+        "ch1-basics"
+      ],
+      "conceptId": "bar_setup_zones.10",
+      "difficulty": 0.19,
+      "xpAward": 10,
+      "reviewWeight": 0.7,
+      "answerText": "To prevent slips and injuries",
+      "acceptableAnswers": [
+        "To prevent slips and injuries"
+      ]
+    },
+    {
+      "id": "ch1-041",
+      "type": "mcq",
+      "prompt": "Which ice melts slowest?",
+      "tags": [
+        "ice-strategy-pro",
+        "ch1-basics"
+      ],
+      "conceptId": "ice_strategy_pro.1",
+      "difficulty": 0.1,
+      "xpAward": 10,
+      "reviewWeight": 0.7,
+      "options": [
+        "Crushed",
+        "Cubed",
+        "Large block",
+        "Pebble"
+      ],
+      "answerIndex": 2
+    },
+    {
+      "id": "ch1-042",
+      "type": "mcq",
+      "prompt": "Primary benefit of clear ice?",
+      "tags": [
+        "ice-strategy-pro",
+        "ch1-basics"
+      ],
+      "conceptId": "ice_strategy_pro.2",
+      "difficulty": 0.11,
+      "xpAward": 10,
+      "reviewWeight": 0.7,
+      "options": [
+        "Only looks better",
+        "Melts slower and keeps flavor pure",
+        "Cheaper to make",
+        "Easier to scoop"
+      ],
+      "answerIndex": 1
+    },
+    {
+      "id": "ch1-043",
+      "type": "match",
+      "prompt": "Match drink to ideal ice.",
+      "tags": [
+        "ice-strategy-pro",
+        "ch1-basics"
+      ],
+      "conceptId": "ice_strategy_pro.3",
+      "difficulty": 0.12000000000000001,
+      "xpAward": 10,
+      "reviewWeight": 0.7,
+      "pairs": [
+        {
+          "left": "Old Fashioned",
+          "right": "Large cube"
+        },
+        {
+          "left": "Mojito",
+          "right": "Crushed ice"
+        },
+        {
+          "left": "Tom Collins",
+          "right": "Cubed ice"
+        },
+        {
+          "left": "Tiki punch",
+          "right": "Pebble ice"
+        }
+      ]
+    },
+    {
+      "id": "ch1-044",
+      "type": "checkbox",
+      "prompt": "Select causes of cloudy ice.",
+      "tags": [
+        "ice-strategy-pro",
+        "ch1-basics"
+      ],
+      "conceptId": "ice_strategy_pro.4",
+      "difficulty": 0.13,
+      "xpAward": 10,
+      "reviewWeight": 0.7,
+      "options": [
+        "Impure water",
+        "Fast freezing",
+        "Directional freezing",
+        "Warm freezer"
+      ],
+      "correct": [
+        "Impure water",
+        "Fast freezing"
+      ]
+    },
+    {
+      "id": "ch1-045",
+      "type": "short",
+      "prompt": "Define 'cracked ice' in one line.",
+      "tags": [
+        "ice-strategy-pro",
+        "ch1-basics"
+      ],
+      "conceptId": "ice_strategy_pro.5",
+      "difficulty": 0.14,
+      "xpAward": 10,
+      "reviewWeight": 0.7,
+      "answerText": "Large cube intentionally broken to speed chilling",
+      "acceptableAnswers": [
+        "Large cube intentionally broken to speed chilling"
+      ]
+    },
+    {
+      "id": "ch1-046",
+      "type": "mcq",
+      "prompt": "Guest asks for 'less ice' but drink requires dilution. Best response?",
+      "tags": [
+        "ice-strategy-pro",
+        "ch1-basics"
+      ],
+      "conceptId": "ice_strategy_pro.6",
+      "difficulty": 0.15000000000000002,
+      "xpAward": 10,
+      "reviewWeight": 0.7,
+      "options": [
+        "Offer a chilled glass and explain balance",
+        "Say no",
+        "Add more juice",
+        "Ignore request"
+      ],
+      "answerIndex": 0
+    },
+    {
+      "id": "ch1-047",
+      "type": "mcq",
+      "prompt": "Best ice for shaking?",
+      "tags": [
+        "ice-strategy-pro",
+        "ch1-basics"
+      ],
+      "conceptId": "ice_strategy_pro.7",
+      "difficulty": 0.16,
+      "xpAward": 10,
+      "reviewWeight": 0.7,
+      "options": [
+        "Wet crushed",
+        "Hard solid cubes",
+        "Pebble ice",
+        "Flake ice"
+      ],
+      "answerIndex": 1
+    },
+    {
+      "id": "ch1-048",
+      "type": "order",
+      "prompt": "Steps for clear ice at home.",
+      "tags": [
+        "ice-strategy-pro",
+        "ch1-basics"
+      ],
+      "conceptId": "ice_strategy_pro.8",
+      "difficulty": 0.17,
+      "xpAward": 10,
+      "reviewWeight": 0.7,
+      "orderTarget": [
+        "Boil water",
+        "Let water cool",
+        "Freeze slowly/directionally",
+        "Cut blocks"
+      ]
+    },
+    {
+      "id": "ch1-049",
+      "type": "mcq",
+      "prompt": "What happens if the ice bin is left open?",
+      "tags": [
+        "ice-strategy-pro",
+        "ch1-basics"
+      ],
+      "conceptId": "ice_strategy_pro.9",
+      "difficulty": 0.18,
+      "xpAward": 10,
+      "reviewWeight": 0.7,
+      "options": [
+        "It cools faster",
+        "Risk of contamination",
+        "Ice becomes clearer",
+        "Nothing"
+      ],
+      "answerIndex": 1
+    },
+    {
+      "id": "ch1-050",
+      "type": "short",
+      "prompt": "List two effects of excess melt on a drink.",
+      "tags": [
+        "ice-strategy-pro",
+        "ch1-basics"
+      ],
+      "conceptId": "ice_strategy_pro.10",
+      "difficulty": 0.19,
+      "xpAward": 10,
+      "reviewWeight": 0.7,
+      "answerText": "Over-dilution",
+      "acceptableAnswers": [
+        "Over-dilution",
+        "Flavor loss"
+      ]
+    },
+    {
+      "id": "ch1-051",
+      "type": "order",
+      "prompt": "Put tasting steps in order.",
+      "tags": [
+        "tasting-like-a-pro",
+        "ch1-basics"
+      ],
+      "conceptId": "tasting_like_a_pro.1",
+      "difficulty": 0.1,
+      "xpAward": 10,
+      "reviewWeight": 0.7,
+      "orderTarget": [
+        "Look",
+        "Smell",
+        "Sip",
+        "Reflect"
+      ]
+    },
+    {
+      "id": "ch1-052",
+      "type": "mcq",
+      "prompt": "Which sense contributes most to flavor perception?",
+      "tags": [
+        "tasting-like-a-pro",
+        "ch1-basics"
+      ],
+      "conceptId": "tasting_like_a_pro.2",
+      "difficulty": 0.11,
+      "xpAward": 10,
+      "reviewWeight": 0.7,
+      "options": [
+        "Hearing",
+        "Sight",
+        "Smell",
+        "Touch"
+      ],
+      "answerIndex": 2
+    },
+    {
+      "id": "ch1-053",
+      "type": "mcq",
+      "prompt": "Best palate cleanser between tastings?",
+      "tags": [
+        "tasting-like-a-pro",
+        "ch1-basics"
+      ],
+      "conceptId": "tasting_like_a_pro.3",
+      "difficulty": 0.12000000000000001,
+      "xpAward": 10,
+      "reviewWeight": 0.7,
+      "options": [
+        "Milk",
+        "Water and crackers",
+        "Coffee",
+        "Soda"
+      ],
+      "answerIndex": 1
+    },
+    {
+      "id": "ch1-054",
+      "type": "match",
+      "prompt": "Match spirit to a typical note.",
+      "tags": [
+        "tasting-like-a-pro",
+        "ch1-basics"
+      ],
+      "conceptId": "tasting_like_a_pro.4",
+      "difficulty": 0.13,
+      "xpAward": 10,
+      "reviewWeight": 0.7,
+      "pairs": [
+        {
+          "left": "Rum (aged)",
+          "right": "Molasses/vanilla"
+        },
+        {
+          "left": "Gin",
+          "right": "Juniper/citrus"
+        },
+        {
+          "left": "Tequila (blanco)",
+          "right": "Agave/pepper"
+        }
+      ]
+    },
+    {
+      "id": "ch1-055",
+      "type": "checkbox",
+      "prompt": "Select warm-spice notes.",
+      "tags": [
+        "tasting-like-a-pro",
+        "ch1-basics"
+      ],
+      "conceptId": "tasting_like_a_pro.5",
+      "difficulty": 0.14,
+      "xpAward": 10,
+      "reviewWeight": 0.7,
+      "options": [
+        "Cinnamon",
+        "Nutmeg",
+        "Lemon",
+        "Mint"
+      ],
+      "correct": [
+        "Cinnamon",
+        "Nutmeg"
+      ]
+    },
+    {
+      "id": "ch1-056",
+      "type": "short",
+      "prompt": "Define 'mouthfeel' in one line.",
+      "tags": [
+        "tasting-like-a-pro",
+        "ch1-basics"
+      ],
+      "conceptId": "tasting_like_a_pro.6",
+      "difficulty": 0.15000000000000002,
+      "xpAward": 10,
+      "reviewWeight": 0.7,
+      "answerText": "The texture and weight of the liquid in the mouth",
+      "acceptableAnswers": [
+        "The texture and weight of the liquid in the mouth"
+      ]
+    },
+    {
+      "id": "ch1-057",
+      "type": "mcq",
+      "prompt": "Why swirl a spirit in the glass before smelling?",
+      "tags": [
+        "tasting-like-a-pro",
+        "ch1-basics"
+      ],
+      "conceptId": "tasting_like_a_pro.7",
+      "difficulty": 0.16,
+      "xpAward": 10,
+      "reviewWeight": 0.7,
+      "options": [
+        "To warm your hand",
+        "To release aromatic compounds",
+        "To show off",
+        "To make legs"
+      ],
+      "answerIndex": 1
+    },
+    {
+      "id": "ch1-058",
+      "type": "mcq",
+      "prompt": "Guest says the drink is 'too boozy.' Adjustment?",
+      "tags": [
+        "tasting-like-a-pro",
+        "ch1-basics"
+      ],
+      "conceptId": "tasting_like_a_pro.8",
+      "difficulty": 0.17,
+      "xpAward": 10,
+      "reviewWeight": 0.7,
+      "options": [
+        "Add ice or stir longer for dilution",
+        "More sugar",
+        "Add bitters",
+        "Add water only"
+      ],
+      "answerIndex": 0
+    },
+    {
+      "id": "ch1-059",
+      "type": "mcq",
+      "prompt": "Common flavor from oak aging?",
+      "tags": [
+        "tasting-like-a-pro",
+        "ch1-basics"
+      ],
+      "conceptId": "tasting_like_a_pro.9",
+      "difficulty": 0.18,
+      "xpAward": 10,
+      "reviewWeight": 0.7,
+      "options": [
+        "Vanilla",
+        "Cucumber",
+        "Lime",
+        "Anise"
+      ],
+      "answerIndex": 0
+    },
+    {
+      "id": "ch1-060",
+      "type": "short",
+      "prompt": "List three basic tastes relevant to cocktails.",
+      "tags": [
+        "tasting-like-a-pro",
+        "ch1-basics"
+      ],
+      "conceptId": "tasting_like_a_pro.10",
+      "difficulty": 0.19,
+      "xpAward": 10,
+      "reviewWeight": 0.7,
+      "answerText": "Sweet",
+      "acceptableAnswers": [
+        "Sweet",
+        "Sour",
+        "Bitter"
+      ]
+    },
+    {
+      "id": "ch1-061",
+      "type": "checkbox",
+      "prompt": "Select safe bar practices.",
+      "tags": [
+        "safety-homegame-spirit",
+        "ch1-basics"
+      ],
+      "conceptId": "safety_homegame_spirit.1",
+      "difficulty": 0.1,
+      "xpAward": 10,
+      "reviewWeight": 0.7,
+      "options": [
+        "No glass in ice",
+        "Clean spills quickly",
+        "Label bottles",
+        "Bare-hand garnishing"
+      ],
+      "correct": [
+        "No glass in ice",
+        "Clean spills quickly",
+        "Label bottles"
+      ]
+    },
+    {
+      "id": "ch1-062",
+      "type": "mcq",
+      "prompt": "Legal serving age across Canadian provinces/territories?",
+      "tags": [
+        "safety-homegame-spirit",
+        "ch1-basics"
+      ],
+      "conceptId": "safety_homegame_spirit.2",
+      "difficulty": 0.11,
+      "xpAward": 10,
+      "reviewWeight": 0.7,
+      "options": [
+        "16",
+        "18–19 depending on province/territory",
+        "21",
+        "20"
+      ],
+      "answerIndex": 1
+    },
+    {
+      "id": "ch1-063",
+      "type": "mcq",
+      "prompt": "Which PPE is appropriate when handling cleaning chemicals?",
+      "tags": [
+        "safety-homegame-spirit",
+        "ch1-basics"
+      ],
+      "conceptId": "safety_homegame_spirit.3",
+      "difficulty": 0.12000000000000001,
+      "xpAward": 10,
+      "reviewWeight": 0.7,
+      "options": [
+        "Gloves",
+        "Sunglasses",
+        "Apron only",
+        "None"
+      ],
+      "answerIndex": 0
+    },
+    {
+      "id": "ch1-064",
+      "type": "match",
+      "prompt": "Match hazard to response.",
+      "tags": [
+        "safety-homegame-spirit",
+        "ch1-basics"
+      ],
+      "conceptId": "safety_homegame_spirit.4",
+      "difficulty": 0.13,
+      "xpAward": 10,
+      "reviewWeight": 0.7,
+      "pairs": [
+        {
+          "left": "Broken glass",
+          "right": "Sweep and dispose in sharps bin"
+        },
+        {
+          "left": "Floor spill",
+          "right": "Mop and display wet floor sign"
+        },
+        {
+          "left": "Small fire",
+          "right": "Use appropriate extinguisher"
+        }
+      ]
+    },
+    {
+      "id": "ch1-065",
+      "type": "short",
+      "prompt": "Why is proper handwashing non-negotiable?",
+      "tags": [
+        "safety-homegame-spirit",
+        "ch1-basics"
+      ],
+      "conceptId": "safety_homegame_spirit.5",
+      "difficulty": 0.14,
+      "xpAward": 10,
+      "reviewWeight": 0.7,
+      "answerText": "Prevents cross-contamination and illness",
+      "acceptableAnswers": [
+        "Prevents cross-contamination and illness"
+      ]
+    },
+    {
+      "id": "ch1-066",
+      "type": "mcq",
+      "prompt": "Visibly intoxicated guest orders another round. Best action?",
+      "tags": [
+        "safety-homegame-spirit",
+        "ch1-basics"
+      ],
+      "conceptId": "safety_homegame_spirit.6",
+      "difficulty": 0.15000000000000002,
+      "xpAward": 10,
+      "reviewWeight": 0.7,
+      "options": [
+        "Serve smaller drink",
+        "Refuse service and offer water/food",
+        "Ignore",
+        "Call police immediately"
+      ],
+      "answerIndex": 1
+    },
+    {
+      "id": "ch1-067",
+      "type": "mcq",
+      "prompt": "Why are closed-toe shoes recommended?",
+      "tags": [
+        "safety-homegame-spirit",
+        "ch1-basics"
+      ],
+      "conceptId": "safety_homegame_spirit.7",
+      "difficulty": 0.16,
+      "xpAward": 10,
+      "reviewWeight": 0.7,
+      "options": [
+        "Fashion",
+        "Safety from drops/spills",
+        "Comfort only",
+        "Policy only"
+      ],
+      "answerIndex": 1
+    },
+    {
+      "id": "ch1-068",
+      "type": "checkbox",
+      "prompt": "Select good non-alcohol alternatives to offer.",
+      "tags": [
+        "safety-homegame-spirit",
+        "ch1-basics"
+      ],
+      "conceptId": "safety_homegame_spirit.8",
+      "difficulty": 0.17,
+      "xpAward": 10,
+      "reviewWeight": 0.7,
+      "options": [
+        "Zero-proof cocktails",
+        "Sparkling water",
+        "Nothing",
+        "Tap water"
+      ],
+      "correct": [
+        "Zero-proof cocktails",
+        "Sparkling water",
+        "Tap water"
+      ]
+    },
+    {
+      "id": "ch1-069",
+      "type": "short",
+      "prompt": "List two ways to reduce bar waste.",
+      "tags": [
+        "safety-homegame-spirit",
+        "ch1-basics"
+      ],
+      "conceptId": "safety_homegame_spirit.9",
+      "difficulty": 0.18,
+      "xpAward": 10,
+      "reviewWeight": 0.7,
+      "answerText": "Batching where appropriate",
+      "acceptableAnswers": [
+        "Batching where appropriate",
+        "Composting citrus/organic waste"
+      ]
+    },
+    {
+      "id": "ch1-070",
+      "type": "mcq",
+      "prompt": "MSDS stands for:",
+      "tags": [
+        "safety-homegame-spirit",
+        "ch1-basics"
+      ],
+      "conceptId": "safety_homegame_spirit.10",
+      "difficulty": 0.19,
+      "xpAward": 10,
+      "reviewWeight": 0.7,
+      "options": [
+        "Material Safety Data Sheet",
+        "Managed Service Drink Sheet",
+        "Manual Safety Drink Sheet",
+        "Material Supply Data Stat"
+      ],
+      "answerIndex": 0
+    },
+    {
+      "id": "ch1-071",
+      "type": "mcq",
+      "prompt": "Lime juice safe lifespan when refrigerated (best practice)?",
+      "tags": [
+        "fresh-goods-citrus-game",
+        "ch1-basics"
+      ],
+      "conceptId": "fresh_goods_citrus_game.1",
+      "difficulty": 0.1,
+      "xpAward": 10,
+      "reviewWeight": 0.7,
+      "options": [
+        "6–8 hours",
+        "24–48 hours",
+        "3–5 days",
+        "1 week"
+      ],
+      "answerIndex": 1
+    },
+    {
+      "id": "ch1-072",
+      "type": "match",
+      "prompt": "Match fruit to classic cocktail.",
+      "tags": [
+        "fresh-goods-citrus-game",
+        "ch1-basics"
+      ],
+      "conceptId": "fresh_goods_citrus_game.2",
+      "difficulty": 0.11,
+      "xpAward": 10,
+      "reviewWeight": 0.7,
+      "pairs": [
+        {
+          "left": "Lime",
+          "right": "Margarita or Daiquiri"
+        },
+        {
+          "left": "Lemon",
+          "right": "Whiskey Sour"
+        },
+        {
+          "left": "Orange",
+          "right": "Old Fashioned (twist)"
+        },
+        {
+          "left": "Grapefruit",
+          "right": "Paloma"
+        }
+      ]
+    },
+    {
+      "id": "ch1-073",
+      "type": "mcq",
+      "prompt": "Best way to store tender herbs for service?",
+      "tags": [
+        "fresh-goods-citrus-game",
+        "ch1-basics"
+      ],
+      "conceptId": "fresh_goods_citrus_game.3",
+      "difficulty": 0.12000000000000001,
+      "xpAward": 10,
+      "reviewWeight": 0.7,
+      "options": [
+        "Wrapped warm",
+        "Upright in cold water, loosely covered",
+        "In sealed hot bag",
+        "On cutting board"
+      ],
+      "answerIndex": 1
+    },
+    {
+      "id": "ch1-074",
+      "type": "checkbox",
+      "prompt": "Select citrus tools.",
+      "tags": [
+        "fresh-goods-citrus-game",
+        "ch1-basics"
+      ],
+      "conceptId": "fresh_goods_citrus_game.4",
+      "difficulty": 0.13,
+      "xpAward": 10,
+      "reviewWeight": 0.7,
+      "options": [
+        "Channel knife/peeler",
+        "Microplane/zester",
+        "Hand juicer",
+        "Paring knife"
+      ],
+      "correct": [
+        "Channel knife/peeler",
+        "Microplane/zester",
+        "Hand juicer",
+        "Paring knife"
+      ]
+    },
+    {
+      "id": "ch1-075",
+      "type": "short",
+      "prompt": "Why double-strain fresh-juice cocktails?",
+      "tags": [
+        "fresh-goods-citrus-game",
+        "ch1-basics"
+      ],
+      "conceptId": "fresh_goods_citrus_game.5",
+      "difficulty": 0.14,
+      "xpAward": 10,
+      "reviewWeight": 0.7,
+      "answerText": "Remove pulp/ice chips for smoother texture",
+      "acceptableAnswers": [
+        "Remove pulp/ice chips for smoother texture"
+      ]
+    },
+    {
+      "id": "ch1-076",
+      "type": "mcq",
+      "prompt": "You spot oxidized (browned) lime juice in prep. Action?",
+      "tags": [
+        "fresh-goods-citrus-game",
+        "ch1-basics"
+      ],
+      "conceptId": "fresh_goods_citrus_game.6",
+      "difficulty": 0.15000000000000002,
+      "xpAward": 10,
+      "reviewWeight": 0.7,
+      "options": [
+        "Use it quickly",
+        "Discard and re-juice",
+        "Add sugar",
+        "Mask with bitters"
+      ],
+      "answerIndex": 1
+    },
+    {
+      "id": "ch1-077",
+      "type": "mcq",
+      "prompt": "Which component adds aroma more than juice?",
+      "tags": [
+        "fresh-goods-citrus-game",
+        "ch1-basics"
+      ],
+      "conceptId": "fresh_goods_citrus_game.7",
+      "difficulty": 0.16,
+      "xpAward": 10,
+      "reviewWeight": 0.7,
+      "options": [
+        "Citrus zest",
+        "Citrus wedges",
+        "Simple syrup",
+        "Soda"
+      ],
+      "answerIndex": 0
+    },
+    {
+      "id": "ch1-078",
+      "type": "order",
+      "prompt": "Put prep steps in order.",
+      "tags": [
+        "fresh-goods-citrus-game",
+        "ch1-basics"
+      ],
+      "conceptId": "fresh_goods_citrus_game.8",
+      "difficulty": 0.17,
+      "xpAward": 10,
+      "reviewWeight": 0.7,
+      "orderTarget": [
+        "Wash fruit",
+        "Cut",
+        "Juice",
+        "Label and date"
+      ]
+    },
+    {
+      "id": "ch1-079",
+      "type": "mcq",
+      "prompt": "What does acidity do in a cocktail?",
+      "tags": [
+        "fresh-goods-citrus-game",
+        "ch1-basics"
+      ],
+      "conceptId": "fresh_goods_citrus_game.9",
+      "difficulty": 0.18,
+      "xpAward": 10,
+      "reviewWeight": 0.7,
+      "options": [
+        "Overpowers alcohol",
+        "Balances sweetness and brightens flavors",
+        "Adds bitterness",
+        "Adds body"
+      ],
+      "answerIndex": 1
+    },
+    {
+      "id": "ch1-080",
+      "type": "short",
+      "prompt": "List two signs fruit is spoiled.",
+      "tags": [
+        "fresh-goods-citrus-game",
+        "ch1-basics"
+      ],
+      "conceptId": "fresh_goods_citrus_game.10",
+      "difficulty": 0.19,
+      "xpAward": 10,
+      "reviewWeight": 0.7,
+      "answerText": "Soft/mushy spots",
+      "acceptableAnswers": [
+        "Soft/mushy spots",
+        "Mold or fermented smell"
+      ]
+    },
+    {
+      "id": "ch1-081",
+      "type": "mcq",
+      "prompt": "Tool for straining a shaken cocktail?",
+      "tags": [
+        "equipment-mastery",
+        "ch1-basics"
+      ],
+      "conceptId": "equipment_mastery.1",
+      "difficulty": 0.1,
+      "xpAward": 10,
+      "reviewWeight": 0.7,
+      "options": [
+        "Julep strainer",
+        "Hawthorne strainer",
+        "Fine chinois only",
+        "No strainer"
+      ],
+      "answerIndex": 1
+    },
+    {
+      "id": "ch1-082",
+      "type": "mcq",
+      "prompt": "Purpose of a bar spoon?",
+      "tags": [
+        "equipment-mastery",
+        "ch1-basics"
+      ],
+      "conceptId": "equipment_mastery.2",
+      "difficulty": 0.11,
+      "xpAward": 10,
+      "reviewWeight": 0.7,
+      "options": [
+        "Stir mixed drinks and layer",
+        "Crush herbs",
+        "Measure",
+        "Zest citrus"
+      ],
+      "answerIndex": 0
+    },
+    {
+      "id": "ch1-083",
+      "type": "match",
+      "prompt": "Match tool to function.",
+      "tags": [
+        "equipment-mastery",
+        "ch1-basics"
+      ],
+      "conceptId": "equipment_mastery.3",
+      "difficulty": 0.12000000000000001,
+      "xpAward": 10,
+      "reviewWeight": 0.7,
+      "pairs": [
+        {
+          "left": "Jigger",
+          "right": "Measure spirits accurately"
+        },
+        {
+          "left": "Muddler",
+          "right": "Crush fruit/herbs"
+        },
+        {
+          "left": "Tongs",
+          "right": "Handle ice hygienically"
+        },
+        {
+          "left": "Shaker (tin-on-tin)",
+          "right": "Mix and chill quickly"
+        }
+      ]
+    },
+    {
+      "id": "ch1-084",
+      "type": "checkbox",
+      "prompt": "Select shaking setup components.",
+      "tags": [
+        "equipment-mastery",
+        "ch1-basics"
+      ],
+      "conceptId": "equipment_mastery.4",
+      "difficulty": 0.13,
+      "xpAward": 10,
+      "reviewWeight": 0.7,
+      "options": [
+        "Tin",
+        "Strainer",
+        "Jigger",
+        "Mixing glass"
+      ],
+      "correct": [
+        "Tin",
+        "Strainer",
+        "Jigger"
+      ]
+    },
+    {
+      "id": "ch1-085",
+      "type": "short",
+      "prompt": "Why do many pros prefer double-tin shakers?",
+      "tags": [
+        "equipment-mastery",
+        "ch1-basics"
+      ],
+      "conceptId": "equipment_mastery.5",
+      "difficulty": 0.14,
+      "xpAward": 10,
+      "reviewWeight": 0.7,
+      "answerText": "Secure seal and fast chilling with large surface area",
+      "acceptableAnswers": [
+        "Secure seal and fast chilling with large surface area"
+      ]
+    },
+    {
+      "id": "ch1-086",
+      "type": "mcq",
+      "prompt": "Your Hawthorne spring pops off mid-shift. Immediate solution?",
+      "tags": [
+        "equipment-mastery",
+        "ch1-basics"
+      ],
+      "conceptId": "equipment_mastery.6",
+      "difficulty": 0.15000000000000002,
+      "xpAward": 10,
+      "reviewWeight": 0.7,
+      "options": [
+        "Use fine strainer as backup",
+        "Stop service",
+        "Shake without straining",
+        "Serve unstrained"
+      ],
+      "answerIndex": 0
+    },
+    {
+      "id": "ch1-087",
+      "type": "mcq",
+      "prompt": "Which tool helps layer a float neatly?",
+      "tags": [
+        "equipment-mastery",
+        "ch1-basics"
+      ],
+      "conceptId": "equipment_mastery.7",
+      "difficulty": 0.16,
+      "xpAward": 10,
+      "reviewWeight": 0.7,
+      "options": [
+        "Paring knife",
+        "Bar spoon",
+        "Peeler",
+        "Muddler"
+      ],
+      "answerIndex": 1
+    },
+    {
+      "id": "ch1-088",
+      "type": "order",
+      "prompt": "Steps to shake a cocktail properly.",
+      "tags": [
+        "equipment-mastery",
+        "ch1-basics"
+      ],
+      "conceptId": "equipment_mastery.8",
+      "difficulty": 0.17,
+      "xpAward": 10,
+      "reviewWeight": 0.7,
+      "orderTarget": [
+        "Add ice",
+        "Seal tins",
+        "Shake vigorously 8–12 seconds",
+        "Unseal",
+        "Strain"
+      ]
+    },
+    {
+      "id": "ch1-089",
+      "type": "mcq",
+      "prompt": "Safest knife grip for garnish prep?",
+      "tags": [
+        "equipment-mastery",
+        "ch1-basics"
+      ],
+      "conceptId": "equipment_mastery.9",
+      "difficulty": 0.18,
+      "xpAward": 10,
+      "reviewWeight": 0.7,
+      "options": [
+        "Pinch grip",
+        "Hammer grip",
+        "Tip grip",
+        "Loose grip"
+      ],
+      "answerIndex": 0
+    },
+    {
+      "id": "ch1-090",
+      "type": "short",
+      "prompt": "Name two non-negotiable tools for speed bartending.",
+      "tags": [
+        "equipment-mastery",
+        "ch1-basics"
+      ],
+      "conceptId": "equipment_mastery.10",
+      "difficulty": 0.19,
+      "xpAward": 10,
+      "reviewWeight": 0.7,
+      "answerText": "Jigger",
+      "acceptableAnswers": [
+        "Jigger",
+        "Tin shaker"
+      ]
+    },
+    {
+      "id": "ch1-091",
+      "type": "mcq",
+      "prompt": "Guest wants a low-sugar, refreshing option.",
+      "tags": [
+        "checkpoint-basics-mixoff",
+        "ch1-basics"
+      ],
+      "conceptId": "checkpoint_basics_mixoff.1",
+      "difficulty": 0.1,
+      "xpAward": 10,
+      "reviewWeight": 0.7,
+      "options": [
+        "Skinny Margarita",
+        "Mojito highball with soda",
+        "Espresso Martini",
+        "White Russian"
+      ],
+      "answerIndex": 1
+    },
+    {
+      "id": "ch1-092",
+      "type": "mcq",
+      "prompt": "Which ingredient should you pour first in a new build?",
+      "tags": [
+        "checkpoint-basics-mixoff",
+        "ch1-basics"
+      ],
+      "conceptId": "checkpoint_basics_mixoff.2",
+      "difficulty": 0.11,
+      "xpAward": 10,
+      "reviewWeight": 0.7,
+      "options": [
+        "Base spirit",
+        "Cheapest ingredient",
+        "Bitters",
+        "Ice"
+      ],
+      "answerIndex": 1
+    },
+    {
+      "id": "ch1-093",
+      "type": "short",
+      "prompt": "Define the golden ratio for many sour-style cocktails.",
+      "tags": [
+        "checkpoint-basics-mixoff",
+        "ch1-basics"
+      ],
+      "conceptId": "checkpoint_basics_mixoff.3",
+      "difficulty": 0.12000000000000001,
+      "xpAward": 10,
+      "reviewWeight": 0.7,
+      "answerText": "2:1:1",
+      "acceptableAnswers": [
+        "2:1:1"
+      ]
+    },
+    {
+      "id": "ch1-094",
+      "type": "mcq",
+      "prompt": "What indicates a balanced cocktail?",
+      "tags": [
+        "checkpoint-basics-mixoff",
+        "ch1-basics"
+      ],
+      "conceptId": "checkpoint_basics_mixoff.4",
+      "difficulty": 0.13,
+      "xpAward": 10,
+      "reviewWeight": 0.7,
+      "options": [
+        "Dominant sweetness",
+        "No element dominates; sweet, sour, strong in harmony",
+        "Only alcohol taste",
+        "Only citrus taste"
+      ],
+      "answerIndex": 1
+    },
+    {
+      "id": "ch1-095",
+      "type": "match",
+      "prompt": "Match style to example.",
+      "tags": [
+        "checkpoint-basics-mixoff",
+        "ch1-basics"
+      ],
+      "conceptId": "checkpoint_basics_mixoff.5",
+      "difficulty": 0.14,
+      "xpAward": 10,
+      "reviewWeight": 0.7,
+      "pairs": [
+        {
+          "left": "Sour",
+          "right": "Daiquiri"
+        },
+        {
+          "left": "Spirit-forward",
+          "right": "Negroni"
+        },
+        {
+          "left": "Fizz/Collins",
+          "right": "Tom Collins"
+        }
+      ]
+    },
+    {
+      "id": "ch1-096",
+      "type": "checkbox",
+      "prompt": "Select stirred classics.",
+      "tags": [
+        "checkpoint-basics-mixoff",
+        "ch1-basics"
+      ],
+      "conceptId": "checkpoint_basics_mixoff.6",
+      "difficulty": 0.15000000000000002,
+      "xpAward": 10,
+      "reviewWeight": 0.7,
+      "options": [
+        "Negroni",
+        "Old Fashioned",
+        "Daiquiri",
+        "Whiskey Sour"
+      ],
+      "correct": [
+        "Negroni",
+        "Old Fashioned"
+      ]
+    },
+    {
+      "id": "ch1-097",
+      "type": "order",
+      "prompt": "Typical build sequence for a shaken sour.",
+      "tags": [
+        "checkpoint-basics-mixoff",
+        "ch1-basics"
+      ],
+      "conceptId": "checkpoint_basics_mixoff.7",
+      "difficulty": 0.16,
+      "xpAward": 10,
+      "reviewWeight": 0.7,
+      "orderTarget": [
+        "Base spirit",
+        "Modifier/liqueur",
+        "Sweetener",
+        "Citrus",
+        "Ice",
+        "Shake"
+      ]
+    },
+    {
+      "id": "ch1-098",
+      "type": "mcq",
+      "prompt": "Ideal shake time for a standard sour?",
+      "tags": [
+        "checkpoint-basics-mixoff",
+        "ch1-basics"
+      ],
+      "conceptId": "checkpoint_basics_mixoff.8",
+      "difficulty": 0.17,
+      "xpAward": 10,
+      "reviewWeight": 0.7,
+      "options": [
+        "3–5 seconds",
+        "8–12 seconds",
+        "20 seconds",
+        "30+ seconds"
+      ],
+      "answerIndex": 1
+    },
+    {
+      "id": "ch1-099",
+      "type": "mcq",
+      "prompt": "Judge asks for one presentation tip.",
+      "tags": [
+        "checkpoint-basics-mixoff",
+        "ch1-basics"
+      ],
+      "conceptId": "checkpoint_basics_mixoff.9",
+      "difficulty": 0.18,
+      "xpAward": 10,
+      "reviewWeight": 0.7,
+      "options": [
+        "Keep glassware pristine; garnish intentional",
+        "Add more syrup",
+        "Oversized garnish",
+        "Serve warmer"
+      ],
+      "answerIndex": 0
+    },
+    {
+      "id": "ch1-100",
+      "type": "short",
+      "prompt": "List two signs a drink is perfectly balanced.",
+      "tags": [
+        "checkpoint-basics-mixoff",
+        "ch1-basics"
+      ],
+      "conceptId": "checkpoint_basics_mixoff.10",
+      "difficulty": 0.19,
+      "xpAward": 10,
+      "reviewWeight": 0.7,
+      "answerText": "No harsh burn",
+      "acceptableAnswers": [
+        "No harsh burn",
+        "Clean finish without cloying sweetness"
+      ]
     }
   ]
 }

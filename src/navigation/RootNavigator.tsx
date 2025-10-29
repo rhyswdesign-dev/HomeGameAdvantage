@@ -6,7 +6,6 @@ import Tabs from './Tabs';
 import BarsScreen from '../screens/BarsScreen';
 import AccountSetupScreen from '../screens/AccountSetupScreen';
 import SpiritsScreen from '../screens/SpiritsScreen';
-import EventsScreen from '../screens/EventsScreen';
 import GamesScreen from '../screens/GamesScreen';
 import BrandScreen from '../screens/BrandScreen';
 import BarThemeScreen from '../screens/BarThemeScreen';
@@ -23,8 +22,6 @@ import TheWineCellarScreen from '../screens/bars/TheWineCellarScreen';
 import TheHiddenFlaskScreen from '../screens/bars/TheHiddenFlaskScreen';
 import KingsCupScreen from '../screens/KingsCupScreen';
 import GameDetailsScreen from '../screens/GameDetailsScreen';
-import GarnishCompetitionScreen from '../screens/GarnishCompetitionScreen';
-import CocktailSubmissionScreen from '../screens/CocktailSubmissionScreen';
 import MixologyMasterClassScreen from '../screens/MixologyMasterClassScreen';
 import BrandDetailScreen from '../screens/BrandDetailScreen';
 import FeaturedSpiritScreen from '../screens/FeaturedSpiritScreen';
@@ -51,14 +48,8 @@ import VaultOrderDetailsScreen from '../screens/vault/VaultOrderDetailsScreen';
 import VaultOrderHistoryScreen from '../screens/vault/VaultOrderHistoryScreen';
 import VaultBillingScreen from '../screens/vault/VaultBillingScreen';
 import VaultEarnXPScreen from '../screens/vault/VaultEarnXPScreen';
-import LeaderboardScreen from '../screens/LeaderboardScreen';
-import NotificationsScreen from '../screens/NotificationsScreen';
 import CategoriesListScreen from '../screens/CategoriesListScreen';
 import CategoryDetailScreen from '../screens/CategoryDetailScreen';
-import UserProfileScreen from '../screens/UserProfileScreen';
-import FollowersListScreen from '../screens/FollowersListScreen';
-import GroupDiscoveryScreen from '../screens/GroupDiscoveryScreen';
-import GroupProfileScreen from '../screens/GroupProfileScreen';
 import FeaturedBarsScreen from '../screens/FeaturedBarsScreen';
 import MapsDemo from '../screens/MapsDemo';
 import CopperMoonScreen from '../screens/CopperMoonScreen';
@@ -100,7 +91,6 @@ export type RootStackParamList = {
   Main: undefined;
   PersonalizedHome: undefined;
   Bars: undefined;
-  Events: undefined;
   Games: undefined;
   GamesScreen: undefined;
   Brand: { brand: string };
@@ -127,8 +117,6 @@ export type RootStackParamList = {
   GameDetails: { id: string };
   AccountSetup: undefined;
   XPReminder: undefined;
-  GarnishCompetition: undefined;
-  CocktailSubmission: undefined;
   MixologyMasterClass: undefined;
   BrandDetail: { brandId: string };
   FeaturedSpirit: { spiritId: string; tier: 'bronze' | 'silver' | 'gold' };
@@ -154,14 +142,8 @@ export type RootStackParamList = {
   VaultOrderHistory: undefined;
   VaultBilling: undefined;
   VaultEarnXP: undefined;
-  Leaderboard: undefined;
-  Notifications: undefined;
   CategoriesList: undefined;
   CategoryDetail: { categoryId: string; categoryName: string };
-  UserProfile: { userId: string; isOwnProfile?: boolean };
-  FollowersList: { userId: string; type: 'followers' | 'following' };
-  GroupDiscovery: undefined;
-  GroupProfile: { groupId: string };
   FeaturedBar: { barId: string };
   MapsDemo: undefined;
   // Onboarding screens
@@ -209,7 +191,6 @@ export default function RootNavigator() {
     >
       <Stack.Screen name="Main" component={Tabs} />
       <Stack.Screen name="Bars" component={BarsScreen} options={{ headerShown: true, title: 'Featured Bars' }} />
-      <Stack.Screen name="Events" component={EventsScreen} options={{ headerShown: true, title: 'Events' }} />
       <Stack.Screen name="Games" component={GamesScreen} options={{ headerShown: true, title: 'Games' }} />
       <Stack.Screen name="Brand" component={BrandScreen} options={({ route }) => ({ headerShown: true, title: route.params.brand })} />
       <Stack.Screen name="BarTheme" component={BarThemeScreen} options={({ route }) => ({ headerShown: true, title: route.params.theme })} />
@@ -346,8 +327,6 @@ export default function RootNavigator() {
       })} />
       <Stack.Screen name="AccountSetup" component={AccountSetupScreen} options={{ headerShown:false }} />
       <Stack.Screen name="XPReminder" component={XPReminderScreen} options={{ headerShown: false }} />
-      <Stack.Screen name="GarnishCompetition" component={GarnishCompetitionScreen} options={{ headerShown: false }} />
-      <Stack.Screen name="CocktailSubmission" component={CocktailSubmissionScreen} options={{ headerShown: false }} />
       <Stack.Screen name="MixologyMasterClass" component={MixologyMasterClassScreen} options={{ headerShown: false }} />
       <Stack.Screen 
         name="BrandDetail" 
@@ -398,14 +377,8 @@ export default function RootNavigator() {
     <Stack.Screen name="VaultOrderHistory" component={VaultOrderHistoryScreen} options={{ headerShown: true, title: 'Order History' }} />
     <Stack.Screen name="VaultBilling" component={VaultBillingScreen} options={{ headerShown: true, title: 'Billing' }} />
     <Stack.Screen name="VaultEarnXP" component={VaultEarnXPScreen} options={{ headerShown: true, title: 'Earn XP' }} />
-    <Stack.Screen name="Leaderboard" component={LeaderboardScreen} options={{ headerShown: true, title: 'Leaderboard' }} />
-    <Stack.Screen name="Notifications" component={NotificationsScreen} options={{ headerShown: true, title: 'Notifications' }} />
     <Stack.Screen name="CategoriesList" component={CategoriesListScreen} options={{ headerShown: true, title: 'Categories' }} />
     <Stack.Screen name="CategoryDetail" component={CategoryDetailScreen} options={{ headerShown: true, title: 'Category' }} />
-    <Stack.Screen name="UserProfile" component={UserProfileScreen} options={{ headerShown: true, title: 'Profile' }} />
-    <Stack.Screen name="FollowersList" component={FollowersListScreen} options={{ headerShown: true, title: 'Followers' }} />
-    <Stack.Screen name="GroupDiscovery" component={GroupDiscoveryScreen} options={{ headerShown: true, title: 'Discover Groups' }} />
-    <Stack.Screen name="GroupProfile" component={GroupProfileScreen} options={{ headerShown: true, title: 'Group' }} />
     <Stack.Screen name="FeaturedBar" component={FeaturedBarsScreen} options={{ headerShown: true, title: 'Featured Bar' }} />
     <Stack.Screen name="MapsDemo" component={MapsDemo} options={{ headerShown: true, title: 'Maps Demo' }} />
     {/* Onboarding screens */}

@@ -3,42 +3,52 @@
  */
 
 import React, { useEffect, useRef } from 'react';
-import { 
-  View, 
-  Text, 
-  StyleSheet, 
-  Pressable, 
-  Animated, 
+import {
+  View,
+  Text,
+  StyleSheet,
+  Pressable,
+  Animated,
   Dimensions,
   StatusBar,
-  Platform 
+  Platform
 } from 'react-native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { RouteProp } from '@react-navigation/native';
+import { RouteProp, CompositeNavigationProp } from '@react-navigation/native';
 import { RootStackParamList } from '../../navigation/RootNavigator';
+import { LessonsStackParamList } from '../../navigation/LessonsStack';
 import { colors, spacing, radii } from '../../theme/tokens';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
+import curriculumData from '../../../curriculum-data.json';
 
 type LessonSummaryScreenProps = {
-  navigation: NativeStackNavigationProp<RootStackParamList, 'LessonSummary'>;
-  route: RouteProp<RootStackParamList, 'LessonSummary'>;
+  navigation: CompositeNavigationProp<
+    NativeStackNavigationProp<LessonsStackParamList, 'LessonSummary'>,
+    NativeStackNavigationProp<RootStackParamList>
+  >;
+  route: RouteProp<LessonsStackParamList, 'LessonSummary'>;
 };
 
 const { width, height } = Dimensions.get('window');
 
 export default function LessonSummaryScreen({ navigation, route }: LessonSummaryScreenProps) {
-  const { 
-    xpAwarded, 
-    correctCount, 
-    totalCount, 
-    masteryDelta,
+  const {
+    xpAwarded = 0,
+    correctCount = 0,
+    totalCount = 1,
+    masteryDelta = 0,
     moduleId,
     lessonId,
-    isFirstLesson 
+    isFirstLesson
   } = route.params;
 
-  const accuracy = Math.round((correctCount / totalCount) * 100);
+  // Calculate accuracy with proper validation
+  const accuracy = totalCount > 0 ? Math.round((correctCount / totalCount) * 100) : 0;
+  const incorrectCount = totalCount - correctCount;
+
+  // Determine if the lesson was passed (need at least 70% to pass)
+  const passed = accuracy >= 70;
   
   // Enhanced animation values
   const fadeAnim = useRef(new Animated.Value(0)).current;
@@ -128,10 +138,79 @@ export default function LessonSummaryScreen({ navigation, route }: LessonSummary
     if (isFirstLesson) {
       // After first lesson, go to main app with lesson system unlocked
       navigation.navigate('Main');
-    } else {
-      // Continue to next lesson or module overview
-      navigation.navigate('Main');
+      return;
     }
+
+    // Find the next lesson
+    if (!lessonId) {
+      navigation.navigate('LessonsMain');
+      return;
+    }
+
+    // Get all lessons from curriculum
+    const lessons = curriculumData.lessons;
+
+    // Find current lesson index
+    const currentIndex = lessons.findIndex(l => l.id === lessonId);
+
+    if (currentIndex === -1) {
+      // Lesson not found, go back to lessons screen
+      navigation.navigate('LessonsMain');
+      return;
+    }
+
+    const currentLesson = lessons[currentIndex];
+
+    // Find next lesson in the same module
+    const nextLessonInModule = lessons.find(
+      (l, idx) => idx > currentIndex && l.moduleId === currentLesson.moduleId
+    );
+
+    if (nextLessonInModule) {
+      // Navigate to next lesson in same module
+      console.log('📚 Navigating to next lesson:', nextLessonInModule.title);
+      navigation.navigate('LessonEngine', {
+        lessonId: nextLessonInModule.id,
+        moduleId: nextLessonInModule.moduleId,
+        isFirstLesson: false
+      });
+    } else {
+      // No more lessons in this module, find first lesson of next module
+      const currentModuleIndex = curriculumData.modules.findIndex(m => m.id === currentLesson.moduleId);
+
+      if (currentModuleIndex !== -1 && currentModuleIndex < curriculumData.modules.length - 1) {
+        const nextModule = curriculumData.modules[currentModuleIndex + 1];
+        const firstLessonInNextModule = lessons.find(l => l.moduleId === nextModule.id);
+
+        if (firstLessonInNextModule) {
+          console.log('📚 Module complete! Moving to next module:', nextModule.title);
+          navigation.navigate('LessonEngine', {
+            lessonId: firstLessonInNextModule.id,
+            moduleId: firstLessonInNextModule.moduleId,
+            isFirstLesson: false
+          });
+        } else {
+          // No lessons in next module, go back to lessons screen
+          navigation.navigate('LessonsMain');
+        }
+      } else {
+        // All lessons complete! Go back to lessons screen
+        console.log('🎉 All lessons complete!');
+        navigation.navigate('LessonsMain');
+      }
+    }
+  };
+
+  const getTitle = () => {
+    if (passed) return "Lesson Complete!";
+    return "Lesson Incomplete";
+  };
+
+  const getSubtitle = () => {
+    if (accuracy >= 90) return "Perfectly mixed! 🍸";
+    if (accuracy >= 80) return "Expertly crafted!";
+    if (accuracy >= 70) return "Well mixed!";
+    return "Keep practicing!";
   };
 
   const getPerformanceMessage = () => {
@@ -151,7 +230,7 @@ export default function LessonSummaryScreen({ navigation, route }: LessonSummary
   return (
     <View style={styles.container}>
       <StatusBar barStyle="light-content" backgroundColor="transparent" translucent />
-      
+
       {/* Luxury gradient background */}
       <LinearGradient
         colors={[colors.bg, '#1A0F0B', colors.card]}
@@ -161,7 +240,7 @@ export default function LessonSummaryScreen({ navigation, route }: LessonSummary
       />
 
       {/* Celebration particles */}
-      <Animated.View 
+      <Animated.View
         style={[
           styles.celebrationParticles,
           {
@@ -191,16 +270,21 @@ export default function LessonSummaryScreen({ navigation, route }: LessonSummary
         ))}
       </Animated.View>
 
-      <Animated.View 
-        style={[
-          styles.content,
-          {
-            opacity: fadeAnim,
-            transform: [{ translateY: slideAnim }],
-          },
-        ]}
+      <Animated.ScrollView
+        style={styles.scrollView}
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
       >
-        <Animated.View 
+        <Animated.View
+          style={[
+            styles.content,
+            {
+              opacity: fadeAnim,
+              transform: [{ translateY: slideAnim }],
+            },
+          ]}
+        >
+        <Animated.View
           style={[
             styles.header,
             {
@@ -208,47 +292,53 @@ export default function LessonSummaryScreen({ navigation, route }: LessonSummary
             },
           ]}
         >
-          <View style={styles.celebrationIcon}>
-            <Ionicons name="wine" size={48} color={colors.gold} />
-          </View>
-          <Text style={styles.title}>Lesson Complete!</Text>
-          <View style={styles.subtitleContainer}>
-            <Text style={styles.subtitle}>Perfectly mixed!</Text>
-            <Ionicons name="wine" size={20} color={colors.gold} />
-          </View>
+          <Text style={styles.title}>Lesson Complete ✅</Text>
+          <Text style={styles.lessonSubtitle}>
+            Mixology Basics – Glassware 101
+          </Text>
         </Animated.View>
 
         <View style={styles.results}>
-          <Animated.View 
+          {/* Circular XP Progress Ring */}
+          <Animated.View
             style={[
-              styles.accuracyCard,
+              styles.xpRingContainer,
               {
                 transform: [{ scale: accuracyScaleAnim }],
               },
             ]}
           >
-            <LinearGradient
-              colors={[
-                'rgba(215, 161, 94, 0.1)',
-                'rgba(228, 147, 62, 0.05)',
-              ]}
-              style={styles.accuracyGradient}
-            >
-              <View style={styles.accuracyContent}>
-                <Text style={[styles.accuracyNumber, { color: getPerformanceColor() }]}>
-                  {accuracy}%
-                </Text>
-                <Text style={styles.accuracyLabel}>Accuracy</Text>
-                <Text style={[styles.performanceMessage, { color: getPerformanceColor() }]}>
-                  {getPerformanceMessage()}
-                </Text>
+            <View style={styles.xpRing}>
+              {/* Background circle */}
+              <View style={styles.ringBackground} />
+
+              {/* Progress arc */}
+              <View style={styles.ringProgress}>
+                <View
+                  style={[
+                    styles.ringFill,
+                    {
+                      transform: [
+                        { rotate: `${-90 + (accuracy * 3.6)}deg` }
+                      ]
+                    }
+                  ]}
+                />
               </View>
-            </LinearGradient>
+
+              {/* Center content */}
+              <View style={styles.xpRingContent}>
+                <Text style={styles.xpEarnedLabel}>XP Earned</Text>
+                <Text style={styles.xpEarnedNumber}>+{xpAwarded} XP</Text>
+                <Text style={styles.xpProgress}>{xpAwarded}/1000</Text>
+              </View>
+            </View>
           </Animated.View>
 
-          <Animated.View 
+          {/* Time Spent & Accuracy Stats */}
+          <Animated.View
             style={[
-              styles.statsGrid,
+              styles.statsRow,
               {
                 opacity: statsAnim,
                 transform: [{
@@ -260,23 +350,73 @@ export default function LessonSummaryScreen({ navigation, route }: LessonSummary
               },
             ]}
           >
-            {[
-              { value: correctCount, label: 'Correct', color: colors.success },
-              { value: totalCount - correctCount, label: 'Incorrect', color: colors.error },
-              { value: `+${xpAwarded}`, label: 'XP Earned', color: colors.gold },
-            ].map((stat, index) => (
-              <View key={index} style={styles.statCard}>
-                <LinearGradient
-                  colors={['rgba(255, 255, 255, 0.08)', 'rgba(255, 255, 255, 0.02)']}
-                  style={styles.statGradient}
-                >
-                  <Text style={[styles.statNumber, { color: stat.color }]}>
-                    {stat.value}
-                  </Text>
-                  <Text style={styles.statLabel}>{stat.label}</Text>
-                </LinearGradient>
-              </View>
-            ))}
+            {/* Time Spent Card */}
+            <View style={styles.statCard}>
+              <LinearGradient
+                colors={['rgba(255, 255, 255, 0.08)', 'rgba(255, 255, 255, 0.02)']}
+                style={styles.statGradient}
+              >
+                <Text style={styles.statLabel}>Time Spent</Text>
+                <Text style={styles.statValue}>7 min</Text>
+              </LinearGradient>
+            </View>
+
+            {/* Accuracy Card */}
+            <View style={styles.statCard}>
+              <LinearGradient
+                colors={['rgba(255, 255, 255, 0.08)', 'rgba(255, 255, 255, 0.02)']}
+                style={styles.statGradient}
+              >
+                <Text style={styles.statLabel}>Accuracy</Text>
+                <Text style={styles.statValue}>{accuracy}%</Text>
+              </LinearGradient>
+            </View>
+          </Animated.View>
+
+          {/* Insight Cards */}
+          <Animated.View
+            style={[
+              styles.insightCardsContainer,
+              {
+                opacity: celebrationAnim,
+                transform: [{
+                  translateY: celebrationAnim.interpolate({
+                    inputRange: [0, 1],
+                    outputRange: [30, 0],
+                  }),
+                }],
+              },
+            ]}
+          >
+            {/* Strength Insight */}
+            <View style={styles.insightCard}>
+              <LinearGradient
+                colors={['rgba(76, 175, 80, 0.15)', 'rgba(76, 175, 80, 0.05)']}
+                style={styles.insightGradient}
+              >
+                <View style={styles.insightIconContainer}>
+                  <Ionicons name="checkmark-circle" size={20} color={colors.success} />
+                </View>
+                <Text style={styles.insightCardText}>
+                  Strong Knowledge in Spirit Types
+                </Text>
+              </LinearGradient>
+            </View>
+
+            {/* Improvement Insight */}
+            <View style={styles.insightCard}>
+              <LinearGradient
+                colors={['rgba(255, 152, 0, 0.15)', 'rgba(255, 152, 0, 0.05)']}
+                style={styles.insightGradient}
+              >
+                <View style={styles.insightIconContainer}>
+                  <Ionicons name="refresh-circle" size={20} color="#FF9800" />
+                </View>
+                <Text style={styles.insightCardText}>
+                  Focus More on Glass Pairings
+                </Text>
+              </LinearGradient>
+            </View>
           </Animated.View>
         </View>
 
@@ -311,9 +451,10 @@ export default function LessonSummaryScreen({ navigation, route }: LessonSummary
           </Animated.View>
         )}
 
-        <Animated.View 
+        {/* Action Buttons */}
+        <Animated.View
           style={[
-            styles.nextSteps,
+            styles.actions,
             {
               opacity: celebrationAnim,
               transform: [{
@@ -325,42 +466,55 @@ export default function LessonSummaryScreen({ navigation, route }: LessonSummary
             },
           ]}
         >
-          <Text style={styles.nextStepsTitle}>Continue Your Journey</Text>
-          {[
-            { icon: 'library', text: 'Unlock advanced techniques and premium spirits' },
-            { icon: 'flame', text: 'Maintain your streak for exclusive rewards' },
-            { icon: 'medal', text: 'Master mixology and earn prestigious badges' },
-          ].map((step, index) => (
-            <View key={index} style={styles.nextStepItem}>
-              <View style={styles.nextStepIconContainer}>
-                <Ionicons name={step.icon as any} size={20} color={colors.gold} />
-              </View>
-              <Text style={styles.nextStepText}>{step.text}</Text>
-            </View>
-          ))}
-        </Animated.View>
-      </Animated.View>
+          {/* Review Mistakes Button */}
+          {incorrectCount > 0 && (
+            <Pressable
+              style={({ pressed }) => [
+                styles.reviewButton,
+                pressed && styles.buttonPressed,
+              ]}
+              onPress={() => {
+                // Navigate back to lesson to review mistakes
+                if (lessonId && moduleId) {
+                  navigation.navigate('LessonEngine', {
+                    lessonId,
+                    moduleId,
+                    isFirstLesson: false
+                  });
+                }
+              }}
+            >
+              <Text style={styles.reviewButtonText}>Review Mistakes</Text>
+            </Pressable>
+          )}
 
-      <View style={styles.actions}>
-        <Pressable
-          style={({ pressed }) => [
-            styles.continueButton,
-            pressed && styles.continueButtonPressed,
-          ]}
-          onPress={handleContinue}
-        >
-          <LinearGradient
-            colors={[colors.gold, colors.accent]}
-            style={styles.buttonGradient}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 0 }}
+          {/* Next Lesson Button */}
+          <Pressable
+            style={({ pressed }) => [
+              styles.continueButton,
+              pressed && styles.buttonPressed,
+            ]}
+            onPress={handleContinue}
           >
-            <Text style={styles.continueButtonText}>
-              {isFirstLesson ? 'Begin Your Journey' : 'Continue Learning'}
-            </Text>
-          </LinearGradient>
-        </Pressable>
-      </View>
+            <LinearGradient
+              colors={[colors.gold, colors.accent]}
+              style={styles.buttonGradient}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 0 }}
+            >
+              <Text style={styles.continueButtonText}>
+                {isFirstLesson ? 'Begin Your Journey' : 'Next Lesson'}
+              </Text>
+            </LinearGradient>
+          </Pressable>
+
+          {/* Level Up Message */}
+          <Text style={styles.levelUpMessage}>
+            You're now Level 3 – Bar Apprentice!
+          </Text>
+        </Animated.View>
+        </Animated.View>
+      </Animated.ScrollView>
     </View>
   );
 }
@@ -369,6 +523,13 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: colors.bg,
+  },
+  scrollView: {
+    flex: 1,
+  },
+  scrollContent: {
+    flexGrow: 1,
+    paddingBottom: spacing(6),
   },
   celebrationParticles: {
     position: 'absolute',
@@ -389,21 +550,22 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
-    padding: spacing(3),
+    paddingHorizontal: spacing(2),
     paddingTop: Platform.OS === 'ios' ? spacing(8) : spacing(6),
   },
   header: {
     alignItems: 'center',
     marginBottom: spacing(4),
+    paddingHorizontal: spacing(2),
   },
   celebrationIcon: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
+    width: 90,
+    height: 90,
+    borderRadius: 45,
     backgroundColor: 'rgba(215, 161, 94, 0.1)',
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: spacing(2),
+    marginBottom: spacing(3),
     shadowColor: colors.gold,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
@@ -411,82 +573,98 @@ const styles = StyleSheet.create({
     elevation: 8,
   },
   title: {
-    fontSize: 32,
-    fontWeight: '900',
+    fontSize: 28,
+    fontWeight: '700',
     color: colors.text,
     marginBottom: spacing(1),
     textAlign: 'center',
     letterSpacing: -0.5,
   },
-  subtitle: {
-    fontSize: 20,
+  lessonSubtitle: {
+    fontSize: 16,
     color: colors.subtext,
     textAlign: 'center',
-    fontWeight: '600',
-  },
-  subtitleContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing(1),
-    justifyContent: 'center',
+    fontWeight: '500',
   },
   results: {
-    marginBottom: spacing(4),
-  },
-  accuracyCard: {
-    borderRadius: radii.xl,
     marginBottom: spacing(3),
+    paddingHorizontal: spacing(1),
+  },
+  // XP Ring Styles
+  xpRingContainer: {
+    alignItems: 'center',
+    marginBottom: spacing(3),
+  },
+  xpRing: {
+    width: 180,
+    height: 180,
+    alignItems: 'center',
+    justifyContent: 'center',
+    position: 'relative',
+  },
+  ringBackground: {
+    position: 'absolute',
+    width: 180,
+    height: 180,
+    borderRadius: 90,
+    borderWidth: 12,
+    borderColor: 'rgba(255, 255, 255, 0.1)',
+  },
+  ringProgress: {
+    position: 'absolute',
+    width: 180,
+    height: 180,
+    borderRadius: 90,
     overflow: 'hidden',
-    shadowColor: colors.shadow,
-    shadowOffset: { width: 0, height: 12 },
-    shadowOpacity: 0.3,
-    shadowRadius: 24,
-    elevation: 12,
   },
-  accuracyGradient: {
-    padding: spacing(4),
+  ringFill: {
+    position: 'absolute',
+    width: 180,
+    height: 180,
+    borderRadius: 90,
+    borderWidth: 12,
+    borderColor: colors.gold,
+    borderTopColor: 'transparent',
+    borderRightColor: 'transparent',
+  },
+  xpRingContent: {
     alignItems: 'center',
-    borderWidth: 1,
-    borderColor: 'rgba(215, 161, 94, 0.2)',
-    borderRadius: radii.xl,
+    justifyContent: 'center',
   },
-  accuracyContent: {
-    alignItems: 'center',
-  },
-  accuracyNumber: {
-    fontSize: 56,
-    fontWeight: '900',
-    marginBottom: spacing(1),
-    textShadowColor: 'rgba(0, 0, 0, 0.3)',
-    textShadowOffset: { width: 0, height: 2 },
-    textShadowRadius: 4,
-  },
-  accuracyLabel: {
-    fontSize: 18,
+  xpEarnedLabel: {
+    fontSize: 12,
     color: colors.subtext,
-    marginBottom: spacing(1),
-    fontWeight: '600',
-    letterSpacing: 1,
     textTransform: 'uppercase',
+    letterSpacing: 0.8,
+    fontWeight: '600',
+    marginBottom: spacing(0.5),
   },
-  performanceMessage: {
-    fontSize: 20,
-    fontWeight: '700',
-    textAlign: 'center',
+  xpEarnedNumber: {
+    fontSize: 32,
+    fontWeight: '900',
+    color: colors.gold,
+    marginBottom: spacing(0.5),
   },
-  statsGrid: {
+  xpProgress: {
+    fontSize: 14,
+    color: colors.subtext,
+    fontWeight: '500',
+  },
+  // Stats Row
+  statsRow: {
     flexDirection: 'row',
     gap: spacing(2),
+    marginBottom: spacing(3),
   },
   statCard: {
     flex: 1,
     borderRadius: radii.lg,
     overflow: 'hidden',
     shadowColor: colors.shadow,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.15,
-    shadowRadius: 12,
-    elevation: 6,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 4,
   },
   statGradient: {
     padding: spacing(2.5),
@@ -495,27 +673,65 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(255, 255, 255, 0.1)',
     borderRadius: radii.lg,
   },
-  statNumber: {
-    fontSize: 28,
-    fontWeight: '900',
-    marginBottom: spacing(0.5),
-  },
   statLabel: {
-    fontSize: 12,
+    fontSize: 13,
     color: colors.subtext,
     textTransform: 'uppercase',
-    letterSpacing: 1,
+    letterSpacing: 0.8,
     fontWeight: '600',
+    marginBottom: spacing(1),
+  },
+  statValue: {
+    fontSize: 28,
+    fontWeight: '900',
+    color: colors.text,
+  },
+  // Insight Cards
+  insightCardsContainer: {
+    gap: spacing(2),
+  },
+  insightCard: {
+    borderRadius: radii.lg,
+    overflow: 'hidden',
+    shadowColor: colors.shadow,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 4,
+  },
+  insightGradient: {
+    padding: spacing(2.5),
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.05)',
+    borderRadius: radii.lg,
+  },
+  insightIconContainer: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: spacing(2),
+  },
+  insightCardText: {
+    flex: 1,
+    fontSize: 15,
+    color: colors.text,
+    fontWeight: '600',
+    lineHeight: 22,
   },
   welcomeCard: {
     borderRadius: radii.lg,
     marginBottom: spacing(3),
     overflow: 'hidden',
     shadowColor: colors.success,
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.2,
-    shadowRadius: 16,
-    elevation: 8,
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.15,
+    shadowRadius: 12,
+    elevation: 6,
   },
   welcomeGradient: {
     padding: spacing(3),
@@ -532,72 +748,62 @@ const styles = StyleSheet.create({
   welcomeTitleContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: spacing(1),
+    gap: spacing(2),
     justifyContent: 'center',
-    marginBottom: spacing(2),
+    marginBottom: spacing(3),
   },
   welcomeText: {
     fontSize: 16,
     color: colors.text,
-    lineHeight: 24,
+    lineHeight: 26,
     textAlign: 'center',
-    fontWeight: '500',
-  },
-  nextSteps: {
-    marginBottom: spacing(3),
-  },
-  nextStepsTitle: {
-    fontSize: 22,
-    fontWeight: '800',
-    color: colors.text,
-    marginBottom: spacing(3),
-    textAlign: 'center',
-    letterSpacing: -0.3,
-  },
-  nextStepItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: spacing(2),
-    backgroundColor: 'rgba(255, 255, 255, 0.03)',
-    borderRadius: radii.lg,
-    padding: spacing(2),
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.08)',
-  },
-  nextStepIconContainer: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    backgroundColor: 'rgba(215, 161, 94, 0.15)',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginRight: spacing(2),
-  },
-  nextStepText: {
-    flex: 1,
-    fontSize: 16,
-    color: colors.text,
-    lineHeight: 24,
     fontWeight: '500',
   },
   actions: {
-    padding: spacing(3),
-    paddingTop: 0,
+    paddingHorizontal: spacing(1),
+    paddingTop: spacing(2),
+    paddingBottom: spacing(3),
+    gap: spacing(2),
+  },
+  reviewButton: {
+    borderRadius: radii.lg,
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    paddingVertical: spacing(3.5),
+    paddingHorizontal: spacing(4),
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.15)',
+  },
+  reviewButtonText: {
+    color: colors.text,
+    fontSize: 18,
+    fontWeight: '600',
+    letterSpacing: 0.3,
   },
   continueButton: {
     borderRadius: radii.lg,
     overflow: 'hidden',
     shadowColor: colors.gold,
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.4,
-    shadowRadius: 20,
-    elevation: 12,
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.3,
+    shadowRadius: 16,
+    elevation: 10,
   },
-  continueButtonPressed: {
+  buttonPressed: {
     transform: [{ scale: 0.98 }],
   },
+  levelUpMessage: {
+    fontSize: 15,
+    color: colors.gold,
+    textAlign: 'center',
+    fontWeight: '600',
+    marginTop: spacing(1),
+    letterSpacing: 0.3,
+  },
   buttonGradient: {
-    padding: spacing(3),
+    paddingVertical: spacing(4),
+    paddingHorizontal: spacing(4),
     alignItems: 'center',
     justifyContent: 'center',
   },

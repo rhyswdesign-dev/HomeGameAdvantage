@@ -1,12 +1,12 @@
 /**
  * Match Exercise Component
- * Drag and drop or tap-to-match pairs for lesson engine
+ * Clean tap-to-connect interface
  */
 
-import React, { useState } from 'react';
-import { View, Text, Pressable, StyleSheet } from 'react-native';
+import React, { useState, useEffect, useRef } from 'react';
+import { View, Text, Pressable, StyleSheet, Animated } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { colors, fonts, radii, spacing } from '../../theme/tokens';
+import { colors, radii, spacing } from '../../theme/tokens';
 import { Item } from '../../types/domain';
 
 interface MatchPair {
@@ -22,15 +22,57 @@ interface MatchExerciseProps {
 export const MatchExercise: React.FC<MatchExerciseProps> = ({ item, onResult }) => {
   const [selectedLeft, setSelectedLeft] = useState<string | null>(null);
   const [matches, setMatches] = useState<Record<string, string>>({});
+  const [submitted, setSubmitted] = useState(false);
   const [startTime] = useState(Date.now());
+
+  const fadeAnim = useRef(new Animated.Value(1)).current;
+  const leftAnims = useRef((item.pairs || []).map(() => new Animated.Value(1))).current;
+  const rightAnims = useRef((item.pairs || []).map(() => new Animated.Value(1))).current;
 
   const pairs: MatchPair[] = item.pairs || [];
   const leftItems = pairs.map(p => p.left);
-  const rightItems = [...pairs.map(p => p.right)].sort(() => Math.random() - 0.5); // Shuffle right items
+  const rightItems = [...pairs.map(p => p.right)].sort(() => Math.random() - 0.5);
+
+  useEffect(() => {
+    setSelectedLeft(null);
+    setMatches({});
+    setSubmitted(false);
+
+    fadeAnim.setValue(0);
+    leftAnims.forEach(anim => anim.setValue(0));
+    rightAnims.forEach(anim => anim.setValue(0));
+
+    Animated.parallel([
+      Animated.timing(fadeAnim, {
+        toValue: 1,
+        duration: 400,
+        useNativeDriver: true,
+      }),
+      Animated.stagger(60, [
+        ...leftAnims.map(anim =>
+          Animated.spring(anim, {
+            toValue: 1,
+            tension: 80,
+            friction: 8,
+            useNativeDriver: true,
+          })
+        ),
+        ...rightAnims.map(anim =>
+          Animated.spring(anim, {
+            toValue: 1,
+            tension: 80,
+            friction: 8,
+            useNativeDriver: true,
+          })
+        ),
+      ]),
+    ]).start();
+  }, [item.id]);
 
   const handleLeftPress = (leftItem: string) => {
+    if (submitted) return;
+
     if (matches[leftItem]) {
-      // If already matched, remove the match
       const newMatches = { ...matches };
       delete newMatches[leftItem];
       setMatches(newMatches);
@@ -41,9 +83,8 @@ export const MatchExercise: React.FC<MatchExerciseProps> = ({ item, onResult }) 
   };
 
   const handleRightPress = (rightItem: string) => {
-    if (!selectedLeft) return;
+    if (!selectedLeft || submitted) return;
 
-    // Remove any existing match for this right item
     const newMatches = { ...matches };
     Object.keys(newMatches).forEach(left => {
       if (newMatches[left] === rightItem) {
@@ -51,16 +92,17 @@ export const MatchExercise: React.FC<MatchExerciseProps> = ({ item, onResult }) 
       }
     });
 
-    // Add new match
     newMatches[selectedLeft] = rightItem;
     setMatches(newMatches);
     setSelectedLeft(null);
   };
 
   const handleSubmit = () => {
+    if (submitted || Object.keys(matches).length !== pairs.length) return;
+
+    setSubmitted(true);
     const msToAnswer = Date.now() - startTime;
-    
-    // Check if all pairs are correctly matched
+
     let isCorrect = true;
     for (const pair of pairs) {
       if (matches[pair.left] !== pair.right) {
@@ -69,210 +111,247 @@ export const MatchExercise: React.FC<MatchExerciseProps> = ({ item, onResult }) 
       }
     }
 
-    onResult({
-      correct: isCorrect,
-      msToAnswer
-    });
+    setTimeout(() => {
+      onResult({
+        correct: isCorrect,
+        msToAnswer
+      });
+    }, 800);
   };
 
   const canSubmit = Object.keys(matches).length === pairs.length;
   const isRightItemMatched = (rightItem: string) => Object.values(matches).includes(rightItem);
 
   return (
-    <View style={styles.container}>
+    <Animated.View
+      style={[
+        styles.container,
+        {
+          opacity: fadeAnim,
+        },
+      ]}
+    >
       <Text style={styles.prompt}>{item.prompt}</Text>
-      
+
       <View style={styles.matchContainer}>
         {/* Left Column */}
         <View style={styles.column}>
-          <Text style={styles.columnHeader}>Match</Text>
           {leftItems.map((leftItem, index) => {
             const isSelected = selectedLeft === leftItem;
             const isMatched = !!matches[leftItem];
-            
+
             return (
-              <Pressable
+              <Animated.View
                 key={index}
-                style={[
-                  styles.item,
-                  isSelected && styles.itemSelected,
-                  isMatched && styles.itemMatched
-                ]}
-                onPress={() => handleLeftPress(leftItem)}
+                style={{
+                  opacity: leftAnims[index],
+                  transform: [{
+                    scale: leftAnims[index],
+                  }],
+                }}
               >
-                <LinearGradient
-                  colors={isSelected 
-                    ? [colors.accent, '#B8860B']
-                    : isMatched 
-                    ? [colors.success, '#4CAF50']
-                    : [colors.card, '#2B1B12']
-                  }
-                  style={styles.itemGradient}
-                  start={{ x: 0, y: 0 }}
-                  end={{ x: 1, y: 1 }}
+                <Pressable
+                  style={[
+                    styles.item,
+                    isSelected && styles.itemSelected,
+                    isMatched && styles.itemMatched,
+                  ]}
+                  onPress={() => handleLeftPress(leftItem)}
+                  disabled={submitted}
                 >
-                  <Text style={[
-                    styles.itemText,
-                    (isSelected || isMatched) && styles.itemTextSelected
-                  ]}>
-                    {leftItem}
-                  </Text>
-                  {isMatched && (
-                    <Text style={styles.matchedWith}>→ {matches[leftItem]}</Text>
-                  )}
-                </LinearGradient>
-              </Pressable>
+                  <LinearGradient
+                    colors={
+                      isSelected
+                        ? ['rgba(215, 161, 94, 0.25)', 'rgba(228, 147, 62, 0.15)']
+                        : isMatched
+                        ? ['rgba(76, 175, 80, 0.2)', 'rgba(76, 175, 80, 0.1)']
+                        : ['rgba(255, 255, 255, 0.08)', 'rgba(255, 255, 255, 0.02)']
+                    }
+                    style={styles.itemGradient}
+                  >
+                    <View style={styles.itemContent}>
+                      <Text style={[
+                        styles.itemText,
+                        (isSelected || isMatched) && styles.itemTextHighlight
+                      ]}>
+                        {leftItem}
+                      </Text>
+                      {isMatched && <Text style={styles.connectLabel}>Connect</Text>}
+                    </View>
+                  </LinearGradient>
+                </Pressable>
+              </Animated.View>
             );
           })}
         </View>
 
         {/* Right Column */}
         <View style={styles.column}>
-          <Text style={styles.columnHeader}>With</Text>
           {rightItems.map((rightItem, index) => {
             const isMatched = isRightItemMatched(rightItem);
-            
+
             return (
-              <Pressable
+              <Animated.View
                 key={index}
-                style={[
-                  styles.item,
-                  isMatched && styles.itemMatched,
-                  !selectedLeft && styles.itemDisabled
-                ]}
-                onPress={() => handleRightPress(rightItem)}
-                disabled={!selectedLeft}
+                style={{
+                  opacity: rightAnims[index],
+                  transform: [{
+                    scale: rightAnims[index],
+                  }],
+                }}
               >
-                <LinearGradient
-                  colors={isMatched 
-                    ? [colors.success, '#4CAF50']
-                    : !selectedLeft
-                    ? [colors.subtext, '#666']
-                    : [colors.card, '#2B1B12']
-                  }
-                  style={styles.itemGradient}
-                  start={{ x: 0, y: 0 }}
-                  end={{ x: 1, y: 1 }}
+                <Pressable
+                  style={[
+                    styles.item,
+                    isMatched && styles.itemMatched,
+                    !selectedLeft && !isMatched && styles.itemDisabled,
+                  ]}
+                  onPress={() => handleRightPress(rightItem)}
+                  disabled={!selectedLeft || submitted}
                 >
-                  <Text style={[
-                    styles.itemText,
-                    isMatched && styles.itemTextSelected,
-                    !selectedLeft && styles.itemTextDisabled
-                  ]}>
-                    {rightItem}
-                  </Text>
-                </LinearGradient>
-              </Pressable>
+                  <LinearGradient
+                    colors={
+                      isMatched
+                        ? ['rgba(76, 175, 80, 0.2)', 'rgba(76, 175, 80, 0.1)']
+                        : !selectedLeft
+                        ? ['rgba(255, 255, 255, 0.03)', 'rgba(255, 255, 255, 0.01)']
+                        : ['rgba(255, 255, 255, 0.08)', 'rgba(255, 255, 255, 0.02)']
+                    }
+                    style={styles.itemGradient}
+                  >
+                    <View style={styles.itemContent}>
+                      <Text style={[
+                        styles.itemText,
+                        isMatched && styles.itemTextHighlight,
+                        !selectedLeft && !isMatched && styles.itemTextDisabled,
+                      ]}>
+                        {rightItem}
+                      </Text>
+                      {isMatched && <Text style={styles.connectLabel}>Connect</Text>}
+                    </View>
+                  </LinearGradient>
+                </Pressable>
+              </Animated.View>
             );
           })}
         </View>
       </View>
 
-      <Pressable
-        style={[styles.submitButton, !canSubmit && styles.submitButtonDisabled]}
-        onPress={handleSubmit}
-        disabled={!canSubmit}
-      >
-        <LinearGradient
-          colors={canSubmit 
-            ? [colors.accent, '#B8860B'] 
-            : [colors.subtext, '#666']
-          }
-          style={styles.submitGradient}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}
+      {!submitted && (
+        <Pressable
+          style={[styles.submitButton, !canSubmit && styles.submitButtonDisabled]}
+          onPress={handleSubmit}
+          disabled={!canSubmit}
         >
-          <Text style={[
-            styles.submitText,
-            !canSubmit && styles.submitTextDisabled
-          ]}>
-            Submit Answer
-          </Text>
-        </LinearGradient>
-      </Pressable>
-    </View>
+          <LinearGradient
+            colors={canSubmit
+              ? [colors.gold, colors.accent]
+              : ['rgba(255, 255, 255, 0.1)', 'rgba(255, 255, 255, 0.05)']
+            }
+            style={styles.submitGradient}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 0 }}
+          >
+            <Text style={[
+              styles.submitText,
+              !canSubmit && styles.submitTextDisabled
+            ]}>
+              Check Answers
+            </Text>
+          </LinearGradient>
+        </Pressable>
+      )}
+    </Animated.View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    padding: spacing(3),
+    width: '100%',
   },
   prompt: {
-    fontSize: fonts.h2,
+    fontSize: 22,
     fontWeight: '600',
     color: colors.text,
     textAlign: 'center',
     marginBottom: spacing(4),
-    lineHeight: fonts.h2 * 1.4,
+    lineHeight: 30,
+    letterSpacing: -0.3,
   },
   matchContainer: {
     flexDirection: 'row',
-    gap: spacing(3),
+    gap: spacing(2),
     marginBottom: spacing(4),
   },
   column: {
     flex: 1,
-    gap: spacing(1),
-  },
-  columnHeader: {
-    fontSize: fonts.body,
-    fontWeight: '600',
-    color: colors.accent,
-    textAlign: 'center',
-    marginBottom: spacing(2),
+    gap: spacing(1.5),
   },
   item: {
     borderRadius: radii.md,
     overflow: 'hidden',
-    shadowColor: colors.accent,
+    borderWidth: 2,
+    borderColor: 'rgba(255, 255, 255, 0.1)',
+    shadowColor: colors.shadow,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
-    shadowRadius: 4,
+    shadowRadius: 6,
     elevation: 2,
   },
   itemSelected: {
+    borderColor: colors.gold,
+    shadowColor: colors.gold,
     shadowOpacity: 0.3,
-    shadowRadius: 8,
+    shadowRadius: 10,
+    elevation: 5,
   },
   itemMatched: {
+    borderColor: colors.success,
     shadowColor: colors.success,
     shadowOpacity: 0.2,
+    shadowRadius: 8,
+    elevation: 4,
   },
   itemDisabled: {
-    opacity: 0.6,
+    opacity: 0.4,
   },
   itemGradient: {
-    padding: spacing(2),
-    borderRadius: radii.md,
+    paddingVertical: spacing(2),
+    paddingHorizontal: spacing(2),
+  },
+  itemContent: {
+    alignItems: 'center',
   },
   itemText: {
-    fontSize: fonts.body,
-    fontWeight: '500',
+    fontSize: 15,
+    fontWeight: '600',
     color: colors.text,
     textAlign: 'center',
+    lineHeight: 20,
   },
-  itemTextSelected: {
-    color: colors.bg,
-    fontWeight: '600',
+  itemTextHighlight: {
+    color: colors.gold,
+    fontWeight: '700',
   },
   itemTextDisabled: {
     color: colors.subtext,
   },
-  matchedWith: {
-    fontSize: fonts.small,
-    color: colors.bg,
+  connectLabel: {
+    fontSize: 11,
+    color: colors.success,
     textAlign: 'center',
     marginTop: spacing(0.5),
-    fontWeight: '500',
+    fontWeight: '600',
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
   },
   submitButton: {
     borderRadius: radii.lg,
     overflow: 'hidden',
-    shadowColor: colors.accent,
+    shadowColor: colors.gold,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
-    shadowRadius: 12,
+    shadowRadius: 16,
     elevation: 8,
   },
   submitButtonDisabled: {
@@ -280,17 +359,18 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
   },
   submitGradient: {
-    padding: spacing(3),
-    borderRadius: radii.lg,
+    paddingVertical: spacing(4),
+    paddingHorizontal: spacing(4),
     alignItems: 'center',
   },
   submitText: {
-    fontSize: fonts.h3,
+    fontSize: 18,
     fontWeight: '700',
-    color: colors.bg,
+    color: colors.goldText,
+    letterSpacing: 0.3,
   },
   submitTextDisabled: {
-    color: colors.text,
+    color: colors.subtext,
   },
 });
 

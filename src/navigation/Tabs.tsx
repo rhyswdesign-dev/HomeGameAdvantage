@@ -3,11 +3,12 @@ import LessonsStack from './LessonsStack';
 import FeaturedStack from './FeaturedStack';
 import VaultStack from './VaultStack';
 import RecipesStack from './RecipesStack';
+import ProfileStack from './ProfileStack';
 import AuthScreen from '../screens/AuthScreen';
 import { Ionicons } from '@expo/vector-icons';
 import { colors } from '../theme/tokens';
 
-type TabsParamList = { Lessons: undefined; Recipes: undefined; Featured: undefined; Vault: undefined; };
+type TabsParamList = { Lessons: undefined; Recipes: undefined; Featured: undefined; Vault: undefined; Profile: undefined; };
 const Tab = createBottomTabNavigator<TabsParamList>();
 
 export default function Tabs() {
@@ -24,6 +25,7 @@ export default function Tabs() {
             Recipes: 'restaurant-outline',
             Featured: 'star-outline',
             Vault: 'lock-closed-outline',
+            Profile: 'person-outline',
           };
           return <Ionicons name={map[route.name]} size={size} color={color} />;
         },
@@ -33,6 +35,7 @@ export default function Tabs() {
       <Tab.Screen name="Recipes" component={RecipesStack} />
       <Tab.Screen name="Featured" component={FeaturedStack} />
       <Tab.Screen name="Vault" component={VaultStack} />
+      <Tab.Screen name="Profile" component={ProfileStack} />
     </Tab.Navigator>
   );
 }

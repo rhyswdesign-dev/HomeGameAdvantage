@@ -1,8 +1,10 @@
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import PersonalizedHomeScreen from '../screens/PersonalizedHomeScreen';
+import RecipesScreen from '../screens/RecipesScreen';
+import MyRecipesScreen from '../screens/MyRecipesScreen';
 
 export type RecipesStackParamList = {
   RecipesMain: undefined;
+  MyRecipes: undefined;
 };
 
 const Stack = createNativeStackNavigator<RecipesStackParamList>();
@@ -11,15 +13,12 @@ export default function RecipesStack() {
   return (
     <Stack.Navigator
       screenOptions={{
-        headerShown: true,
-        headerStyle: { backgroundColor: '#1A0F0B' },
-        headerTintColor: '#FFFFFF',
-        headerTitleStyle: { color: '#FFFFFF', fontWeight: '900' },
         animation: 'slide_from_right',
         animationDuration: 200,
       }}
     >
-      <Stack.Screen name="RecipesMain" component={PersonalizedHomeScreen} options={{ title: 'For You' }} />
+      <Stack.Screen name="RecipesMain" component={RecipesScreen} options={{ headerShown: true }} />
+      <Stack.Screen name="MyRecipes" component={MyRecipesScreen} options={{ headerShown: true, title: 'My Recipes' }} />
     </Stack.Navigator>
   );
 }

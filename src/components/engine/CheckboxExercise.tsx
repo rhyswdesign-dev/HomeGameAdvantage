@@ -1,13 +1,13 @@
 /**
  * Checkbox Exercise Component
- * Multiple selection quiz for lesson engine
+ * Multi-select with visual checkmarks
  */
 
-import React, { useState } from 'react';
-import { View, Text, Pressable, StyleSheet } from 'react-native';
+import React, { useState, useEffect, useRef } from 'react';
+import { View, Text, Pressable, StyleSheet, Animated } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
-import { colors, fonts, radii, spacing } from '../../theme/tokens';
+import { colors, radii, spacing } from '../../theme/tokens';
 import { Item } from '../../types/domain';
 
 interface CheckboxExerciseProps {
@@ -17,9 +17,41 @@ interface CheckboxExerciseProps {
 
 export const CheckboxExercise: React.FC<CheckboxExerciseProps> = ({ item, onResult }) => {
   const [selectedOptions, setSelectedOptions] = useState<string[]>([]);
+  const [submitted, setSubmitted] = useState(false);
   const [startTime] = useState(Date.now());
 
+  const fadeAnim = useRef(new Animated.Value(1)).current;
+  const optionAnims = useRef(item.options?.map(() => new Animated.Value(1)) || []).current;
+
+  useEffect(() => {
+    setSelectedOptions([]);
+    setSubmitted(false);
+
+    fadeAnim.setValue(0);
+    optionAnims.forEach(anim => anim.setValue(0));
+
+    Animated.parallel([
+      Animated.timing(fadeAnim, {
+        toValue: 1,
+        duration: 400,
+        useNativeDriver: true,
+      }),
+      Animated.stagger(60,
+        optionAnims.map(anim =>
+          Animated.spring(anim, {
+            toValue: 1,
+            tension: 80,
+            friction: 8,
+            useNativeDriver: true,
+          })
+        )
+      ),
+    ]).start();
+  }, [item.id]);
+
   const handleOptionPress = (option: string) => {
+    if (submitted) return;
+
     setSelectedOptions(prev => {
       if (prev.includes(option)) {
         return prev.filter(o => o !== option);
@@ -30,148 +62,194 @@ export const CheckboxExercise: React.FC<CheckboxExerciseProps> = ({ item, onResu
   };
 
   const handleSubmit = () => {
+    if (submitted || selectedOptions.length === 0) return;
+
+    setSubmitted(true);
     const msToAnswer = Date.now() - startTime;
     const correctAnswers = item.correct || [];
-    
-    // Check if selected options match correct answers exactly
+
     const selectedSet = new Set(selectedOptions);
     const correctSet = new Set(correctAnswers);
-    
-    const isCorrect = selectedSet.size === correctSet.size && 
+
+    const isCorrect = selectedSet.size === correctSet.size &&
       [...selectedSet].every(option => correctSet.has(option));
 
-    onResult({
-      correct: isCorrect,
-      msToAnswer
-    });
+    setTimeout(() => {
+      onResult({
+        correct: isCorrect,
+        msToAnswer
+      });
+    }, 800);
   };
 
   const isOptionSelected = (option: string) => selectedOptions.includes(option);
   const canSubmit = selectedOptions.length > 0;
 
+  console.log('✅ CheckboxExercise rendering:', {
+    prompt: item.prompt,
+    optionsCount: item.options?.length,
+    fadeAnimValue: 1
+  });
+
   return (
-    <View style={styles.container}>
+    <Animated.View
+      style={[
+        styles.container,
+        {
+          opacity: fadeAnim,
+        },
+      ]}
+    >
       <Text style={styles.prompt}>{item.prompt}</Text>
-      
+
       <View style={styles.optionsContainer}>
         {item.options?.map((option, index) => {
           const isSelected = isOptionSelected(option);
-          
+
           return (
-            <Pressable
+            <Animated.View
               key={index}
-              style={[styles.optionButton, isSelected && styles.optionButtonSelected]}
-              onPress={() => handleOptionPress(option)}
+              style={[
+                styles.optionWrapper,
+                {
+                  opacity: optionAnims[index],
+                  transform: [{
+                    scale: optionAnims[index],
+                  }],
+                },
+              ]}
             >
-              <LinearGradient
-                colors={isSelected 
-                  ? [colors.accent, '#B8860B'] 
-                  : [colors.card, '#2B1B12']
-                }
-                style={styles.optionGradient}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 1 }}
+              <Pressable
+                style={({ pressed }) => [
+                  styles.optionButton,
+                  isSelected && styles.optionButtonSelected,
+                  pressed && !submitted && styles.optionPressed,
+                ]}
+                onPress={() => handleOptionPress(option)}
+                disabled={submitted}
               >
-                <View style={styles.optionContent}>
-                  <Ionicons 
-                    name={isSelected ? "checkbox" : "square-outline"} 
-                    size={20} 
-                    color={isSelected ? colors.bg : colors.subtext} 
-                  />
-                  <Text style={[
-                    styles.optionText,
-                    isSelected && styles.optionTextSelected
-                  ]}>
-                    {option}
-                  </Text>
-                </View>
-              </LinearGradient>
-            </Pressable>
+                <LinearGradient
+                  colors={
+                    isSelected
+                      ? ['rgba(215, 161, 94, 0.2)', 'rgba(228, 147, 62, 0.1)']
+                      : ['rgba(255, 255, 255, 0.08)', 'rgba(255, 255, 255, 0.02)']
+                  }
+                  style={styles.optionGradient}
+                >
+                  <View style={styles.optionContent}>
+                    <Text style={[
+                      styles.optionText,
+                      isSelected && styles.optionTextSelected
+                    ]}>
+                      {option}
+                    </Text>
+                    {isSelected && (
+                      <Ionicons name="checkmark-circle" size={20} color={colors.gold} />
+                    )}
+                  </View>
+                </LinearGradient>
+              </Pressable>
+            </Animated.View>
           );
         })}
       </View>
 
-      <Pressable
-        style={[styles.submitButton, !canSubmit && styles.submitButtonDisabled]}
-        onPress={handleSubmit}
-        disabled={!canSubmit}
-      >
-        <LinearGradient
-          colors={canSubmit 
-            ? [colors.accent, '#B8860B'] 
-            : [colors.subtext, '#666']
-          }
-          style={styles.submitGradient}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}
+      {!submitted && (
+        <Pressable
+          style={[styles.submitButton, !canSubmit && styles.submitButtonDisabled]}
+          onPress={handleSubmit}
+          disabled={!canSubmit}
         >
-          <Text style={[
-            styles.submitText,
-            !canSubmit && styles.submitTextDisabled
-          ]}>
-            Submit Answer
-          </Text>
-        </LinearGradient>
-      </Pressable>
-    </View>
+          <LinearGradient
+            colors={canSubmit
+              ? [colors.gold, colors.accent]
+              : ['rgba(255, 255, 255, 0.1)', 'rgba(255, 255, 255, 0.05)']
+            }
+            style={styles.submitGradient}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 0 }}
+          >
+            <Text style={[
+              styles.submitText,
+              !canSubmit && styles.submitTextDisabled
+            ]}>
+              Submit Answer
+            </Text>
+          </LinearGradient>
+        </Pressable>
+      )}
+    </Animated.View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    padding: spacing(3),
+    width: '100%',
   },
   prompt: {
-    fontSize: fonts.h2,
+    fontSize: 22,
     fontWeight: '600',
     color: colors.text,
     textAlign: 'center',
     marginBottom: spacing(4),
-    lineHeight: fonts.h2 * 1.4,
+    lineHeight: 30,
+    letterSpacing: -0.3,
   },
   optionsContainer: {
-    gap: spacing(2),
+    gap: spacing(1.5),
     marginBottom: spacing(4),
   },
+  optionWrapper: {
+    width: '100%',
+  },
   optionButton: {
-    borderRadius: radii.lg,
+    borderRadius: radii.md,
     overflow: 'hidden',
-    shadowColor: colors.accent,
+    borderWidth: 2,
+    borderColor: 'rgba(255, 255, 255, 0.1)',
+    shadowColor: colors.shadow,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 4,
+    shadowRadius: 6,
+    elevation: 2,
   },
   optionButtonSelected: {
+    borderColor: colors.gold,
+    shadowColor: colors.gold,
     shadowOpacity: 0.3,
-    shadowRadius: 12,
+    shadowRadius: 10,
+    elevation: 5,
+  },
+  optionPressed: {
+    transform: [{ scale: 0.98 }],
   },
   optionGradient: {
-    padding: spacing(3),
-    borderRadius: radii.lg,
+    paddingVertical: spacing(2.5),
+    paddingHorizontal: spacing(2.5),
   },
   optionContent: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: spacing(2),
+    justifyContent: 'space-between',
   },
   optionText: {
-    flex: 1,
-    fontSize: fonts.h3,
-    fontWeight: '500',
+    fontSize: 15,
+    fontWeight: '600',
     color: colors.text,
+    flex: 1,
+    lineHeight: 20,
   },
   optionTextSelected: {
-    color: colors.bg,
-    fontWeight: '600',
+    color: colors.gold,
+    fontWeight: '700',
   },
   submitButton: {
     borderRadius: radii.lg,
     overflow: 'hidden',
-    shadowColor: colors.accent,
+    shadowColor: colors.gold,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
-    shadowRadius: 12,
+    shadowRadius: 16,
     elevation: 8,
   },
   submitButtonDisabled: {
@@ -179,17 +257,18 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
   },
   submitGradient: {
-    padding: spacing(3),
-    borderRadius: radii.lg,
+    paddingVertical: spacing(4),
+    paddingHorizontal: spacing(4),
     alignItems: 'center',
   },
   submitText: {
-    fontSize: fonts.h3,
+    fontSize: 18,
     fontWeight: '700',
-    color: colors.bg,
+    color: colors.goldText,
+    letterSpacing: 0.3,
   },
   submitTextDisabled: {
-    color: colors.text,
+    color: colors.subtext,
   },
 });
 

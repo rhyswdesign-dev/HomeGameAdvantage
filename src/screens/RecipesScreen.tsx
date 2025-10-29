@@ -36,7 +36,8 @@ import RecipeCard from '../components/RecipeCard';
 import { createRecipeCardProps } from '../utils/recipeActions';
 import { StatusBar } from 'expo-status-bar';
 import {
-  ALL_COCKTAILS
+  ALL_COCKTAILS,
+  ESSENTIAL_SYRUPS
 } from '../data/cocktails';
 import { usePersonalization } from '../store/usePersonalization';
 import { useUserRecipes } from '../store/useUserRecipes';
@@ -942,9 +943,9 @@ export default function RecipesScreen() {
           </Pressable>
           <Pressable
             hitSlop={12}
-            onPress={() => setPreferencesModalVisible(true)}
+            onPress={() => navigation.navigate('ShoppingCart')}
           >
-            <Ionicons name="settings-outline" size={24} color={colors.accent} />
+            <Ionicons name="cart-outline" size={24} color={colors.accent} />
           </Pressable>
         </View>
       ),
@@ -979,7 +980,7 @@ export default function RecipesScreen() {
         renderItem={renderRecipeItem}
         numColumns={2}
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={{ paddingBottom: spacing(8) }}
+        contentContainerStyle={{ paddingBottom: spacing(8), flexGrow: 1 }}
         ListHeaderComponent={
           <View>
 
@@ -994,24 +995,6 @@ export default function RecipesScreen() {
                 borderRadius: radii.lg,
                 padding: 4,
               }}>
-                <Pressable
-                  onPress={() => setViewMode('personalized')}
-                  style={{
-                    flex: 1,
-                    paddingVertical: spacing(1),
-                    borderRadius: radii.md,
-                    backgroundColor: viewMode === 'personalized' ? colors.accent : 'transparent',
-                    alignItems: 'center',
-                  }}
-                >
-                  <Text style={{
-                    color: viewMode === 'personalized' ? colors.bg : colors.muted,
-                    fontWeight: viewMode === 'personalized' ? '700' : '600',
-                    fontSize: 15,
-                  }}>
-                    For You
-                  </Text>
-                </Pressable>
                 <Pressable
                   onPress={() => setViewMode('browse')}
                   style={{
@@ -1028,6 +1011,24 @@ export default function RecipesScreen() {
                     fontSize: 15,
                   }}>
                     Browse
+                  </Text>
+                </Pressable>
+                <Pressable
+                  onPress={() => setViewMode('personalized')}
+                  style={{
+                    flex: 1,
+                    paddingVertical: spacing(1),
+                    borderRadius: radii.md,
+                    backgroundColor: viewMode === 'personalized' ? colors.accent : 'transparent',
+                    alignItems: 'center',
+                  }}
+                >
+                  <Text style={{
+                    color: viewMode === 'personalized' ? colors.bg : colors.muted,
+                    fontWeight: viewMode === 'personalized' ? '700' : '600',
+                    fontSize: 15,
+                  }}>
+                    For You
                   </Text>
                 </Pressable>
               </View>
@@ -1112,6 +1113,36 @@ export default function RecipesScreen() {
                 });
                 return (
                   <RecipeCard key={mocktail.id} {...cardProps} style={{ width: 240, marginRight: 16 }} />
+                );
+              })}
+            </ScrollView>
+
+            {/* Essential Syrups */}
+            <SectionHeader
+              title="Essential Syrups"
+              onPress={() => {
+                // Ensure we only pass string IDs
+                const syrupIds = ESSENTIAL_SYRUPS.map(syrup => syrup.id).filter(id => typeof id === 'string');
+                navigation.navigate('CocktailList', {
+                  title: 'Essential Syrups',
+                  cocktailIds: syrupIds,
+                  category: 'syrups'
+                });
+              }}
+            />
+            <ScrollView horizontal nestedScrollEnabled showsHorizontalScrollIndicator={false} style={{ paddingLeft: spacing(2), marginBottom: spacing(2) }}>
+              {ESSENTIAL_SYRUPS.map((syrup) => {
+                const cardProps = createRecipeCardProps(syrup, navigation, {
+                  toggleSavedCocktail,
+                  isCocktailSaved,
+                  setSelectedRecipe,
+                  setGroceryListVisible,
+                  showSaveButton: false,
+                  showCartButton: false,
+                  showDeleteButton: false,
+                });
+                return (
+                  <RecipeCard key={syrup.id} {...cardProps} style={{ width: 240, marginRight: 16 }} />
                 );
               })}
             </ScrollView>

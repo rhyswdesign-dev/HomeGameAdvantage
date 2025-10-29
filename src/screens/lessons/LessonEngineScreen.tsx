@@ -43,8 +43,11 @@ export default function LessonEngineScreen({ navigation, route }: LessonEngineSc
   };
 
   const handleExit = () => {
-    // Return to main app or module overview
-    navigation.navigate('Main');
+    // Return to lessons main screen and remove lesson from stack
+    navigation.reset({
+      index: 0,
+      routes: [{ name: 'LessonsMain' }],
+    });
   };
 
   return (

@@ -255,30 +255,35 @@ async function learnFromPrompt(
     // Update spirit weights based on prompt
     for (const [spirit, keywords] of Object.entries(spiritKeywords)) {
       if (keywords.some(kw => promptLower.includes(kw))) {
-        profile.tasteProfile.spiritWeights[spirit as keyof typeof profile.tasteProfile.spiritWeights] =
-          Math.min(1, (profile.tasteProfile.spiritWeights[spirit as keyof typeof profile.tasteProfile.spiritWeights] || 0) + 0.05);
+        const key = spirit as keyof typeof profile.tasteProfile.spiritWeights;
+        const current = profile.tasteProfile.spiritWeights[key] || 0;
+        profile.tasteProfile.spiritWeights[key] = Math.min(1, current + 0.05);
       }
     }
 
     // Update flavor weights based on prompt
     for (const [flavor, keywords] of Object.entries(flavorKeywords)) {
       if (keywords.some(kw => promptLower.includes(kw))) {
-        profile.tasteProfile.flavorWeights[flavor as keyof typeof profile.tasteProfile.flavorWeights] =
-          Math.min(1, (profile.tasteProfile.flavorWeights[flavor as keyof typeof profile.tasteProfile.flavorWeights] || 0) + 0.05);
+        const key = flavor as keyof typeof profile.tasteProfile.flavorWeights;
+        const current = profile.tasteProfile.flavorWeights[key] || 0;
+        profile.tasteProfile.flavorWeights[key] = Math.min(1, current + 0.05);
       }
     }
 
     // Also learn from the AI's suggestions
     suggestions.forEach(suggestion => {
       if (suggestion.baseSpirit) {
-        profile.tasteProfile!.spiritWeights[suggestion.baseSpirit as keyof typeof profile.tasteProfile.spiritWeights] =
-          Math.min(1, (profile.tasteProfile!.spiritWeights[suggestion.baseSpirit as keyof typeof profile.tasteProfile.spiritWeights] || 0) + 0.02);
+        const key = suggestion.baseSpirit as keyof typeof profile.tasteProfile.spiritWeights;
+        const current = profile.tasteProfile!.spiritWeights[key] || 0;
+        profile.tasteProfile!.spiritWeights[key] = Math.min(1, current + 0.02);
       }
 
       suggestion.flavorProfiles.forEach(flavor => {
-        if (flavor in profile.tasteProfile!.flavorWeights) {
-          profile.tasteProfile!.flavorWeights[flavor as keyof typeof profile.tasteProfile!.flavorWeights] =
-            Math.min(1, (profile.tasteProfile!.flavorWeights[flavor as keyof typeof profile.tasteProfile!.flavorWeights] || 0) + 0.02);
+        const weights = profile.tasteProfile!.flavorWeights;
+        if (flavor in weights) {
+          const key = flavor as keyof typeof weights;
+          const current = weights[key] || 0;
+          weights[key] = Math.min(1, current + 0.02);
         }
       });
     });

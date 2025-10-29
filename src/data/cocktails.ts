@@ -1,3 +1,144 @@
+// Essential Syrups (5 recipes)
+const ESSENTIAL_SYRUPS = [
+  {
+    id: 'simple-syrup',
+    name: 'Simple Syrup',
+    title: 'Simple Syrup',
+    subtitle: 'Makes 2 cups • Classic sweetener',
+    category: 'Syrups',
+    image: 'https://images.unsplash.com/photo-1594490879028-3cebddbf1537?q=80&w=1200&auto=format&fit=crop',
+    difficulty: 'Easy',
+    time: '10 min',
+    rating: 4.9,
+    ingredients: [
+      '1 cup (200g) sugar',
+      '1 cup (240ml) cold water',
+      'Lemon peels',
+      'Pinch of salt',
+      'Black pepper'
+    ],
+    instructions: [
+      'Add all ingredients to pot',
+      'Bring to a simmer',
+      'Remove from heat once sugar dissolves',
+      'Steep for 5 minutes',
+      'Strain into portion cups',
+      'Label, date and initial'
+    ],
+    description: 'The foundation of cocktail-making. 1:1 ratio creates a balanced sweetener.',
+  },
+  {
+    id: 'honey-syrup',
+    name: 'Honey Syrup',
+    title: 'Honey Syrup',
+    subtitle: 'Makes 1.5 cups • Rich sweetener',
+    category: 'Syrups',
+    image: 'https://images.unsplash.com/photo-1587049352846-4a222e784169?q=80&w=1200&auto=format&fit=crop',
+    difficulty: 'Easy',
+    time: '5 min',
+    rating: 4.8,
+    ingredients: [
+      '2 cups (680g) honey',
+      '1 cup (240ml) warm water',
+      'Lemon peels',
+      'Pinch of salt',
+      'Black pepper'
+    ],
+    instructions: [
+      'Add honey to mixing bowl',
+      'Add warm water',
+      'Whisk until fully dissolved',
+      'No heat required',
+      'Strain into portion cups',
+      'Label, date and initial'
+    ],
+    description: 'Perfect for Bees Knees and Gold Rush. 2:1 ratio provides rich sweetness.',
+  },
+  {
+    id: 'rosemary-syrup',
+    name: 'Rosemary Syrup',
+    title: 'Rosemary Syrup',
+    subtitle: 'Makes 3.7L • Herbal sweetener',
+    category: 'Syrups',
+    image: 'https://images.unsplash.com/photo-1586281010691-a5d53729c98d?q=80&w=1200&auto=format&fit=crop',
+    difficulty: 'Easy',
+    time: '15 min',
+    rating: 4.8,
+    ingredients: [
+      '1850 grams sugar',
+      '1850 grams cold water',
+      '6 stems rosemary',
+      'Lemon peels',
+      'Pinch of salt',
+      'Black pepper'
+    ],
+    instructions: [
+      'Add all ingredients to pot save rosemary',
+      'Bring to a simmer',
+      'Remove from heat',
+      'Add rosemary',
+      'Steep for 12 minutes',
+      'Strain into portion cups',
+      'Label, date and initial'
+    ],
+    description: 'Perfect for gin cocktails and sparkling drinks. Adds sophisticated herbal notes.',
+  },
+  {
+    id: 'grenadine',
+    name: 'Homemade Grenadine',
+    title: 'Homemade Grenadine',
+    subtitle: 'Essential • Pomegranate syrup',
+    category: 'Syrups',
+    image: 'https://images.unsplash.com/photo-1632334735555-17e699ae1077?q=80&w=1200&auto=format&fit=crop',
+    difficulty: 'Easy',
+    time: '15 min',
+    rating: 4.8,
+    ingredients: [
+      { name: '2 cups pomegranate juice', note: '100% pure juice' },
+      { name: '2 cups white sugar', note: 'Granulated' },
+      { name: '1 tsp orange blossom water', note: 'Optional' },
+      { name: 'Lemon peels', note: '' },
+      { name: 'Pinch of salt', note: '' },
+      { name: 'Black pepper', note: '' }
+    ],
+    instructions: [
+      'Combine pomegranate juice and sugar in saucepan',
+      'Heat over medium, stirring until sugar dissolves',
+      'Simmer for 10 minutes until slightly thickened',
+      'Remove from heat and add orange blossom water if using',
+      'Let cool completely',
+      'Store in refrigerator for up to 1 month'
+    ],
+    description: 'Far better than store-bought. Essential for Tequila Sunrise and Shirley Temples.',
+  },
+  {
+    id: 'demerara-syrup',
+    name: 'Demerara Syrup',
+    title: 'Demerara Syrup',
+    subtitle: 'Essential • Rich brown sugar',
+    category: 'Syrups',
+    image: 'https://images.unsplash.com/photo-1481391243133-f96216dcb5d2?q=80&w=1200&auto=format&fit=crop',
+    difficulty: 'Easy',
+    time: '10 min',
+    rating: 4.7,
+    ingredients: [
+      { name: '1 cup demerara sugar', note: 'Raw cane sugar' },
+      { name: '1 cup water', note: 'Filtered' },
+      { name: 'Lemon peels', note: '' },
+      { name: 'Pinch of salt', note: '' },
+      { name: 'Black pepper', note: '' }
+    ],
+    instructions: [
+      'Combine demerara sugar and water in saucepan',
+      'Heat over medium heat, stirring until sugar dissolves',
+      'Remove from heat once fully dissolved',
+      'Let cool completely',
+      'Store in refrigerator for up to 1 month'
+    ],
+    description: 'Richer than simple syrup. Perfect for Old Fashioneds and ti cocktails.',
+  },
+];
+
 // Pre-Prohibition & Golden Age (22 cocktails)
 const SPIRIT_FORWARD_COCKTAILS = [
   {
@@ -1224,6 +1365,7 @@ const AFTER_DINNER_COCKTAILS = [
 
 // All cocktails combined for easy access
 export const ALL_COCKTAILS = [
+  ...ESSENTIAL_SYRUPS,
   ...SPIRIT_FORWARD_COCKTAILS,
   ...SOUR_CITRUS_COCKTAILS,
   ...TIKI_EXOTIC_COCKTAILS,
@@ -1233,6 +1375,7 @@ export const ALL_COCKTAILS = [
 
 // Export individual categories for specific use cases
 export {
+  ESSENTIAL_SYRUPS,
   SPIRIT_FORWARD_COCKTAILS,
   SOUR_CITRUS_COCKTAILS,
   TIKI_EXOTIC_COCKTAILS,

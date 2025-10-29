@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -15,11 +15,19 @@ import { signInAnonymous, logOut } from '../lib/auth';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '../navigation/RootNavigator';
+import { useSavedItems } from '../hooks/useSavedItems';
+import { useUserRecipes } from '../store/useUserRecipes';
+import { usePersonalization } from '../store/usePersonalization';
+import RecipePreferencesModal from '../components/RecipePreferencesModal';
 
 export default function ProfileScreen() {
   const { user, isAuthenticated, isLoading } = useAuth();
   const nav = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const [loading, setLoading] = useState(false);
+  const [preferencesModalVisible, setPreferencesModalVisible] = useState(false);
+  const { savedItems } = useSavedItems();
+  const { recipes } = useUserRecipes();
+  const { profile } = usePersonalization();
 
   const handleSignIn = async () => {
     setLoading(true);
@@ -34,55 +42,99 @@ export default function ProfileScreen() {
   };
 
   const handleSignOut = async () => {
-    setLoading(true);
-    try {
-      await logOut();
-      Alert.alert('Success', 'Signed out successfully!');
-    } catch (error: any) {
-      Alert.alert('Error', error.message || 'Failed to sign out');
-    } finally {
-      setLoading(false);
-    }
+    Alert.alert(
+      'Sign Out',
+      'Are you sure you want to sign out?',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Sign Out',
+          style: 'destructive',
+          onPress: async () => {
+            setLoading(true);
+            try {
+              await logOut();
+              // Navigate to Auth screen (login page)
+              nav.reset({
+                index: 0,
+                routes: [{ name: 'Auth' }],
+              });
+            } catch (error: any) {
+              Alert.alert('Error', error.message || 'Failed to sign out');
+              setLoading(false);
+            }
+          }
+        }
+      ]
+    );
   };
 
   if (isAuthenticated) {
     return (
       <SafeAreaView style={styles.container}>
         <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
-          <View style={styles.header}>
-            <MaterialCommunityIcons name="glass-cocktail" size={48} color={colors.accent} />
-            <Text style={styles.title}>Profile</Text>
-            <Text style={styles.subtitle}>Signed in as: {user?.uid.substring(0, 8)}...</Text>
+          {/* Profile Header */}
+          <View style={styles.profileHeader}>
+            <View style={styles.avatarContainer}>
+              <MaterialCommunityIcons name="glass-cocktail" size={40} color={colors.accent} />
+            </View>
+            <View style={styles.profileInfo}>
+              <Text style={styles.userName}>Bartender</Text>
+              <Text style={styles.userSubtext}>ID: {user?.uid.substring(0, 8)}...</Text>
+            </View>
           </View>
 
-          <View style={styles.settingsSection}>
-            <TouchableOpacity style={styles.settingButton} onPress={() => nav.navigate('AddRecipe')}>
-              <Ionicons name="add-circle-outline" size={20} color={colors.text} />
-              <Text style={styles.settingButtonText}>Add Recipe</Text>
+          {/* Personalization Section */}
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Your Preferences</Text>
+
+            <TouchableOpacity
+              style={styles.settingButton}
+              onPress={() => setPreferencesModalVisible(true)}
+            >
+              <Ionicons name="options-outline" size={20} color={colors.text} />
+              <Text style={styles.settingButtonText}>Recipe Preferences</Text>
+              <Ionicons name="chevron-forward" size={20} color={colors.subtext} />
+            </TouchableOpacity>
+          </View>
+
+          {/* Settings Section */}
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Settings & Support</Text>
+
+            <TouchableOpacity
+              style={styles.settingButton}
+              onPress={() => nav.navigate('ShoppingCart')}
+            >
+              <Ionicons name="cart-outline" size={20} color={colors.text} />
+              <Text style={styles.settingButtonText}>Shopping Cart</Text>
               <Ionicons name="chevron-forward" size={20} color={colors.subtext} />
             </TouchableOpacity>
 
-            <TouchableOpacity style={styles.settingButton} onPress={() => nav.navigate('Main', { screen: 'Recipes', params: { activeTab: 'My Recipes' } })}>
-              <Ionicons name="restaurant-outline" size={20} color={colors.text} />
-              <Text style={styles.settingButtonText}>My Recipes</Text>
-              <Ionicons name="chevron-forward" size={20} color={colors.subtext} />
-            </TouchableOpacity>
-
-            <TouchableOpacity style={styles.settingButton}>
-              <Ionicons name="document-text-outline" size={20} color={colors.text} />
-              <Text style={styles.settingButtonText}>Legal</Text>
-              <Ionicons name="chevron-forward" size={20} color={colors.subtext} />
-            </TouchableOpacity>
-
-            <TouchableOpacity style={styles.settingButton}>
+            <TouchableOpacity
+              style={styles.settingButton}
+              onPress={() => nav.navigate('HelpSupport')}
+            >
               <Ionicons name="help-circle-outline" size={20} color={colors.text} />
               <Text style={styles.settingButtonText}>Help & Support</Text>
               <Ionicons name="chevron-forward" size={20} color={colors.subtext} />
             </TouchableOpacity>
 
-            <TouchableOpacity style={styles.settingButton}>
+            <TouchableOpacity
+              style={styles.settingButton}
+              onPress={() => nav.navigate('PrivacyPolicy')}
+            >
               <Ionicons name="shield-checkmark-outline" size={20} color={colors.text} />
               <Text style={styles.settingButtonText}>Privacy Policy</Text>
+              <Ionicons name="chevron-forward" size={20} color={colors.subtext} />
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.settingButton}
+              onPress={() => nav.navigate('TermsOfService')}
+            >
+              <Ionicons name="document-text-outline" size={20} color={colors.text} />
+              <Text style={styles.settingButtonText}>Terms of Service</Text>
               <Ionicons name="chevron-forward" size={20} color={colors.subtext} />
             </TouchableOpacity>
 
@@ -104,6 +156,12 @@ export default function ProfileScreen() {
             </TouchableOpacity>
           </View>
         </ScrollView>
+
+        {/* Recipe Preferences Modal */}
+        <RecipePreferencesModal
+          visible={preferencesModalVisible}
+          onClose={() => setPreferencesModalVisible(false)}
+        />
       </SafeAreaView>
     );
   }
@@ -129,22 +187,42 @@ export default function ProfileScreen() {
           </TouchableOpacity>
         </View>
 
-        <View style={styles.settingsSection}>
-          <TouchableOpacity style={styles.settingButton}>
-            <Ionicons name="document-text-outline" size={20} color={colors.text} />
-            <Text style={styles.settingButtonText}>Legal</Text>
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Settings & Support</Text>
+
+          <TouchableOpacity
+            style={styles.settingButton}
+            onPress={() => nav.navigate('ShoppingCart')}
+          >
+            <Ionicons name="cart-outline" size={20} color={colors.text} />
+            <Text style={styles.settingButtonText}>Shopping Cart</Text>
             <Ionicons name="chevron-forward" size={20} color={colors.subtext} />
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.settingButton}>
+          <TouchableOpacity
+            style={styles.settingButton}
+            onPress={() => nav.navigate('HelpSupport')}
+          >
             <Ionicons name="help-circle-outline" size={20} color={colors.text} />
             <Text style={styles.settingButtonText}>Help & Support</Text>
             <Ionicons name="chevron-forward" size={20} color={colors.subtext} />
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.settingButton}>
+          <TouchableOpacity
+            style={styles.settingButton}
+            onPress={() => nav.navigate('PrivacyPolicy')}
+          >
             <Ionicons name="shield-checkmark-outline" size={20} color={colors.text} />
             <Text style={styles.settingButtonText}>Privacy Policy</Text>
+            <Ionicons name="chevron-forward" size={20} color={colors.subtext} />
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.settingButton}
+            onPress={() => nav.navigate('TermsOfService')}
+          >
+            <Ionicons name="document-text-outline" size={20} color={colors.text} />
+            <Text style={styles.settingButtonText}>Terms of Service</Text>
             <Ionicons name="chevron-forward" size={20} color={colors.subtext} />
           </TouchableOpacity>
 
@@ -186,6 +264,132 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginTop: spacing(1),
   },
+  profileHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: spacing(4),
+    marginBottom: spacing(4),
+    gap: spacing(3),
+  },
+  avatarContainer: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    backgroundColor: colors.card,
+    borderWidth: 2,
+    borderColor: colors.accent,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  profileInfo: {
+    flex: 1,
+  },
+  userName: {
+    fontSize: 24,
+    fontWeight: '700',
+    color: colors.text,
+  },
+  userSubtext: {
+    fontSize: 14,
+    color: colors.subtext,
+    marginTop: spacing(0.5),
+  },
+  statsContainer: {
+    flexDirection: 'row',
+    gap: spacing(2),
+    marginBottom: spacing(4),
+  },
+  statCard: {
+    flex: 1,
+    backgroundColor: colors.card,
+    borderRadius: radii.lg,
+    padding: spacing(3),
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: colors.line,
+  },
+  statNumber: {
+    fontSize: 24,
+    fontWeight: '700',
+    color: colors.text,
+    marginTop: spacing(1),
+  },
+  statLabel: {
+    fontSize: 12,
+    color: colors.subtext,
+    marginTop: spacing(0.5),
+    textAlign: 'center',
+  },
+  section: {
+    marginBottom: spacing(4),
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: colors.text,
+    marginBottom: spacing(2),
+  },
+  actionButton: {
+    backgroundColor: colors.card,
+    borderRadius: radii.lg,
+    padding: spacing(2.5),
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: spacing(2),
+    borderWidth: 1,
+    borderColor: colors.line,
+  },
+  actionLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing(2),
+    flex: 1,
+  },
+  actionIconContainer: {
+    width: 48,
+    height: 48,
+    borderRadius: radii.md,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  actionText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: colors.text,
+  },
+  actionSubtext: {
+    fontSize: 13,
+    color: colors.subtext,
+    marginTop: spacing(0.5),
+  },
+  preferencesCard: {
+    backgroundColor: colors.card,
+    borderRadius: radii.lg,
+    padding: spacing(3),
+    borderWidth: 1,
+    borderColor: colors.line,
+    gap: spacing(2),
+  },
+  preferenceRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: spacing(1),
+  },
+  preferenceLabel: {
+    fontSize: 14,
+    color: colors.subtext,
+    fontWeight: '500',
+  },
+  preferenceValue: {
+    fontSize: 14,
+    color: colors.text,
+    fontWeight: '600',
+    textAlign: 'right',
+    flex: 1,
+    marginLeft: spacing(2),
+  },
   authSection: {
     marginBottom: spacing(6),
   },
@@ -204,9 +408,6 @@ const styles = StyleSheet.create({
   buttonDisabled: {
     opacity: 0.6,
   },
-  settingsSection: {
-    gap: spacing(1),
-  },
   settingButton: {
     backgroundColor: colors.card,
     borderRadius: radii.lg,
@@ -217,6 +418,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: colors.line,
     gap: spacing(2),
+    marginBottom: spacing(1),
   },
   settingButtonText: {
     flex: 1,
@@ -225,7 +427,7 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
   signOutButton: {
-    marginTop: spacing(4),
+    marginTop: spacing(3),
     borderColor: colors.error + '20',
   },
 });

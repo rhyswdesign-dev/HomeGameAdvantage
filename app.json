@@ -14,7 +14,8 @@
     },
     "ios": {
       "supportsTablet": true,
-      "statusBarStyle": "light"
+      "statusBarStyle": "light",
+      "bundleIdentifier": "com.anonymous.HomeGameAdvantage"
     },
     "android": {
       "adaptiveIcon": {
@@ -22,7 +23,8 @@
         "backgroundColor": "#ffffff"
       },
       "statusBarStyle": "light",
-      "edgeToEdgeEnabled": true
+      "edgeToEdgeEnabled": true,
+      "package": "com.anonymous.HomeGameAdvantage"
     },
     "web": {
       "favicon": "./assets/favicon.png"

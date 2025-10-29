@@ -1,6 +1,6 @@
 import { Alert } from 'react-native';
-import { recommendationEngine } from '../services/recommendationEngine';
 import { getDetailedCocktail } from './cocktailDataTransformer';
+import { usePersonalization } from '../store/usePersonalization';
 
 /**
  * Global Recipe Action Utilities
@@ -27,12 +27,12 @@ export const handleRecipeView = (
   navigation.navigate('CocktailDetail', { cocktailId: recipe.id });
 
   // Record user behavior for AI learning
-  recommendationEngine.recordBehavior({
-    type: 'completed', // Consider viewing as interest/completion
-    itemId: recipe.id,
-  }).catch(error => {
+  try {
+    const { recordInteraction } = usePersonalization.getState();
+    recordInteraction('cocktail_viewed', recipe.id, { recipe });
+  } catch (error) {
     console.warn('Failed to record recipe view behavior:', error);
-  });
+  }
 };
 
 /**

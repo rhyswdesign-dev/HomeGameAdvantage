@@ -1,13 +1,21 @@
 /**
  * Order Exercise Component
- * Drag-to-order interface with inline diff feedback
+ * Drag-to-reorder interface with clean design
  */
 
-import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, Pressable, Alert } from 'react-native';
+import React, { useState, useEffect, useRef } from 'react';
+import { View, Text, StyleSheet, Pressable, Animated as RNAnimated } from 'react-native';
+import { GestureHandlerRootView, PanGestureHandler, PanGestureHandlerGestureEvent } from 'react-native-gesture-handler';
+import Animated, {
+  useAnimatedStyle,
+  useSharedValue,
+  withSpring,
+  runOnJS,
+} from 'react-native-reanimated';
 import { Item } from '../../types/domain';
 import { Ionicons } from '@expo/vector-icons';
-import { colors } from '../../theme/tokens';
+import { colors, spacing, radii } from '../../theme/tokens';
+import { LinearGradient } from 'expo-linear-gradient';
 
 export type ExerciseCommonProps = {
   item: Item;
@@ -15,53 +23,154 @@ export type ExerciseCommonProps = {
   disabled?: boolean;
 };
 
+const ITEM_HEIGHT = 70;
+
+type DraggableItemProps = {
+  item: string;
+  index: number;
+  currentOrder: string[];
+  onReorder: (fromIndex: number, toIndex: number) => void;
+  submitted: boolean;
+  disabled: boolean;
+  animValue: RNAnimated.Value;
+};
+
+function DraggableItem({ item: itemText, index, currentOrder, onReorder, submitted, disabled, animValue }: DraggableItemProps) {
+  const translateY = useSharedValue(0);
+  const isDragging = useSharedValue(false);
+  const startY = useSharedValue(0);
+
+  const onGestureEvent = (event: PanGestureHandlerGestureEvent) => {
+    'worklet';
+    if (submitted || disabled) return;
+
+    const { translationY, state } = event.nativeEvent;
+
+    // BEGAN
+    if (state === 2) {
+      isDragging.value = true;
+      startY.value = translateY.value;
+    }
+
+    // ACTIVE
+    if (state === 4) {
+      translateY.value = startY.value + translationY;
+    }
+
+    // END
+    if (state === 5) {
+      const dragDistance = translationY;
+      const itemsMoved = Math.round(dragDistance / ITEM_HEIGHT);
+      const newIndex = Math.max(0, Math.min(currentOrder.length - 1, index + itemsMoved));
+
+      if (newIndex !== index) {
+        runOnJS(onReorder)(index, newIndex);
+      }
+
+      translateY.value = withSpring(0);
+      isDragging.value = false;
+    }
+  };
+
+  const animatedStyle = useAnimatedStyle(() => {
+    return {
+      transform: [{ translateY: translateY.value }],
+      zIndex: isDragging.value ? 100 : 0,
+      opacity: isDragging.value ? 0.9 : 1,
+      elevation: isDragging.value ? 8 : 0,
+    };
+  });
+
+  return (
+    <PanGestureHandler onGestureEvent={onGestureEvent} enabled={!submitted && !disabled}>
+      <Animated.View style={[styles.itemContainer, animatedStyle]}>
+        <RNAnimated.View
+          style={{
+            opacity: animValue,
+            transform: [{
+              scale: animValue,
+            }],
+          }}
+        >
+          <View style={styles.orderItem}>
+            <LinearGradient
+              colors={['rgba(255, 255, 255, 0.08)', 'rgba(255, 255, 255, 0.02)']}
+              style={styles.itemGradient}
+            >
+              <View style={styles.itemContent}>
+                <View style={styles.dragHandle}>
+                  <Ionicons
+                    name="reorder-three"
+                    size={24}
+                    color={submitted || disabled ? colors.subtext : colors.gold}
+                  />
+                </View>
+                <Text style={styles.itemText}>{itemText}</Text>
+              </View>
+            </LinearGradient>
+          </View>
+        </RNAnimated.View>
+      </Animated.View>
+    </PanGestureHandler>
+  );
+}
+
 export default function OrderExercise({ item, onResult, disabled = false }: ExerciseCommonProps): React.JSX.Element {
   const [currentOrder, setCurrentOrder] = useState<string[]>([]);
-  const [answered, setAnswered] = useState(false);
-  const [showDiff, setShowDiff] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
   const [startTime] = useState(Date.now());
+
+  const fadeAnim = useRef(new RNAnimated.Value(1)).current;
+  const itemAnims = useRef((item.orderTarget || []).map(() => new RNAnimated.Value(1))).current;
 
   // Reset state when item changes
   useEffect(() => {
-    // Reset all state for fresh question
-    setAnswered(false);
-    setShowDiff(false);
-    
+    setSubmitted(false);
+
     if (item.orderTarget) {
-      // Shuffle the target order for initial display
       const shuffled = [...item.orderTarget].sort(() => Math.random() - 0.5);
       setCurrentOrder(shuffled);
     }
-  }, [item.id]); // Depend on item.id to reset when question changes
+
+    // Reset and start animations
+    fadeAnim.setValue(0);
+    itemAnims.forEach(anim => anim.setValue(0));
+
+    RNAnimated.parallel([
+      RNAnimated.timing(fadeAnim, {
+        toValue: 1,
+        duration: 400,
+        useNativeDriver: true,
+      }),
+      RNAnimated.stagger(60,
+        itemAnims.map(anim =>
+          RNAnimated.spring(anim, {
+            toValue: 1,
+            tension: 80,
+            friction: 8,
+            useNativeDriver: true,
+          })
+        )
+      ),
+    ]).start();
+  }, [item.id]);
 
   const handleSubmit = () => {
-    if (answered || disabled) return;
-    
+    if (submitted || disabled) return;
+
     const isCorrect = arraysEqual(currentOrder, item.orderTarget || []);
     const timeToAnswer = Date.now() - startTime;
-    
-    setAnswered(true);
-    
-    if (!isCorrect) {
-      setShowDiff(true);
-    }
-    
+
+    setSubmitted(true);
+
     setTimeout(() => {
       onResult({ correct: isCorrect, msToAnswer: timeToAnswer });
-    }, isCorrect ? 1000 : 2500); // Show diff longer for incorrect answers
+    }, 800);
   };
 
-  const handleRetry = () => {
-    setAnswered(false);
-    setShowDiff(false);
-    // Re-shuffle items
-    const shuffled = [...(item.orderTarget || [])].sort(() => Math.random() - 0.5);
-    setCurrentOrder(shuffled);
-  };
+  const handleReorder = (fromIndex: number, toIndex: number) => {
+    if (submitted || disabled) return;
 
-  const moveItem = (fromIndex: number, toIndex: number) => {
-    if (answered || disabled) return;
-    
     const newOrder = [...currentOrder];
     const [movedItem] = newOrder.splice(fromIndex, 1);
     newOrder.splice(toIndex, 0, movedItem);
@@ -72,286 +181,137 @@ export default function OrderExercise({ item, onResult, disabled = false }: Exer
     return a.length === b.length && a.every((val, index) => val === b[index]);
   };
 
-  const getItemStyle = (orderItem: string, index: number) => {
-    if (!answered) {
-      return styles.orderItem;
-    }
-    
-    const correctIndex = (item.orderTarget || item.expectedOrder || []).indexOf(orderItem);
-    const isInCorrectPosition = correctIndex === index;
-    
-    if (isInCorrectPosition) {
-      return [styles.orderItem, styles.correctItem];
-    } else {
-      return [styles.orderItem, styles.incorrectItem];
-    }
-  };
-
-  const renderDiff = () => {
-    if (!showDiff || !item.orderTarget) return null;
-    
-    return (
-      <View style={styles.diffContainer}>
-        <Text style={styles.diffTitle}>Correct Order:</Text>
-        {item.orderTarget.map((step, index) => (
-          <View key={`correct-${index}`} style={styles.diffItem}>
-            <Text style={styles.diffNumber}>{index + 1}.</Text>
-            <Text style={styles.diffText}>{step}</Text>
-          </View>
-        ))}
-      </View>
-    );
-  };
-
   return (
-    <View style={styles.container}>
-      <Text style={styles.prompt}>{item.prompt}</Text>
-      
-      <View style={styles.orderContainer}>
-        {currentOrder.map((step, index) => (
-          <View key={`${step}-${index}`} style={styles.itemContainer}>
-            <Pressable
-              style={getItemStyle(step, index)}
-              onPress={() => {
-                // Simple tap-to-move: move item up one position
-                if (index > 0) {
-                  moveItem(index, index - 1);
-                }
-              }}
-              onLongPress={() => {
-                // Long press to move to end
-                if (index < currentOrder.length - 1) {
-                  moveItem(index, currentOrder.length - 1);
-                }
-              }}
-              disabled={answered || disabled}
-            >
-              <View style={styles.itemContent}>
-                <Text style={styles.itemNumber}>{index + 1}</Text>
-                <Text style={styles.itemText}>{step}</Text>
-                {!answered && !disabled && (
-                  <View style={styles.moveHints}>
-                    {index > 0 && <Text style={styles.hintText}>↑</Text>}
-                    {index < currentOrder.length - 1 && <Text style={styles.hintText}>↓</Text>}
-                  </View>
-                )}
-              </View>
-            </Pressable>
-            
-            {/* Move buttons for better UX */}
-            {!answered && !disabled && (
-              <View style={styles.moveButtons}>
-                {index > 0 && (
-                  <Pressable
-                    style={styles.moveButton}
-                    onPress={() => moveItem(index, index - 1)}
-                  >
-                    <Text style={styles.moveButtonText}>▲</Text>
-                  </Pressable>
-                )}
-                {index < currentOrder.length - 1 && (
-                  <Pressable
-                    style={styles.moveButton}
-                    onPress={() => moveItem(index, index + 1)}
-                  >
-                    <Text style={styles.moveButtonText}>▼</Text>
-                  </Pressable>
-                )}
-              </View>
-            )}
-          </View>
-        ))}
-      </View>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <RNAnimated.View
+        style={[
+          styles.container,
+          {
+            opacity: fadeAnim,
+          },
+        ]}
+      >
+        <Text style={styles.prompt}>{item.prompt}</Text>
 
-      {renderDiff()}
+        <View style={styles.orderContainer}>
+          {currentOrder.map((step, index) => (
+            <DraggableItem
+              key={`${step}-${index}`}
+              item={step}
+              index={index}
+              currentOrder={currentOrder}
+              onReorder={handleReorder}
+              submitted={submitted}
+              disabled={disabled}
+              animValue={itemAnims[index]}
+            />
+          ))}
+        </View>
 
-      <View style={styles.actionContainer}>
-        {!answered ? (
+        {!submitted && (
           <Pressable
-            style={[styles.submitButton, disabled && styles.disabledButton]}
+            style={[styles.submitButton, disabled && styles.submitButtonDisabled]}
             onPress={handleSubmit}
             disabled={disabled}
           >
-            <Text style={styles.submitButtonText}>Check Order</Text>
-          </Pressable>
-        ) : (
-          <View style={styles.feedback}>
-            <View style={styles.feedbackContent}>
-              <Ionicons 
-                name={arraysEqual(currentOrder, item.orderTarget || []) ? 'checkmark-circle' : 'close-circle'} 
-                size={24} 
-                color={arraysEqual(currentOrder, item.orderTarget || []) ? colors.success : colors.error} 
-              />
+            <LinearGradient
+              colors={!disabled
+                ? [colors.gold, colors.accent]
+                : ['rgba(255, 255, 255, 0.1)', 'rgba(255, 255, 255, 0.05)']
+              }
+              style={styles.submitGradient}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 0 }}
+            >
               <Text style={[
-                styles.feedbackText,
-                arraysEqual(currentOrder, item.orderTarget || []) ? styles.correctText : styles.incorrectText
+                styles.submitText,
+                disabled && styles.submitTextDisabled
               ]}>
-                {arraysEqual(currentOrder, item.orderTarget || []) ? 'Perfect sequence!' : 'Not quite right'}
+                Check My Order
               </Text>
-            </View>
-            
-            {!arraysEqual(currentOrder, item.orderTarget || []) && (
-              <Pressable style={styles.retryButton} onPress={handleRetry}>
-                <Text style={styles.retryButtonText}>Try Again</Text>
-              </Pressable>
-            )}
-          </View>
+            </LinearGradient>
+          </Pressable>
         )}
-      </View>
-    </View>
+      </RNAnimated.View>
+    </GestureHandlerRootView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
+    width: '100%',
   },
   prompt: {
-    fontSize: 20,
+    fontSize: 22,
     fontWeight: '600',
-    marginBottom: 24,
-    lineHeight: 28,
-    textAlign: 'center',
+    marginBottom: spacing(4),
+    lineHeight: 30,
+    textAlign: 'left',
+    color: colors.text,
+    letterSpacing: -0.3,
   },
   orderContainer: {
-    gap: 8,
-    marginBottom: 24,
+    gap: spacing(1.5),
+    marginBottom: spacing(4),
   },
   itemContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
+    marginBottom: spacing(0.5),
   },
   orderItem: {
-    flex: 1,
-    backgroundColor: '#f5f5f5',
-    borderRadius: 12,
-    padding: 12,
+    borderRadius: radii.lg,
+    overflow: 'hidden',
     borderWidth: 2,
-    borderColor: 'transparent',
+    borderColor: 'rgba(255, 255, 255, 0.1)',
+    shadowColor: colors.shadow,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 3,
   },
-  correctItem: {
-    backgroundColor: '#e8f5e8',
-    borderColor: '#4CAF50',
-  },
-  incorrectItem: {
-    backgroundColor: '#ffeaea',
-    borderColor: '#f44336',
+  itemGradient: {
+    paddingVertical: spacing(2.5),
+    paddingHorizontal: spacing(3),
   },
   itemContent: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 12,
+    gap: spacing(2),
   },
-  itemNumber: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#666',
-    minWidth: 24,
+  dragHandle: {
+    marginRight: spacing(1),
   },
   itemText: {
     flex: 1,
-    fontSize: 14,
-    fontWeight: '500',
-  },
-  moveHints: {
-    flexDirection: 'column',
-    alignItems: 'center',
-  },
-  hintText: {
-    fontSize: 12,
-    color: '#888',
-  },
-  moveButtons: {
-    flexDirection: 'column',
-    gap: 4,
-  },
-  moveButton: {
-    backgroundColor: '#e0e0e0',
-    borderRadius: 4,
-    padding: 4,
-    minWidth: 24,
-    alignItems: 'center',
-  },
-  moveButtonText: {
-    fontSize: 12,
-    fontWeight: 'bold',
-  },
-  diffContainer: {
-    backgroundColor: '#f8f9fa',
-    borderRadius: 8,
-    padding: 16,
-    marginBottom: 24,
-    borderLeftWidth: 4,
-    borderLeftColor: '#4CAF50',
-  },
-  diffTitle: {
-    fontSize: 14,
-    fontWeight: 'bold',
-    marginBottom: 8,
-    color: '#4CAF50',
-  },
-  diffItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-    marginBottom: 4,
-  },
-  diffNumber: {
-    fontSize: 14,
-    fontWeight: 'bold',
-    color: '#666',
-    minWidth: 20,
-  },
-  diffText: {
-    fontSize: 14,
-    color: '#333',
-  },
-  actionContainer: {
-    alignItems: 'center',
-  },
-  submitButton: {
-    backgroundColor: '#4CAF50',
-    borderRadius: 12,
-    paddingHorizontal: 32,
-    paddingVertical: 12,
-  },
-  disabledButton: {
-    backgroundColor: '#ccc',
-  },
-  submitButtonText: {
-    color: '#fff',
     fontSize: 16,
     fontWeight: '600',
+    lineHeight: 22,
+    color: colors.text,
   },
-  feedback: {
+  submitButton: {
+    borderRadius: radii.lg,
+    overflow: 'hidden',
+    shadowColor: colors.gold,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 16,
+    elevation: 8,
+  },
+  submitButtonDisabled: {
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+  },
+  submitGradient: {
+    paddingVertical: spacing(4),
+    paddingHorizontal: spacing(4),
     alignItems: 'center',
-    gap: 12,
   },
-  feedbackContent: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  feedbackText: {
+  submitText: {
     fontSize: 18,
-    fontWeight: 'bold',
+    fontWeight: '700',
+    color: colors.goldText,
+    letterSpacing: 0.3,
   },
-  correctText: {
-    color: '#4CAF50',
-  },
-  incorrectText: {
-    color: '#f44336',
-  },
-  retryButton: {
-    backgroundColor: '#2196F3',
-    borderRadius: 8,
-    paddingHorizontal: 20,
-    paddingVertical: 8,
-  },
-  retryButtonText: {
-    color: '#fff',
-    fontSize: 14,
-    fontWeight: '600',
+  submitTextDisabled: {
+    color: colors.subtext,
   },
 });

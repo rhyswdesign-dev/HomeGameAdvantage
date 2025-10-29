@@ -56,7 +56,7 @@ export default function CocktailListScreen({ navigation, route }: CocktailListSc
         <View style={styles.header}>
           <Text style={styles.title}>{title}</Text>
           <Text style={styles.subtitle}>
-            {validCocktails.length} {validCocktails.length === 1 ? 'cocktail' : 'cocktails'}
+            {validCocktails.length} {category === 'syrups' ? (validCocktails.length === 1 ? 'recipe' : 'recipes') : (validCocktails.length === 1 ? 'cocktail' : 'cocktails')}
           </Text>
         </View>
 

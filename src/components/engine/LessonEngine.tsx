@@ -57,8 +57,8 @@ export const LessonEngine: React.FC<LessonEngineProps> = ({ lessonId, onComplete
   const { lives = 3, loseLife: loseUserLife, completeLesson: completeUserLesson } = userStore || {};
   
   // Animation values
-  const fadeAnim = useRef(new Animated.Value(0)).current;
-  const slideAnim = useRef(new Animated.Value(0)).current;
+  const fadeAnim = useRef(new Animated.Value(1)).current;
+  const slideAnim = useRef(new Animated.Value(1)).current;
   const progressAnim = useRef(new Animated.Value(0)).current;
   const feedbackAnim = useRef(new Animated.Value(0)).current;
   const heartPulseAnim = useRef(new Animated.Value(1)).current;
@@ -98,7 +98,10 @@ export const LessonEngine: React.FC<LessonEngineProps> = ({ lessonId, onComplete
 
   // Initial entrance animation
   useEffect(() => {
-    if (!loading && !error) {
+    if (!loading && !error && currentItem) {
+      console.log('🎬 Starting entrance animation for item:', currentItem.id);
+      fadeAnim.setValue(0);
+      slideAnim.setValue(0);
       Animated.parallel([
         Animated.timing(fadeAnim, {
           toValue: 1,
@@ -113,7 +116,7 @@ export const LessonEngine: React.FC<LessonEngineProps> = ({ lessonId, onComplete
         }),
       ]).start();
     }
-  }, [loading, error]);
+  }, [loading, error, currentItem]);
 
   // Heart pulse animation for lives
   useEffect(() => {
@@ -276,11 +279,30 @@ export const LessonEngine: React.FC<LessonEngineProps> = ({ lessonId, onComplete
   };
 
   const completeLesson = () => {
-    const results = endSession();
+    const sessionResults = endSession();
 
-    // Calculate score and show appropriate animation
-    const score = results.totalAttempts > 0 ? Math.round((results.correctCount / results.totalAttempts) * 100) : 0;
-    const xpAwarded = 50 + (score > 90 ? 25 : 0); // Bonus XP for high scores
+    // Calculate score and XP with proper defaults
+    const correctCount = sessionResults.correctCount || 0;
+    const totalCount = sessionResults.totalAttempts || 0;
+    const accuracy = totalCount > 0 ? Math.round((correctCount / totalCount) * 100) : 0;
+    const xpAwarded = 50 + (accuracy >= 90 ? 25 : 0); // Bonus XP for high scores
+    const masteryDelta = accuracy >= 70 ? 5 : 2; // More mastery for good performance
+
+    // Create properly formatted results for LessonSummaryScreen
+    const results = {
+      xpAwarded,
+      correctCount,
+      totalCount,
+      masteryDelta,
+    };
+
+    console.log('🎉 Lesson Complete:', {
+      accuracy: `${accuracy}%`,
+      correctCount,
+      totalCount,
+      xpAwarded,
+      masteryDelta
+    });
 
     // Update user store with lesson completion
     if (completeUserLesson) {
@@ -293,9 +315,10 @@ export const LessonEngine: React.FC<LessonEngineProps> = ({ lessonId, onComplete
     analytics.track({
       type: 'lesson.complete',
       lessonId,
-      durationMs: results.totalTime || 0,
-      itemsAttempted: results.totalAttempts,
-      correctCount: results.correctCount
+      durationMs: sessionResults.totalTime || 0,
+      itemsAttempted: totalCount,
+      correctCount,
+      accuracy
     });
 
     // Track XP awarded
@@ -306,30 +329,22 @@ export const LessonEngine: React.FC<LessonEngineProps> = ({ lessonId, onComplete
       });
     }
 
-    // Show simple completion alert
-    Alert.alert(
-      'Lesson Complete!',
-      `Great job! You scored ${score}% and earned ${xpAwarded} XP.\n\nNext lesson unlocked!`,
-      [
-        {
-          text: 'Continue',
-          onPress: () => {
-            if (onComplete) {
-              onComplete(results);
-            } else {
-              // Navigate back to lessons screen
-              navigation.goBack();
-            }
-          }
-        }
-      ]
-    );
-
-    // Play appropriate completion sound
-    if (score === 100) {
+    // Play appropriate completion sound based on accuracy
+    if (accuracy === 100) {
       audio.playPerfectScore();
-    } else {
+    } else if (accuracy >= 70) {
       audio.playLessonComplete();
+    } else {
+      // Play a different sound for low scores
+      audio.playIncorrectAnswer();
+    }
+
+    // Navigate to summary screen immediately (no alert)
+    if (onComplete) {
+      onComplete(results);
+    } else {
+      // Navigate back to lessons screen
+      navigation.goBack();
     }
   };
 
@@ -360,16 +375,20 @@ export const LessonEngine: React.FC<LessonEngineProps> = ({ lessonId, onComplete
 
   const renderExercise = () => {
     if (!currentItem) {
+      console.log('❌ renderExercise: No current item');
       return <Text style={styles.errorText}>No current item</Text>;
     }
 
+    console.log('🎨 Rendering exercise:', {
+      id: currentItem.id,
+      type: currentItem.type,
+      prompt: currentItem.prompt?.substring(0, 50) + '...',
+      hasOptions: !!currentItem.options,
+      optionsLength: currentItem.options?.length
+    });
+
     // Normalize the type to handle corruption (mcp -> mcq)
     const exerciseType = currentItem.type === 'mcp' ? 'mcq' : currentItem.type;
-
-    // For order exercises, create a shuffled version of the order target
-    const shuffledOrder = exerciseType === 'order' && currentItem.orderTarget
-      ? [...currentItem.orderTarget].sort(() => Math.random() - 0.5)
-      : [];
 
     switch (exerciseType) {
       case 'mcq':
@@ -412,48 +431,12 @@ export const LessonEngine: React.FC<LessonEngineProps> = ({ lessonId, onComplete
             </View>
           );
         }
-        // Simple order exercise implementation
         return (
-          <View>
-            <Text style={{ color: 'white', fontSize: 18, marginBottom: 20, textAlign: 'center' }}>
-              {currentItem.prompt}
-            </Text>
-            <Text style={{ color: 'white', fontSize: 14, marginBottom: 15, textAlign: 'center', opacity: 0.8 }}>
-              Items in random order - for now, just submit to continue
-            </Text>
-            {shuffledOrder.map((item, index) => (
-              <View
-                key={index}
-                style={{
-                  backgroundColor: 'rgba(255, 255, 255, 0.1)',
-                  padding: 15,
-                  marginBottom: 10,
-                  borderRadius: 8,
-                  borderWidth: 1,
-                  borderColor: 'rgba(255, 255, 255, 0.2)'
-                }}
-              >
-                <Text style={{ color: 'white', fontSize: 16 }}>{index + 1}. {item}</Text>
-              </View>
-            ))}
-            <Pressable
-              style={{
-                backgroundColor: 'rgba(0, 255, 0, 0.3)',
-                padding: 15,
-                borderRadius: 8,
-                marginTop: 10
-              }}
-              onPress={() => {
-                // Check if the order is correct (for now, randomly make it wrong sometimes)
-                const isCorrect = Math.random() > 0.3; // 70% chance of being correct
-                handleAnswer({ correct: isCorrect, msToAnswer: 1000 });
-              }}
-            >
-              <Text style={{ color: 'white', fontSize: 16, textAlign: 'center', fontWeight: 'bold' }}>
-                Submit Order
-              </Text>
-            </Pressable>
-          </View>
+          <OrderExercise
+            item={currentItem}
+            onResult={handleAnswer}
+            disabled={false}
+          />
         );
       case 'short':
         if (!currentItem.answerText) {
@@ -507,48 +490,11 @@ export const LessonEngine: React.FC<LessonEngineProps> = ({ lessonId, onComplete
             </View>
           );
         }
-        // Simple checkbox implementation
         return (
-          <View>
-            <Text style={{ color: 'white', fontSize: 18, marginBottom: 20, textAlign: 'center' }}>
-              {currentItem.prompt}
-            </Text>
-            <Text style={{ color: 'white', fontSize: 14, marginBottom: 15, textAlign: 'center', opacity: 0.8 }}>
-              Select all that apply
-            </Text>
-            {currentItem.options.map((option, index) => (
-              <Pressable
-                key={index}
-                style={{
-                  backgroundColor: 'rgba(255, 255, 255, 0.1)',
-                  padding: 15,
-                  marginBottom: 10,
-                  borderRadius: 8,
-                  borderWidth: 1,
-                  borderColor: 'rgba(255, 255, 255, 0.2)'
-                }}
-              >
-                <Text style={{ color: 'white', fontSize: 16 }}>☐ {option}</Text>
-              </Pressable>
-            ))}
-            <Pressable
-              style={{
-                backgroundColor: 'rgba(0, 255, 0, 0.3)',
-                padding: 15,
-                borderRadius: 8,
-                marginTop: 10
-              }}
-              onPress={() => {
-                // Randomly mark as correct/incorrect
-                const isCorrect = Math.random() > 0.5; // 50% chance
-                handleAnswer({ correct: isCorrect, msToAnswer: 1000 });
-              }}
-            >
-              <Text style={{ color: 'white', fontSize: 16, textAlign: 'center', fontWeight: 'bold' }}>
-                Submit Selection
-              </Text>
-            </Pressable>
-          </View>
+          <CheckboxExercise
+            item={currentItem}
+            onResult={handleAnswer}
+          />
         );
       case 'match':
         if (!currentItem.pairs || !currentItem.pairs.length) {
@@ -558,52 +504,11 @@ export const LessonEngine: React.FC<LessonEngineProps> = ({ lessonId, onComplete
             </View>
           );
         }
-        // Simple match implementation
         return (
-          <View>
-            <Text style={{ color: 'white', fontSize: 18, marginBottom: 20, textAlign: 'center' }}>
-              {currentItem.prompt}
-            </Text>
-            <Text style={{ color: 'white', fontSize: 14, marginBottom: 15, textAlign: 'center', opacity: 0.8 }}>
-              Match the pairs
-            </Text>
-            {currentItem.pairs.map((pair, index) => (
-              <View
-                key={index}
-                style={{
-                  backgroundColor: 'rgba(255, 255, 255, 0.1)',
-                  padding: 15,
-                  marginBottom: 10,
-                  borderRadius: 8,
-                  borderWidth: 1,
-                  borderColor: 'rgba(255, 255, 255, 0.2)',
-                  flexDirection: 'row',
-                  justifyContent: 'space-between'
-                }}
-              >
-                <Text style={{ color: 'white', fontSize: 16 }}>{pair.left}</Text>
-                <Text style={{ color: 'white', fontSize: 16 }}>→</Text>
-                <Text style={{ color: 'white', fontSize: 16 }}>{pair.right}</Text>
-              </View>
-            ))}
-            <Pressable
-              style={{
-                backgroundColor: 'rgba(0, 255, 0, 0.3)',
-                padding: 15,
-                borderRadius: 8,
-                marginTop: 10
-              }}
-              onPress={() => {
-                // Randomly mark as correct/incorrect
-                const isCorrect = Math.random() > 0.5; // 50% chance
-                handleAnswer({ correct: isCorrect, msToAnswer: 1000 });
-              }}
-            >
-              <Text style={{ color: 'white', fontSize: 16, textAlign: 'center', fontWeight: 'bold' }}>
-                Submit Matches
-              </Text>
-            </Pressable>
-          </View>
+          <MatchExercise
+            item={currentItem}
+            onResult={handleAnswer}
+          />
         );
       default:
         return (
@@ -640,24 +545,12 @@ export const LessonEngine: React.FC<LessonEngineProps> = ({ lessonId, onComplete
             <Pressable
               style={[styles.blockedButton, styles.buyHeartsButton]}
               onPress={() => {
-                // TODO: Navigate to hearts purchase screen
-                Alert.alert('Buy Hearts', 'Hearts purchase feature coming soon!');
+                // Navigate to VaultStore with hearts tab
+                navigation.navigate('VaultStore', { tab: 'hearts' });
               }}
             >
               <Ionicons name="diamond" size={20} color={colors.white} />
               <Text style={styles.blockedButtonText}>Buy Hearts</Text>
-            </Pressable>
-
-            {/* Earn Free Hearts Button */}
-            <Pressable
-              style={[styles.blockedButton, styles.earnHeartsButton]}
-              onPress={() => {
-                // TODO: Navigate to earn hearts screen
-                Alert.alert('Earn Free Hearts', 'Watch ads or complete challenges to earn hearts!');
-              }}
-            >
-              <Ionicons name="gift" size={20} color={colors.white} />
-              <Text style={styles.blockedButtonText}>Earn Free Hearts</Text>
             </Pressable>
 
             {/* Go Back Button */}
@@ -774,9 +667,6 @@ export const LessonEngine: React.FC<LessonEngineProps> = ({ lessonId, onComplete
         ]}
       >
         <View style={styles.exerciseCard}>
-          <Text style={{ color: 'white', fontSize: 16, marginBottom: 10 }}>
-            DEBUG: Items: {items.length}, Current: {currentItemIndex}, Item: {currentItem?.id}, Type: {currentItem?.type}
-          </Text>
           {renderExercise()}
         </View>
       </Animated.View>
@@ -813,12 +703,11 @@ export const LessonEngine: React.FC<LessonEngineProps> = ({ lessonId, onComplete
             <Text style={styles.feedbackText}>
               {lastResult.correct ? 'Perfect!' : 'Keep trying!'}
             </Text>
-            <Text style={styles.feedbackSubtext}>
-              {lastResult.correct 
-                ? `Answered in ${(lastResult.msToAnswer / 1000).toFixed(1)}s`
-                : 'You\'ll get it next time!'
-              }
-            </Text>
+            {!lastResult.correct && (
+              <Text style={styles.feedbackSubtext}>
+                You'll get it next time!
+              </Text>
+            )}
           </View>
         </Animated.View>
       )}

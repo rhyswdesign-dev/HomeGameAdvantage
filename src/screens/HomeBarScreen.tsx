@@ -1254,7 +1254,7 @@ const styles = StyleSheet.create({
   },
   tabContainer: {
     flexDirection: 'row',
-    backgroundColor: colors.card,
+    backgroundColor: colors.bg,
     borderBottomWidth: 1,
     borderBottomColor: colors.line,
   },
@@ -1268,15 +1268,17 @@ const styles = StyleSheet.create({
   },
   activeTab: {
     backgroundColor: colors.accent,
+    borderBottomWidth: 2,
+    borderBottomColor: colors.accent,
   },
   tabText: {
     fontSize: 14,
     fontWeight: '500',
-    color: colors.muted,
+    color: colors.subtext,
   },
   activeTabText: {
-    color: colors.bg,
-    fontWeight: '600',
+    color: colors.white,
+    fontWeight: '700',
   },
   content: {
     flex: 1,
@@ -2034,24 +2036,26 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing(3),
     paddingVertical: spacing(1.5),
     borderRadius: spacing(3),
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
-    borderWidth: 0,
+    backgroundColor: colors.bg,
+    borderWidth: 1,
+    borderColor: colors.line,
     marginRight: spacing(2),
     minWidth: 60,
     alignItems: 'center',
   },
   activeFilterChip: {
     backgroundColor: colors.accent,
+    borderColor: colors.accent,
   },
   filterChipText: {
     fontSize: 13,
     fontWeight: '500',
-    color: colors.muted,
+    color: colors.subtext,
     textAlign: 'center',
   },
   activeFilterChipText: {
     color: colors.white,
-    fontWeight: '600',
+    fontWeight: '700',
   },
   sortToggle: {
     flexDirection: 'row',
@@ -2111,12 +2115,13 @@ const styles = StyleSheet.create({
   },
   statCard: {
     flex: 1,
-    backgroundColor: 'rgba(255, 255, 255, 0.05)',
-    paddingVertical: spacing(1.5),
-    paddingHorizontal: spacing(1),
-    borderRadius: radii.md,
+    backgroundColor: colors.card,
+    paddingVertical: spacing(2),
+    paddingHorizontal: spacing(1.5),
+    borderRadius: radii.lg,
     alignItems: 'center',
-    borderWidth: 0,
+    borderWidth: 1,
+    borderColor: colors.line,
   },
   statNumber: {
     fontSize: 24,
@@ -2126,8 +2131,8 @@ const styles = StyleSheet.create({
   },
   statLabel: {
     fontSize: 12,
-    fontWeight: '500',
-    color: colors.muted,
+    fontWeight: '600',
+    color: colors.subtext,
     textAlign: 'center',
   },
   // Collection header styles
@@ -2143,12 +2148,14 @@ const styles = StyleSheet.create({
   },
   // Filter controls styles
   filterControls: {
-    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+    backgroundColor: colors.card,
     marginHorizontal: spacing(3),
     marginBottom: spacing(3),
     borderRadius: radii.lg,
     paddingHorizontal: spacing(3),
     paddingVertical: spacing(2),
+    borderWidth: 1,
+    borderColor: colors.line,
   },
   filterHeader: {
     flexDirection: 'row',
@@ -2173,9 +2180,11 @@ const styles = StyleSheet.create({
     marginBottom: spacing(6),
   },
   addMoreButton: {
-    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+    backgroundColor: colors.card,
     borderRadius: radii.xl,
-    borderWidth: 0,
+    borderWidth: 2,
+    borderColor: colors.accent,
+    borderStyle: 'dashed',
     padding: spacing(4),
     flexDirection: 'row',
     alignItems: 'center',

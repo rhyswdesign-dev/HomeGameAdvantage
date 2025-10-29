@@ -86,15 +86,16 @@ export const usePersonalization = create<PersonalizationState>((set, get) => ({
    */
   updateProfile: async (updates: Partial<UserPersonalizationProfile>) => {
     const { profile } = get();
-    if (!profile) return;
 
     try {
-      const updatedProfile = { ...profile, ...updates };
+      // If no profile exists, create a new one with the updates
+      const updatedProfile = profile ? { ...profile, ...updates } : updates as UserPersonalizationProfile;
       const recommendations = personalizedExperience.generateRecommendations(updatedProfile);
 
       set({
         profile: updatedProfile,
-        recommendations
+        recommendations,
+        isInitialized: true
       });
 
       await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify({

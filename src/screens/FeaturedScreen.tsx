@@ -25,6 +25,7 @@ const chips: Array<{ key: string; label: string }> = [
   { key: 'NonAlcoholic', label: 'Non-Alcoholic' },
   { key: 'Bars',    label: 'Bars'    },
   { key: 'Events',  label: 'Events'  },
+  { key: 'Games',   label: 'Games'   },
 ];
 
 // Get gold tier spirits from all categories but use uploaded images
@@ -273,6 +274,23 @@ export default function FeaturedScreen() {
       </TouchableOpacity>
 
       {/* Featured Content - show all sections */}
+      <Section title="Featured Games" onPress={() => nav.navigate('Games' as never)}>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: spacing(2), paddingHorizontal: spacing(2) }}>
+          {games.map(g=>(
+            <TouchableOpacity
+              key={g.id}
+              style={styles.gameCard}
+              onPress={() => nav.navigate('GameDetail', { gameId: g.id })}
+              activeOpacity={0.8}
+            >
+              <Image source={{ uri:g.img }} style={styles.gameImage}/>
+              <Text style={styles.cardTitle}>{g.title}</Text>
+              <Text style={styles.cardSub}>Difficulty: {g.difficulty}</Text>
+            </TouchableOpacity>
+          ))}
+        </ScrollView>
+      </Section>
+
       <Section title="Featured Spirit Picks" onPress={() => nav.navigate('Spirits' as never)}>
         <HScroll cards={goldSpirits} onPress={(item) => {
           // Use same navigation logic as Spirits page for gold tier spirits
@@ -355,11 +373,6 @@ export default function FeaturedScreen() {
         </View>
       </Section>
 
-      <ToolPromo title="Premium Bar Tools"
-                 subtitle="Equip your home bar with professional-grade tools."
-                 cta="Shop Now"
-                 onPress={() => nav.navigate('Vault' as never)}/>
-
       <Section title="Bartending Hack Videos">
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: spacing(2), paddingHorizontal: spacing(2) }}>
           {videos.map(v=>(
@@ -370,41 +383,6 @@ export default function FeaturedScreen() {
             </View>
           ))}
         </ScrollView>
-      </Section>
-
-      <Section title="Bartender Spotlight">
-        <View style={styles.profileRow}>
-          <Image source={{ uri:'https://images.unsplash.com/illustration-female-avatar.png?auto=format&fit=crop&w=300&q=60' }}
-                 style={styles.avatar}/>
-          <View style={styles.profileInfo}>
-            <Text style={styles.profileName}>Ava Sterling</Text>
-            <Text style={styles.profileLine}>London, UK</Text>
-            <Text style={styles.profileLine}>Favorite Bar: Untitled Champagne Lounge</Text>
-            <Text style={styles.profileLine}>Location: Calgary, AB</Text>
-            <Text style={styles.profileLine}>Signature Drink: The Mélange à trois</Text>
-          </View>
-        </View>
-        <TouchableOpacity 
-          style={[
-            styles.goldBtn, 
-            { alignSelf:'center', marginTop:spacing(3) },
-            isFollowing(avaSterlingSportlight.id) && { backgroundColor: colors.card, borderWidth: 1, borderColor: colors.accent }
-          ]}
-          onPress={() => toggleFollow(avaSterlingSportlight)}
-        >
-          <Text style={[
-            styles.goldBtnText,
-            isFollowing(avaSterlingSportlight.id) && { color: colors.accent }
-          ]}>
-            {isFollowing(avaSterlingSportlight.id) ? 'Following' : 'Follow'}
-          </Text>
-          <Ionicons 
-            name={isFollowing(avaSterlingSportlight.id) ? "checkmark" : "chevron-forward"} 
-            size={16} 
-            color={isFollowing(avaSterlingSportlight.id) ? colors.accent : colors.text} 
-            style={{ marginLeft: 6 }} 
-          />
-        </TouchableOpacity>
       </Section>
       </ScrollView>
 

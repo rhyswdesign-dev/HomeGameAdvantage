@@ -5,10 +5,11 @@ import {
   TextInput,
   TouchableOpacity,
   StyleSheet,
-  SafeAreaView,
   Alert,
   KeyboardAvoidingView,
   Platform,
+  ImageBackground,
+  ScrollView,
 } from 'react-native';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { colors, spacing, radii } from '../theme/tokens';
@@ -23,7 +24,16 @@ interface AuthScreenProps {
 export default function AuthScreen({ onComplete, onSkip }: AuthScreenProps = {}) {
   const { isAuthenticated, isLoading } = useAuth();
   const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
+
+  const handleNavigateToTerms = () => {
+    Alert.alert('Terms of Service', 'Terms of Service will be available once you sign in.');
+  };
+
+  const handleNavigateToPrivacy = () => {
+    Alert.alert('Privacy Policy', 'Privacy Policy will be available once you sign in.');
+  };
 
   const handleContinue = async () => {
     if (!email.trim()) {
@@ -108,93 +118,132 @@ export default function AuthScreen({ onComplete, onSkip }: AuthScreenProps = {})
   }
 
   return (
-    <SafeAreaView style={styles.container}>
-      <KeyboardAvoidingView
-        style={styles.container}
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+    <View style={styles.container}>
+      <ImageBackground
+        source={{ uri: 'https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?w=800' }}
+        style={styles.backgroundImage}
+        blurRadius={8}
       >
-        <View style={styles.content}>
-          {/* Header */}
-          <View style={styles.header}>
-            <View style={styles.logoContainer}>
-              <MaterialCommunityIcons name="glass-cocktail" size={48} color={colors.accent} />
-            </View>
-            <Text style={styles.title}>Log in or sign up</Text>
-          </View>
+        <View style={styles.overlay} />
 
-          {/* Email Input */}
-          <View style={styles.inputSection}>
-            <TextInput
-              style={styles.emailInput}
-              placeholder="Enter your email address"
-              placeholderTextColor={colors.subtext}
-              value={email}
-              onChangeText={setEmail}
-              keyboardType="email-address"
-              autoCapitalize="none"
-              autoCorrect={false}
-            />
-
-            <TouchableOpacity
-              style={[styles.continueButton, loading && styles.buttonDisabled]}
-              onPress={handleContinue}
-              disabled={loading}
-            >
-              <Text style={styles.continueButtonText}>
-                {loading ? 'Signing in...' : 'Continue'}
-              </Text>
-            </TouchableOpacity>
-          </View>
-
-          {/* Divider */}
-          <View style={styles.dividerSection}>
-            <View style={styles.dividerLine} />
-            <Text style={styles.dividerText}>or</Text>
-            <View style={styles.dividerLine} />
-          </View>
-
-          {/* Social Sign-in */}
-          <View style={styles.socialSection}>
-            <TouchableOpacity
-              style={[styles.socialButton, loading && styles.buttonDisabled]}
-              onPress={handleGoogleContinue}
-              disabled={loading}
-            >
-              <MaterialCommunityIcons name="google" size={20} color={colors.text} />
-              <Text style={styles.socialButtonText}>Continue with Google</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={[styles.socialButton, loading && styles.buttonDisabled]}
-              onPress={handleAppleContinue}
-              disabled={loading}
-            >
-              <MaterialCommunityIcons name="apple" size={20} color={colors.text} />
-              <Text style={styles.socialButtonText}>Continue with Apple</Text>
-            </TouchableOpacity>
-          </View>
-
-          {/* Skip button (only show during onboarding) */}
-          {onSkip && (
-            <TouchableOpacity
-              style={styles.skipButton}
-              onPress={onSkip}
-            >
-              <Text style={styles.skipButtonText}>Skip for now</Text>
-            </TouchableOpacity>
-          )}
-
-          {/* Debug Info */}
-          {__DEV__ && (
-            <View style={styles.debugSection}>
-              <Text style={styles.debugText}>
-                Auth Status: {isLoading ? 'Loading...' : isAuthenticated ? 'Authenticated' : 'Not authenticated'}
+        <KeyboardAvoidingView
+          style={styles.keyboardView}
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        >
+          <ScrollView
+            contentContainerStyle={styles.scrollContent}
+            keyboardShouldPersistTaps="handled"
+          >
+            {/* Hero Section */}
+            <View style={styles.heroSection}>
+              <Text style={styles.welcomeTitle}>Welcome to MixedMinds</Text>
+              <Text style={styles.welcomeSubtitle}>
+                Your personal bartender. Learn, build, and discover cocktails tailored to you.
               </Text>
             </View>
-          )}
-        </View>
-      </KeyboardAvoidingView>
-    </SafeAreaView>
+
+            {/* Form Section */}
+            <View style={styles.formSection}>
+              {/* Email Input */}
+              <View style={styles.inputGroup}>
+                <Text style={styles.inputLabel}>Email address</Text>
+                <TextInput
+                  style={styles.input}
+                  placeholder="Email address"
+                  placeholderTextColor="rgba(255, 255, 255, 0.4)"
+                  value={email}
+                  onChangeText={setEmail}
+                  keyboardType="email-address"
+                  autoCapitalize="none"
+                  autoCorrect={false}
+                />
+              </View>
+
+              {/* Password Input */}
+              <View style={styles.inputGroup}>
+                <Text style={styles.inputLabel}>Password</Text>
+                <TextInput
+                  style={styles.input}
+                  placeholder="Password"
+                  placeholderTextColor="rgba(255, 255, 255, 0.4)"
+                  value={password}
+                  onChangeText={setPassword}
+                  secureTextEntry
+                  autoCapitalize="none"
+                  autoCorrect={false}
+                />
+              </View>
+
+              {/* Sign In Button */}
+              <TouchableOpacity
+                style={[styles.signInButton, loading && styles.buttonDisabled]}
+                onPress={handleContinue}
+                disabled={loading}
+              >
+                <Text style={styles.signInButtonText}>
+                  {loading ? 'Signing in...' : 'Sign In'}
+                </Text>
+              </TouchableOpacity>
+
+              {/* Create Account Button */}
+              <TouchableOpacity
+                style={[styles.createAccountButton, loading && styles.buttonDisabled]}
+                disabled={loading}
+              >
+                <Text style={styles.createAccountButtonText}>Create Account</Text>
+              </TouchableOpacity>
+
+              {/* Divider */}
+              <View style={styles.dividerSection}>
+                <Text style={styles.dividerText}>or continue with</Text>
+              </View>
+
+              {/* Social Buttons */}
+              <View style={styles.socialSection}>
+                <TouchableOpacity
+                  style={[styles.socialButton, loading && styles.buttonDisabled]}
+                  onPress={handleAppleContinue}
+                  disabled={loading}
+                >
+                  <MaterialCommunityIcons name="apple" size={20} color="#FFFFFF" />
+                  <Text style={styles.socialButtonText}>Apple</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  style={[styles.socialButton, loading && styles.buttonDisabled]}
+                  onPress={handleGoogleContinue}
+                  disabled={loading}
+                >
+                  <MaterialCommunityIcons name="google" size={20} color="#FFFFFF" />
+                  <Text style={styles.socialButtonText}>Google</Text>
+                </TouchableOpacity>
+              </View>
+
+              {/* Terms */}
+              <View style={styles.termsContainer}>
+                <Text style={styles.termsText}>
+                  By signing in you agree to our{' '}
+                  <Text
+                    style={styles.termsLink}
+                    onPress={handleNavigateToTerms}
+                  >
+                    Terms
+                  </Text>
+                  {' & '}
+                  <Text
+                    style={styles.termsLink}
+                    onPress={handleNavigateToPrivacy}
+                  >
+                    Privacy Policy
+                  </Text>
+                  .
+                </Text>
+              </View>
+            </View>
+          </ScrollView>
+        </KeyboardAvoidingView>
+      </ImageBackground>
+    </View>
   );
 }
 
@@ -203,28 +252,56 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: colors.bg,
   },
-  content: {
+  backgroundImage: {
     flex: 1,
-    paddingHorizontal: spacing(4),
-    justifyContent: 'center',
+    width: '100%',
+    height: '100%',
   },
-  header: {
+  overlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(32, 21, 15, 0.75)', // colors.bg with transparency
+  },
+  keyboardView: {
+    flex: 1,
+  },
+  scrollContent: {
+    flexGrow: 1,
+    paddingHorizontal: spacing(4),
+    paddingVertical: spacing(8),
+  },
+  heroSection: {
+    flex: 1,
+    justifyContent: 'center',
     alignItems: 'center',
     marginBottom: spacing(6),
   },
-  logoContainer: {
-    marginBottom: spacing(3),
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: '600',
+  welcomeTitle: {
+    fontSize: 32,
+    fontWeight: '700',
     color: colors.text,
     textAlign: 'center',
+    marginBottom: spacing(2),
   },
-  inputSection: {
-    marginBottom: spacing(4),
+  welcomeSubtitle: {
+    fontSize: 16,
+    color: colors.subtext,
+    textAlign: 'center',
+    lineHeight: 24,
+    paddingHorizontal: spacing(2),
   },
-  emailInput: {
+  formSection: {
+    gap: spacing(2),
+  },
+  inputGroup: {
+    gap: spacing(1),
+  },
+  inputLabel: {
+    fontSize: 16,
+    fontWeight: '500',
+    color: colors.text,
+    marginBottom: spacing(0.5),
+  },
+  input: {
     backgroundColor: colors.card,
     borderRadius: radii.lg,
     paddingHorizontal: spacing(3),
@@ -233,17 +310,31 @@ const styles = StyleSheet.create({
     color: colors.text,
     borderWidth: 1,
     borderColor: colors.line,
-    marginBottom: spacing(2),
   },
-  continueButton: {
-    backgroundColor: colors.text,
+  signInButton: {
+    backgroundColor: colors.accent,
     borderRadius: radii.lg,
     paddingVertical: spacing(2.5),
     alignItems: 'center',
     justifyContent: 'center',
+    marginTop: spacing(2),
   },
-  continueButtonText: {
-    color: colors.bg,
+  signInButtonText: {
+    color: colors.goldText,
+    fontSize: 18,
+    fontWeight: '700',
+  },
+  createAccountButton: {
+    backgroundColor: colors.card,
+    borderRadius: radii.lg,
+    paddingVertical: spacing(2.5),
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: colors.line,
+  },
+  createAccountButtonText: {
+    color: colors.text,
     fontSize: 16,
     fontWeight: '600',
   },
@@ -251,24 +342,19 @@ const styles = StyleSheet.create({
     opacity: 0.6,
   },
   dividerSection: {
-    flexDirection: 'row',
     alignItems: 'center',
-    marginVertical: spacing(4),
-  },
-  dividerLine: {
-    flex: 1,
-    height: 1,
-    backgroundColor: colors.line,
+    marginVertical: spacing(3),
   },
   dividerText: {
-    color: colors.subtext,
+    color: colors.subtle,
     fontSize: 14,
-    marginHorizontal: spacing(2),
   },
   socialSection: {
+    flexDirection: 'row',
     gap: spacing(2),
   },
   socialButton: {
+    flex: 1,
     backgroundColor: colors.card,
     borderRadius: radii.lg,
     paddingVertical: spacing(2.5),
@@ -282,7 +368,21 @@ const styles = StyleSheet.create({
   socialButtonText: {
     color: colors.text,
     fontSize: 16,
-    fontWeight: '500',
+    fontWeight: '600',
+  },
+  termsContainer: {
+    marginTop: spacing(3),
+  },
+  termsText: {
+    fontSize: 12,
+    color: colors.subtle,
+    textAlign: 'center',
+    lineHeight: 18,
+  },
+  termsLink: {
+    color: colors.gold,
+    fontWeight: '600',
+    textDecorationLine: 'underline',
   },
   successSection: {
     alignItems: 'center',
@@ -317,29 +417,6 @@ const styles = StyleSheet.create({
   actionButtonText: {
     color: colors.text,
     fontSize: 16,
-    fontWeight: '500',
-  },
-  debugSection: {
-    marginTop: spacing(4),
-    padding: spacing(2),
-    backgroundColor: colors.card,
-    borderRadius: radii.md,
-    borderWidth: 1,
-    borderColor: colors.line,
-  },
-  debugText: {
-    fontSize: 12,
-    color: colors.subtext,
-    textAlign: 'center',
-  },
-  skipButton: {
-    marginTop: spacing(4),
-    paddingVertical: spacing(2),
-    alignItems: 'center',
-  },
-  skipButtonText: {
-    fontSize: 16,
-    color: colors.subtext,
     fontWeight: '500',
   },
 });
