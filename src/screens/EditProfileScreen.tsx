@@ -1,12 +1,16 @@
 import React, { useState, useLayoutEffect } from 'react';
 import {
-  View, Text, ScrollView, TouchableOpacity, StyleSheet, 
-  TextInput, PanGestureHandler, Animated
+  View, Text, ScrollView, TouchableOpacity, StyleSheet,
+  TextInput, PanGestureHandler, Animated, Alert
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
+import { doc, setDoc, serverTimestamp } from 'firebase/firestore';
+import { updateProfile } from 'firebase/auth';
+import { db, auth } from '../config/firebase';
+import { useAuth } from '../contexts/AuthContext';
 import { colors, spacing, radii } from '../theme/tokens';
 import type { RootStackParamList } from '../navigation/RootNavigator';
 
@@ -79,9 +83,11 @@ const mockEarnedBadges: Badge[] = [
 
 export default function EditProfileScreen() {
   const nav = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+  const { user } = useAuth();
   const [reorderableBadges, setReorderableBadges] = useState<Badge[]>(mockEarnedBadges);
-  const [name, setName] = useState("Isaac Mckenzie");
+  const [name, setName] = useState(user?.displayName || "");
   const [bio, setBio] = useState("Whiskey enthusiast exploring the world of premium spirits. Love discovering hidden speakeasies and craft cocktails.");
+  const [saving, setSaving] = useState(false);
 
   useLayoutEffect(() => {
     nav.setOptions({
@@ -91,16 +97,19 @@ export default function EditProfileScreen() {
       headerTitleStyle: { color: colors.text, fontWeight: '900' },
       headerShadowVisible: false,
       headerRight: () => (
-        <TouchableOpacity 
+        <TouchableOpacity
           onPress={handleSave}
           style={styles.headerButton}
           activeOpacity={0.7}
+          disabled={saving}
         >
-          <Text style={styles.saveButton}>Save</Text>
+          <Text style={[styles.saveButton, saving && styles.saveButtonDisabled]}>
+            {saving ? 'Saving...' : 'Save'}
+          </Text>
         </TouchableOpacity>
       ),
     });
-  }, [nav]);
+  }, [nav, saving]);
 
   const moveBadge = (fromIndex: number, toIndex: number) => {
     const newBadges = [...reorderableBadges];
@@ -109,10 +118,43 @@ export default function EditProfileScreen() {
     setReorderableBadges(newBadges);
   };
 
-  const handleSave = () => {
-    // TODO: Save changes to profile
-    console.log('Saving profile changes');
-    nav.goBack();
+  const handleSave = async () => {
+    if (!user) {
+      Alert.alert('Error', 'You must be signed in to edit your profile');
+      return;
+    }
+
+    if (!name.trim()) {
+      Alert.alert('Error', 'Name cannot be empty');
+      return;
+    }
+
+    setSaving(true);
+
+    try {
+      // Update Firebase Auth display name
+      await updateProfile(user, {
+        displayName: name.trim()
+      });
+
+      // Save full profile to Firestore
+      await setDoc(doc(db, 'users', user.uid), {
+        displayName: name.trim(),
+        bio: bio.trim(),
+        featuredBadges: reorderableBadges.slice(0, 3).map(b => b.id),
+        updatedAt: serverTimestamp()
+      }, { merge: true });
+
+      console.log('✅ Profile updated successfully');
+      Alert.alert('Success', 'Profile updated successfully', [
+        { text: 'OK', onPress: () => nav.goBack() }
+      ]);
+    } catch (error: any) {
+      console.error('❌ Error saving profile:', error);
+      Alert.alert('Error', 'Failed to save profile. Please try again.');
+    } finally {
+      setSaving(false);
+    }
   };
 
   return (

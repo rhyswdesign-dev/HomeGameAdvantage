@@ -6,6 +6,9 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
+import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
+import { db } from '../config/firebase';
+import { useAuth } from '../contexts/AuthContext';
 import { colors, spacing, radii } from '../theme/tokens';
 
 interface FeedbackScreenProps {
@@ -47,12 +50,13 @@ const CATEGORIES = [
 
 export default function FeedbackScreen({ onBack }: FeedbackScreenProps) {
   const navigation = useNavigation();
+  const { user } = useAuth();
   const [selectedType, setSelectedType] = useState<'bug' | 'feature' | 'improvement' | 'general'>('general');
   const [rating, setRating] = useState(0);
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('');
-  const [email, setEmail] = useState('');
+  const [email, setEmail] = useState(user?.email || '');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useLayoutEffect(() => {
@@ -90,26 +94,26 @@ export default function FeedbackScreen({ onBack }: FeedbackScreenProps) {
     setIsSubmitting(true);
 
     try {
-      const feedbackData: FeedbackData = {
+      const feedbackData = {
         type: selectedType,
         rating,
         title: title.trim(),
         description: description.trim(),
         category: selectedCategory,
-        email: email.trim() || undefined,
+        email: email.trim() || user?.email || undefined,
+        userId: user?.uid || 'anonymous',
         deviceInfo: {
           platform: Platform.OS,
           version: Platform.Version.toString(),
           model: 'Unknown' // In a real app, you'd get this from a device info library
         },
-        timestamp: new Date(),
+        status: 'new',
+        timestamp: serverTimestamp(),
       };
 
-      // TODO: Submit to Firestore
-      console.log('Submitting feedback:', feedbackData);
-      
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      // Submit to Firestore
+      await addDoc(collection(db, 'feedback'), feedbackData);
+      console.log('✅ Feedback submitted successfully');
 
       // Show success message
       Alert.alert(

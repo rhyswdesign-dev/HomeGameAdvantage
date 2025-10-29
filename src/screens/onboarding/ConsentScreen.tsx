@@ -3,8 +3,11 @@
  */
 
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, Pressable, Switch } from 'react-native';
+import { View, Text, StyleSheet, Pressable, Switch, Alert } from 'react-native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { doc, setDoc, serverTimestamp } from 'firebase/firestore';
+import { db } from '../../config/firebase';
+import { useAuth } from '../../contexts/AuthContext';
 import { RootStackParamList } from '../../navigation/RootNavigator';
 
 type ConsentScreenProps = {
@@ -12,14 +15,34 @@ type ConsentScreenProps = {
 };
 
 export default function ConsentScreen({ navigation }: ConsentScreenProps) {
+  const { user } = useAuth();
   const [analyticsConsent, setAnalyticsConsent] = useState(true);
+  const [loading, setLoading] = useState(false);
 
-  const handleContinue = () => {
-    // Store consent in user preferences
-    // TODO: Save consent to user repo
-    console.log('Analytics consent:', analyticsConsent);
-    
-    navigation.navigate('Survey');
+  const handleContinue = async () => {
+    if (!user) {
+      Alert.alert('Error', 'You must be signed in to continue');
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      // Save consent to Firestore
+      await setDoc(doc(db, 'users', user.uid, 'preferences', 'consent'), {
+        analyticsConsent,
+        timestamp: serverTimestamp(),
+        version: '1.0'
+      }, { merge: true });
+
+      console.log('✅ Consent saved:', analyticsConsent);
+      navigation.navigate('Survey');
+    } catch (error: any) {
+      console.error('❌ Error saving consent:', error);
+      Alert.alert('Error', 'Failed to save preferences. Please try again.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -66,10 +89,13 @@ export default function ConsentScreen({ navigation }: ConsentScreenProps) {
 
       <View style={styles.actions}>
         <Pressable
-          style={styles.continueButton}
+          style={[styles.continueButton, loading && styles.continueButtonDisabled]}
           onPress={handleContinue}
+          disabled={loading}
         >
-          <Text style={styles.continueButtonText}>Continue</Text>
+          <Text style={styles.continueButtonText}>
+            {loading ? 'Saving...' : 'Continue'}
+          </Text>
         </Pressable>
       </View>
     </View>
