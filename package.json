@@ -10,7 +10,10 @@
     "test": "vitest",
     "test:run": "vitest run",
     "test:watch": "vitest --watch",
-    "test:coverage": "vitest --coverage"
+    "test:coverage": "vitest --coverage",
+    "supabase:setup": "npx tsx scripts/quick-supabase-setup.ts",
+    "supabase:test": "npx tsx scripts/test-supabase-connection.ts",
+    "supabase:migrate": "npx tsx scripts/migrate-to-supabase.ts"
   },
   "dependencies": {
     "@expo/vector-icons": "^15.0.2",
