@@ -5,7 +5,9 @@ import {
   Image,
   TouchableOpacity,
   StyleSheet,
+  Pressable,
 } from 'react-native';
+import Animated, { useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
 import { Ionicons } from '@expo/vector-icons';
 import { colors, spacing, radii, fonts } from '../theme/tokens';
 
@@ -46,21 +48,33 @@ export default function RecipeCard({
   showDeleteButton = false,
   style,
 }: RecipeCardProps) {
+  const scale = useSharedValue(1);
+
+  const animatedStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: scale.value }],
+  }));
+
   return (
-    <TouchableOpacity
-      style={[styles.verticalCard, style]}
-      onPress={() => onPress(recipe)}
-      activeOpacity={0.8}
-    >
-      <Image source={{ uri: recipe.image }} style={styles.cocktailImage} />
-      <View style={styles.cocktailInfo}>
-        <Text style={styles.cardTitle}>{recipe.name || recipe.title}</Text>
-        <Text style={styles.cardSub}>{recipe.subtitle || recipe.description}</Text>
-        <View style={styles.cocktailMeta}>
-          <Text style={styles.cocktailDifficulty}>{recipe.difficulty}</Text>
-          <Text style={styles.cocktailTime}>{recipe.time}</Text>
+    <Animated.View style={[animatedStyle, style]}>
+      <Pressable
+        style={styles.verticalCard}
+        onPress={() => onPress(recipe)}
+        onPressIn={() => {
+          scale.value = withSpring(0.95, { damping: 15, stiffness: 300 });
+        }}
+        onPressOut={() => {
+          scale.value = withSpring(1, { damping: 15, stiffness: 300 });
+        }}
+      >
+        <Image source={{ uri: recipe.image }} style={styles.cocktailImage} />
+        <View style={styles.cocktailInfo}>
+          <Text style={styles.cardTitle}>{recipe.name || recipe.title}</Text>
+          <Text style={styles.cardSub}>{recipe.subtitle || recipe.description}</Text>
+          <View style={styles.cocktailMeta}>
+            <Text style={styles.cocktailDifficulty}>{recipe.difficulty}</Text>
+            <Text style={styles.cocktailTime}>{recipe.time}</Text>
+          </View>
         </View>
-      </View>
 
       {/* Action buttons */}
       <View style={styles.recipeActions}>
@@ -114,7 +128,8 @@ export default function RecipeCard({
           </TouchableOpacity>
         )}
       </View>
-    </TouchableOpacity>
+      </Pressable>
+    </Animated.View>
   );
 }
 

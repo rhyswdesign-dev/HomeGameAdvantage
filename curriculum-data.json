@@ -589,8 +589,8 @@
     },
     {
       "id": "ch1-004",
-      "type": "short",
-      "prompt": "Describe one way to make guests feel welcome in the first 30 seconds.",
+      "type": "mcq",
+      "prompt": "What's one way to make guests feel welcome in the first 30 seconds?",
       "tags": [
         "great-bartender-traits",
         "ch1-basics"
@@ -599,12 +599,13 @@
       "difficulty": 0.13,
       "xpAward": 10,
       "reviewWeight": 0.7,
-      "answerText": "Smile and greet with eye contact",
-      "acceptableAnswers": [
+      "options": [
         "Smile and greet with eye contact",
-        "Warm greeting and ask how you can help",
-        "Friendly greeting with eye contact"
-      ]
+        "Immediately ask for payment",
+        "Look at your phone",
+        "Turn your back to them"
+      ],
+      "answerIndex": 0
     },
     {
       "id": "ch1-005",
@@ -722,8 +723,8 @@
     },
     {
       "id": "ch1-010",
-      "type": "short",
-      "prompt": "Finish the phrase: “A bartender isn’t just a server—they’re a ____.”",
+      "type": "mcq",
+      "prompt": "Finish the phrase: 'A bartender isn't just a server—they're a ____.'",
       "tags": [
         "great-bartender-traits",
         "ch1-basics"
@@ -732,12 +733,13 @@
       "difficulty": 0.19,
       "xpAward": 10,
       "reviewWeight": 0.7,
-      "answerText": "Host",
-      "acceptableAnswers": [
+      "options": [
         "Host",
-        "Storyteller",
-        "Experience builder"
-      ]
+        "Accountant",
+        "Security guard",
+        "Janitor"
+      ],
+      "answerIndex": 0
     },
     {
       "id": "ch1-011",
@@ -879,8 +881,8 @@
     },
     {
       "id": "ch1-017",
-      "type": "short",
-      "prompt": "Name two agave spirits other than tequila.",
+      "type": "mcq",
+      "prompt": "Which of these is an agave spirit other than tequila?",
       "tags": [
         "core-spirits-setup",
         "ch1-basics"
@@ -889,13 +891,13 @@
       "difficulty": 0.16,
       "xpAward": 10,
       "reviewWeight": 0.7,
-      "answerText": "Mezcal",
-      "acceptableAnswers": [
+      "options": [
         "Mezcal",
-        "Raicilla",
-        "Bacanora",
-        "Sotol"
-      ]
+        "Rum",
+        "Vodka",
+        "Gin"
+      ],
+      "answerIndex": 0
     },
     {
       "id": "ch1-018",
@@ -1072,7 +1074,7 @@
     },
     {
       "id": "ch1-026",
-      "type": "short",
+      "type": "mcq",
       "prompt": "Why chill glassware before stirred cocktails?",
       "tags": [
         "glassware-essentials",
@@ -1082,10 +1084,13 @@
       "difficulty": 0.15000000000000002,
       "xpAward": 10,
       "reviewWeight": 0.7,
-      "answerText": "To reduce dilution and maintain temperature",
-      "acceptableAnswers": [
-        "To reduce dilution and maintain temperature"
-      ]
+      "options": [
+        "To reduce dilution and maintain temperature",
+        "To make the glass look frosty",
+        "To add water to the drink",
+        "To save money on ice"
+      ],
+      "answerIndex": 0
     },
     {
       "id": "ch1-027",
@@ -1148,8 +1153,8 @@
     },
     {
       "id": "ch1-030",
-      "type": "short",
-      "prompt": "List two visual benefits of polished, clear glassware.",
+      "type": "mcq",
+      "prompt": "What's a visual benefit of polished, clear glassware?",
       "tags": [
         "glassware-essentials",
         "ch1-basics"
@@ -1158,11 +1163,13 @@
       "difficulty": 0.19,
       "xpAward": 10,
       "reviewWeight": 0.7,
-      "answerText": "Shows color",
-      "acceptableAnswers": [
-        "Shows color",
-        "Shows clarity"
-      ]
+      "options": [
+        "Shows color and clarity of the drink",
+        "Hides imperfections in the drink",
+        "Makes drinks look darker",
+        "Increases alcohol content"
+      ],
+      "answerIndex": 0
     },
     {
       "id": "ch1-031",
@@ -1315,8 +1322,8 @@
     },
     {
       "id": "ch1-038",
-      "type": "short",
-      "prompt": "Define 'mise en place' in one line.",
+      "type": "mcq",
+      "prompt": "What does 'mise en place' mean?",
       "tags": [
         "bar-setup-zones",
         "ch1-basics"
@@ -1325,10 +1332,13 @@
       "difficulty": 0.17,
       "xpAward": 10,
       "reviewWeight": 0.7,
-      "answerText": "Everything in its place",
-      "acceptableAnswers": [
-        "Everything in its place"
-      ]
+      "options": [
+        "Everything in its place",
+        "First come, first served",
+        "Working quickly",
+        "Cleaning as you go"
+      ],
+      "answerIndex": 0
     },
     {
       "id": "ch1-039",
@@ -1352,7 +1362,7 @@
     },
     {
       "id": "ch1-040",
-      "type": "short",
+      "type": "mcq",
       "prompt": "Why is a dry floor critical behind the bar?",
       "tags": [
         "bar-setup-zones",
@@ -1362,10 +1372,13 @@
       "difficulty": 0.19,
       "xpAward": 10,
       "reviewWeight": 0.7,
-      "answerText": "To prevent slips and injuries",
-      "acceptableAnswers": [
-        "To prevent slips and injuries"
-      ]
+      "options": [
+        "To prevent slips and injuries",
+        "To keep shoes clean",
+        "To save water",
+        "To look professional"
+      ],
+      "answerIndex": 0
     },
     {
       "id": "ch1-041",
@@ -1463,8 +1476,8 @@
     },
     {
       "id": "ch1-045",
-      "type": "short",
-      "prompt": "Define 'cracked ice' in one line.",
+      "type": "mcq",
+      "prompt": "What is 'cracked ice'?",
       "tags": [
         "ice-strategy-pro",
         "ch1-basics"
@@ -1473,10 +1486,13 @@
       "difficulty": 0.14,
       "xpAward": 10,
       "reviewWeight": 0.7,
-      "answerText": "Large cube intentionally broken to speed chilling",
-      "acceptableAnswers": [
-        "Large cube intentionally broken to speed chilling"
-      ]
+      "options": [
+        "Large cube intentionally broken to speed chilling",
+        "Ice with cracks from the freezer",
+        "Crushed ice from a machine",
+        "Ice that's melting too fast"
+      ],
+      "answerIndex": 0
     },
     {
       "id": "ch1-046",
@@ -1559,8 +1575,8 @@
     },
     {
       "id": "ch1-050",
-      "type": "short",
-      "prompt": "List two effects of excess melt on a drink.",
+      "type": "mcq",
+      "prompt": "What's an effect of excess melt on a drink?",
       "tags": [
         "ice-strategy-pro",
         "ch1-basics"
@@ -1569,11 +1585,13 @@
       "difficulty": 0.19,
       "xpAward": 10,
       "reviewWeight": 0.7,
-      "answerText": "Over-dilution",
-      "acceptableAnswers": [
-        "Over-dilution",
-        "Flavor loss"
-      ]
+      "options": [
+        "Over-dilution and flavor loss",
+        "Stronger alcohol taste",
+        "Better flavor",
+        "Increased viscosity"
+      ],
+      "answerIndex": 0
     },
     {
       "id": "ch1-051",
@@ -1686,8 +1704,8 @@
     },
     {
       "id": "ch1-056",
-      "type": "short",
-      "prompt": "Define 'mouthfeel' in one line.",
+      "type": "mcq",
+      "prompt": "What is 'mouthfeel'?",
       "tags": [
         "tasting-like-a-pro",
         "ch1-basics"
@@ -1696,10 +1714,13 @@
       "difficulty": 0.15000000000000002,
       "xpAward": 10,
       "reviewWeight": 0.7,
-      "answerText": "The texture and weight of the liquid in the mouth",
-      "acceptableAnswers": [
-        "The texture and weight of the liquid in the mouth"
-      ]
+      "options": [
+        "The texture and weight of the liquid in the mouth",
+        "How the drink smells",
+        "The color of the drink",
+        "The temperature of the drink"
+      ],
+      "answerIndex": 0
     },
     {
       "id": "ch1-057",
@@ -1763,8 +1784,8 @@
     },
     {
       "id": "ch1-060",
-      "type": "short",
-      "prompt": "List three basic tastes relevant to cocktails.",
+      "type": "mcq",
+      "prompt": "Which is a basic taste relevant to cocktails?",
       "tags": [
         "tasting-like-a-pro",
         "ch1-basics"
@@ -1773,12 +1794,13 @@
       "difficulty": 0.19,
       "xpAward": 10,
       "reviewWeight": 0.7,
-      "answerText": "Sweet",
-      "acceptableAnswers": [
+      "options": [
         "Sweet",
-        "Sour",
-        "Bitter"
-      ]
+        "Spicy",
+        "Crispy",
+        "Smokey"
+      ],
+      "answerIndex": 0
     },
     {
       "id": "ch1-061",
@@ -1873,7 +1895,7 @@
     },
     {
       "id": "ch1-065",
-      "type": "short",
+      "type": "mcq",
       "prompt": "Why is proper handwashing non-negotiable?",
       "tags": [
         "safety-homegame-spirit",
@@ -1883,10 +1905,13 @@
       "difficulty": 0.14,
       "xpAward": 10,
       "reviewWeight": 0.7,
-      "answerText": "Prevents cross-contamination and illness",
-      "acceptableAnswers": [
-        "Prevents cross-contamination and illness"
-      ]
+      "options": [
+        "Prevents cross-contamination and illness",
+        "Makes hands smell better",
+        "Required by law only",
+        "Saves water"
+      ],
+      "answerIndex": 0
     },
     {
       "id": "ch1-066",
@@ -1954,8 +1979,8 @@
     },
     {
       "id": "ch1-069",
-      "type": "short",
-      "prompt": "List two ways to reduce bar waste.",
+      "type": "mcq",
+      "prompt": "What's a way to reduce bar waste?",
       "tags": [
         "safety-homegame-spirit",
         "ch1-basics"
@@ -1964,11 +1989,13 @@
       "difficulty": 0.18,
       "xpAward": 10,
       "reviewWeight": 0.7,
-      "answerText": "Batching where appropriate",
-      "acceptableAnswers": [
+      "options": [
         "Batching where appropriate",
-        "Composting citrus/organic waste"
-      ]
+        "Using more ice",
+        "Making larger drinks",
+        "Throwing everything away"
+      ],
+      "answerIndex": 0
     },
     {
       "id": "ch1-070",
@@ -2088,7 +2115,7 @@
     },
     {
       "id": "ch1-075",
-      "type": "short",
+      "type": "mcq",
       "prompt": "Why double-strain fresh-juice cocktails?",
       "tags": [
         "fresh-goods-citrus-game",
@@ -2098,10 +2125,13 @@
       "difficulty": 0.14,
       "xpAward": 10,
       "reviewWeight": 0.7,
-      "answerText": "Remove pulp/ice chips for smoother texture",
-      "acceptableAnswers": [
-        "Remove pulp/ice chips for smoother texture"
-      ]
+      "options": [
+        "Remove pulp/ice chips for smoother texture",
+        "Add more alcohol",
+        "Make it colder",
+        "Change the color"
+      ],
+      "answerIndex": 0
     },
     {
       "id": "ch1-076",
@@ -2184,8 +2214,8 @@
     },
     {
       "id": "ch1-080",
-      "type": "short",
-      "prompt": "List two signs fruit is spoiled.",
+      "type": "mcq",
+      "prompt": "What's a sign that fruit is spoiled?",
       "tags": [
         "fresh-goods-citrus-game",
         "ch1-basics"
@@ -2194,11 +2224,13 @@
       "difficulty": 0.19,
       "xpAward": 10,
       "reviewWeight": 0.7,
-      "answerText": "Soft/mushy spots",
-      "acceptableAnswers": [
-        "Soft/mushy spots",
-        "Mold or fermented smell"
-      ]
+      "options": [
+        "Soft/mushy spots or mold",
+        "Bright color",
+        "Firm texture",
+        "Fresh smell"
+      ],
+      "answerIndex": 0
     },
     {
       "id": "ch1-081",
@@ -2297,7 +2329,7 @@
     },
     {
       "id": "ch1-085",
-      "type": "short",
+      "type": "mcq",
       "prompt": "Why do many pros prefer double-tin shakers?",
       "tags": [
         "equipment-mastery",
@@ -2307,10 +2339,13 @@
       "difficulty": 0.14,
       "xpAward": 10,
       "reviewWeight": 0.7,
-      "answerText": "Secure seal and fast chilling with large surface area",
-      "acceptableAnswers": [
-        "Secure seal and fast chilling with large surface area"
-      ]
+      "options": [
+        "Secure seal and fast chilling with large surface area",
+        "They're cheaper",
+        "They look better",
+        "They're easier to clean"
+      ],
+      "answerIndex": 0
     },
     {
       "id": "ch1-086",
@@ -2394,8 +2429,8 @@
     },
     {
       "id": "ch1-090",
-      "type": "short",
-      "prompt": "Name two non-negotiable tools for speed bartending.",
+      "type": "mcq",
+      "prompt": "What's a non-negotiable tool for speed bartending?",
       "tags": [
         "equipment-mastery",
         "ch1-basics"
@@ -2404,11 +2439,13 @@
       "difficulty": 0.19,
       "xpAward": 10,
       "reviewWeight": 0.7,
-      "answerText": "Jigger",
-      "acceptableAnswers": [
+      "options": [
         "Jigger",
-        "Tin shaker"
-      ]
+        "Blender",
+        "Muddler",
+        "Channel knife"
+      ],
+      "answerIndex": 0
     },
     {
       "id": "ch1-091",
@@ -2452,8 +2489,8 @@
     },
     {
       "id": "ch1-093",
-      "type": "short",
-      "prompt": "Define the golden ratio for many sour-style cocktails.",
+      "type": "mcq",
+      "prompt": "What's the golden ratio for many sour-style cocktails?",
       "tags": [
         "checkpoint-basics-mixoff",
         "ch1-basics"
@@ -2462,10 +2499,13 @@
       "difficulty": 0.12000000000000001,
       "xpAward": 10,
       "reviewWeight": 0.7,
-      "answerText": "2:1:1",
-      "acceptableAnswers": [
-        "2:1:1"
-      ]
+      "options": [
+        "2:1:1 (Spirit:Citrus:Sweet)",
+        "1:1:1",
+        "3:1:1",
+        "1:2:1"
+      ],
+      "answerIndex": 0
     },
     {
       "id": "ch1-094",
@@ -2600,8 +2640,8 @@
     },
     {
       "id": "ch1-100",
-      "type": "short",
-      "prompt": "List two signs a drink is perfectly balanced.",
+      "type": "mcq",
+      "prompt": "What's a sign a drink is perfectly balanced?",
       "tags": [
         "checkpoint-basics-mixoff",
         "ch1-basics"
@@ -2610,11 +2650,13 @@
       "difficulty": 0.19,
       "xpAward": 10,
       "reviewWeight": 0.7,
-      "answerText": "No harsh burn",
-      "acceptableAnswers": [
-        "No harsh burn",
-        "Clean finish without cloying sweetness"
-      ]
+      "options": [
+        "No harsh burn and clean finish",
+        "Very strong alcohol taste",
+        "Overly sweet",
+        "Sour and bitter"
+      ],
+      "answerIndex": 0
     }
   ]
 }

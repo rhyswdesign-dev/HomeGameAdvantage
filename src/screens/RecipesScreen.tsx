@@ -15,6 +15,7 @@ import {
   ListRenderItem,
   Modal,
 } from 'react-native';
+import Animated, { FadeInDown, FadeIn, FadeInLeft, FadeInRight } from 'react-native-reanimated';
 import { colors, spacing, radii, fonts } from '../theme/tokens';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import SectionHeader from '../components/SectionHeader';
@@ -35,10 +36,7 @@ import { useAICredits } from '../store/useAICredits';
 import RecipeCard from '../components/RecipeCard';
 import { createRecipeCardProps } from '../utils/recipeActions';
 import { StatusBar } from 'expo-status-bar';
-import {
-  ALL_COCKTAILS,
-  ESSENTIAL_SYRUPS
-} from '../data/cocktails';
+import { RecipesRepository } from '../repos/supabase';
 import { usePersonalization } from '../store/usePersonalization';
 import { useUserRecipes } from '../store/useUserRecipes';
 import RecipePreferencesModal from '../components/RecipePreferencesModal';
@@ -575,18 +573,20 @@ const sampleRecipes = [
 
 /* ------------------------- UI PIECES ------------------------- */
 
-function MoodCard({ title, image, subtitle, onPress }: { title: string; image: string; subtitle?: string; onPress?: () => void }) {
+function MoodCard({ title, image, subtitle, onPress, index = 0 }: { title: string; image: string; subtitle?: string; onPress?: () => void; index?: number }) {
   const w = Math.min(0.78 * width, 300);
   const h = Math.round(w * 0.66);
   return (
-    <Pressable onPress={onPress} style={{ width: w, marginRight: spacing(1.25) }}>
-      <Image source={{ uri: image }} style={{ width: '100%', height: h, borderRadius: radii.lg }} />
-      <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 8 }}>
-        <Text style={{ color: colors.text, fontWeight: '900', fontSize: 18 }}>{title}</Text>
-        <Ionicons name="chevron-forward" size={16} color={colors.accent} style={{ marginLeft: 4 }} />
-      </View>
-      {subtitle ? <Text style={{ color: colors.muted }}>{subtitle}</Text> : null}
-    </Pressable>
+    <Animated.View entering={FadeInRight.delay(index * 100).duration(500).springify()}>
+      <Pressable onPress={onPress} style={{ width: w, marginRight: spacing(1.25) }}>
+        <Image source={{ uri: image }} style={{ width: '100%', height: h, borderRadius: radii.lg }} />
+        <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 8 }}>
+          <Text style={{ color: colors.text, fontWeight: '900', fontSize: 18 }}>{title}</Text>
+          <Ionicons name="chevron-forward" size={16} color={colors.accent} style={{ marginLeft: 4 }} />
+        </View>
+        {subtitle ? <Text style={{ color: colors.muted }}>{subtitle}</Text> : null}
+      </Pressable>
+    </Animated.View>
   );
 }
 
@@ -595,7 +595,7 @@ function HeroCard({ cocktail, onPress }: { cocktail: typeof COCKTAIL_OF_THE_MONT
   const cardH = Math.round(cardW * 0.56);
 
   return (
-    <View style={{ marginHorizontal: spacing(2), borderRadius: radii.xl, overflow: 'hidden', backgroundColor: colors.card, marginBottom: spacing(1.5) }}>
+    <Animated.View entering={FadeIn.duration(600)} style={{ marginHorizontal: spacing(2), borderRadius: radii.xl, overflow: 'hidden', backgroundColor: colors.card, marginBottom: spacing(1.5) }}>
       <Pressable onPress={onPress} style={{ width: cardW, height: cardH }}>
         <Image source={{ uri: cocktail.image }} style={{ width: '100%', height: '100%' }} />
       </Pressable>
@@ -609,7 +609,7 @@ function HeroCard({ cocktail, onPress }: { cocktail: typeof COCKTAIL_OF_THE_MONT
         <Text style={{ color: colors.text, fontSize: 28, fontWeight: '900' }}>{cocktail.name}</Text>
         <Text style={{ color: colors.muted, fontSize: 18, marginTop: 4 }}>{cocktail.description}</Text>
       </View>
-    </View>
+    </Animated.View>
   );
 }
 
@@ -621,6 +621,10 @@ export default function RecipesScreen() {
   const { credits, isPremium, getActionCost } = useAICredits();
   const { getPersonalizedMoodOrder, getFeaturedCocktails, scoreMoodCategory, recordInteraction, profile } = usePersonalization();
   const { recipes: userRecipes, loadRecipes } = useUserRecipes();
+
+  // Supabase recipes state
+  const [allRecipes, setAllRecipes] = useState<any[]>([]);
+  const [recipesLoading, setRecipesLoading] = useState(true);
 
   // View mode toggle - Browse All vs For You
   const [viewMode, setViewMode] = useState<'browse' | 'personalized'>('personalized');
@@ -647,6 +651,25 @@ export default function RecipesScreen() {
 
   // Preferences modal
   const [preferencesModalVisible, setPreferencesModalVisible] = useState(false);
+
+  // Load recipes from Supabase on mount
+  useEffect(() => {
+    async function loadAllRecipes() {
+      try {
+        const recipes = await RecipesRepository.getAllRecipes();
+        setAllRecipes(recipes);
+      } catch (error) {
+        console.error('Error loading recipes from Supabase:', error);
+      } finally {
+        setRecipesLoading(false);
+      }
+    }
+    loadAllRecipes();
+  }, []);
+
+  // Separate syrups and cocktails
+  const ESSENTIAL_SYRUPS = allRecipes.filter(r => r.category?.toLowerCase() === 'syrups');
+  const ALL_COCKTAILS = allRecipes;
 
   // AI recipe handler
   const handleAiRecipeFound = useCallback((recipe: FormattedRecipe) => {
@@ -952,7 +975,7 @@ export default function RecipesScreen() {
     });
   }, [navigation, credits, isPremium, setCreditsPurchaseVisible, setCreditsInfoVisible, setViewMode]);
 
-  const renderRecipeItem: ListRenderItem<any> = ({ item }) => {
+  const renderRecipeItem: ListRenderItem<any> = ({ item, index }) => {
     const cardProps = createRecipeCardProps(item, navigation, {
       toggleSavedCocktail,
       isCocktailSaved,
@@ -964,12 +987,24 @@ export default function RecipesScreen() {
     });
 
     return (
-      <RecipeCard
-        {...cardProps}
-        style={{ width: (width - spacing(2) * 2 - GUTTER) / 2, marginBottom: spacing(2) }}
-      />
+      <Animated.View entering={FadeInDown.delay((index || 0) * 80).duration(500).springify()}>
+        <RecipeCard
+          {...cardProps}
+          style={{ width: (width - spacing(2) * 2 - GUTTER) / 2, marginBottom: spacing(2) }}
+        />
+      </Animated.View>
     );
   };
+
+  // Show loading state while recipes load
+  if (recipesLoading) {
+    return (
+      <View style={{ flex: 1, backgroundColor: colors.bg, justifyContent: 'center', alignItems: 'center' }}>
+        <StatusBar style="light" />
+        <Text style={{ color: colors.text, fontSize: 16, marginBottom: 10 }}>Loading recipes...</Text>
+      </View>
+    );
+  }
 
   return (
     <View style={{ flex: 1, backgroundColor: colors.bg }}>
@@ -986,7 +1021,7 @@ export default function RecipesScreen() {
 
             {/* View Mode Toggle */}
             {(
-              <View style={{
+              <Animated.View entering={FadeIn.duration(400)} style={{
                 marginHorizontal: spacing(2),
                 marginTop: spacing(2),
                 marginBottom: spacing(1.5),
@@ -1031,7 +1066,7 @@ export default function RecipesScreen() {
                     For You
                   </Text>
                 </Pressable>
-              </View>
+              </Animated.View>
             )}
 
             {/* Browse All Content */}
@@ -1071,7 +1106,7 @@ export default function RecipesScreen() {
               }}
             />
             <ScrollView horizontal nestedScrollEnabled showsHorizontalScrollIndicator={false} style={{ paddingLeft: spacing(2), marginBottom: spacing(2) }}>
-              {PARTY_SHOTS?.slice(0, 5).map((shot) => {
+              {PARTY_SHOTS?.slice(0, 5).map((shot, index) => {
                 const cardProps = createRecipeCardProps(shot, navigation, {
                   toggleSavedCocktail,
                   isCocktailSaved,
@@ -1082,7 +1117,9 @@ export default function RecipesScreen() {
                   showDeleteButton: false,
                 });
                 return (
-                  <RecipeCard key={shot.id} {...cardProps} style={{ width: 240, marginRight: 16 }} />
+                  <Animated.View key={shot.id} entering={FadeInRight.delay(index * 100).duration(500).springify()}>
+                    <RecipeCard {...cardProps} style={{ width: 240, marginRight: 16 }} />
+                  </Animated.View>
                 );
               })}
             </ScrollView>
@@ -1101,7 +1138,7 @@ export default function RecipesScreen() {
               }}
             />
             <ScrollView horizontal nestedScrollEnabled showsHorizontalScrollIndicator={false} style={{ paddingLeft: spacing(2), marginBottom: spacing(2) }}>
-              {sampleRecipes?.map((mocktail) => {
+              {sampleRecipes?.map((mocktail, index) => {
                 const cardProps = createRecipeCardProps(mocktail, navigation, {
                   toggleSavedCocktail,
                   isCocktailSaved,
@@ -1112,7 +1149,9 @@ export default function RecipesScreen() {
                   showDeleteButton: false,
                 });
                 return (
-                  <RecipeCard key={mocktail.id} {...cardProps} style={{ width: 240, marginRight: 16 }} />
+                  <Animated.View key={mocktail.id} entering={FadeInRight.delay(index * 100).duration(500).springify()}>
+                    <RecipeCard {...cardProps} style={{ width: 240, marginRight: 16 }} />
+                  </Animated.View>
                 );
               })}
             </ScrollView>
@@ -1131,7 +1170,7 @@ export default function RecipesScreen() {
               }}
             />
             <ScrollView horizontal nestedScrollEnabled showsHorizontalScrollIndicator={false} style={{ paddingLeft: spacing(2), marginBottom: spacing(2) }}>
-              {ESSENTIAL_SYRUPS.map((syrup) => {
+              {ESSENTIAL_SYRUPS.map((syrup, index) => {
                 const cardProps = createRecipeCardProps(syrup, navigation, {
                   toggleSavedCocktail,
                   isCocktailSaved,
@@ -1142,7 +1181,9 @@ export default function RecipesScreen() {
                   showDeleteButton: false,
                 });
                 return (
-                  <RecipeCard key={syrup.id} {...cardProps} style={{ width: 240, marginRight: 16 }} />
+                  <Animated.View key={syrup.id} entering={FadeInRight.delay(index * 100).duration(500).springify()}>
+                    <RecipeCard {...cardProps} style={{ width: 240, marginRight: 16 }} />
+                  </Animated.View>
                 );
               })}
             </ScrollView>
@@ -1154,7 +1195,7 @@ export default function RecipesScreen() {
             />
             <ScrollView horizontal nestedScrollEnabled showsHorizontalScrollIndicator={false} style={{ paddingLeft: spacing(2), marginBottom: spacing(2) }}>
               {userRecipes.length > 0 ? (
-                userRecipes.slice(0, 5).map((recipe) => {
+                userRecipes.slice(0, 5).map((recipe, index) => {
                   // Convert UserRecipe to cocktail format for createRecipeCardProps
                   const cocktailData = {
                     id: recipe.id,
@@ -1181,7 +1222,9 @@ export default function RecipesScreen() {
                   };
 
                   return (
-                    <RecipeCard key={recipe.id} {...cardProps} style={{ width: 240, marginRight: 16 }} />
+                    <Animated.View key={recipe.id} entering={FadeInRight.delay(index * 100).duration(500).springify()}>
+                      <RecipeCard {...cardProps} style={{ width: 240, marginRight: 16 }} />
+                    </Animated.View>
                   );
                 })
               ) : (
@@ -1402,91 +1445,92 @@ export default function RecipesScreen() {
                       const isTop2 = index < 2;
 
                       return (
-                        <TouchableOpacity
-                          key={mood.title}
-                          onPress={() => {
-                            recordInteraction('mood_selected', mood.category, {
-                              moodTitle: mood.title,
-                              userScore: scoreMoodCategory(mood.title)
-                            });
+                        <Animated.View key={mood.title} entering={FadeInRight.delay(index * 100).duration(500).springify()}>
+                          <TouchableOpacity
+                            onPress={() => {
+                              recordInteraction('mood_selected', mood.category, {
+                                moodTitle: mood.title,
+                                userScore: scoreMoodCategory(mood.title)
+                              });
 
-                            const cocktailIds = Array.isArray(mood.cocktails)
-                              ? mood.cocktails.map(item => typeof item === 'string' ? item : item.id)
-                              : [];
+                              const cocktailIds = Array.isArray(mood.cocktails)
+                                ? mood.cocktails.map(item => typeof item === 'string' ? item : item.id)
+                                : [];
 
-                            navigation.navigate('CocktailList', {
-                              title: mood.title,
-                              cocktailIds: cocktailIds,
-                              category: mood.category
-                            });
-                          }}
-                          style={{
-                            width: 280,
-                            marginRight: spacing(2),
-                            padding: spacing(2),
-                            backgroundColor: colors.card,
-                            borderRadius: radii.lg,
-                            borderWidth: 2,
-                            borderColor: isTop2 ? colors.accent : colors.line,
-                          }}
-                        >
-                          {isTop2 && (
-                            <View style={{
-                              position: 'absolute',
-                              top: spacing(1),
-                              right: spacing(1),
-                              paddingVertical: spacing(0.5),
-                              paddingHorizontal: spacing(1),
-                              backgroundColor: colors.accent,
-                              borderRadius: radii.sm,
-                            }}>
-                              <Text style={{
-                                color: colors.bg,
-                                fontSize: 11,
-                                fontWeight: '700',
+                              navigation.navigate('CocktailList', {
+                                title: mood.title,
+                                cocktailIds: cocktailIds,
+                                category: mood.category
+                              });
+                            }}
+                            style={{
+                              width: 280,
+                              marginRight: spacing(2),
+                              padding: spacing(2),
+                              backgroundColor: colors.card,
+                              borderRadius: radii.lg,
+                              borderWidth: 2,
+                              borderColor: isTop2 ? colors.accent : colors.line,
+                            }}
+                          >
+                            {isTop2 && (
+                              <View style={{
+                                position: 'absolute',
+                                top: spacing(1),
+                                right: spacing(1),
+                                paddingVertical: spacing(0.5),
+                                paddingHorizontal: spacing(1),
+                                backgroundColor: colors.accent,
+                                borderRadius: radii.sm,
                               }}>
-                                TOP {index + 1}
-                              </Text>
-                            </View>
-                          )}
-                          <Text style={{ fontSize: 32, marginBottom: spacing(1) }}>
-                            {mood.title === 'Tropical Escape' ? '🌴' :
-                             mood.title === 'Playful & Fun' ? '🎉' :
-                             mood.title === 'Bold & Serious' ? '🥃' :
-                             mood.title === 'Romantic & Elegant' ? '🥂' :
-                             mood.title === 'Cozy & Comforting' ? '🔥' : '🍹'}
-                          </Text>
-                          <Text style={{
-                            color: colors.text,
-                            fontSize: 18,
-                            fontWeight: '700',
-                            marginBottom: spacing(0.5),
-                          }}>
-                            {mood.title}
-                          </Text>
-                          <Text style={{
-                            color: colors.muted,
-                            fontSize: 13,
-                            marginBottom: spacing(1.5),
-                          }}>
-                            {mood.subtitle}
-                          </Text>
-                          {isTop2 && (
-                            <View style={{
-                              flexDirection: 'row',
-                              alignItems: 'center',
+                                <Text style={{
+                                  color: colors.bg,
+                                  fontSize: 11,
+                                  fontWeight: '700',
+                                }}>
+                                  TOP {index + 1}
+                                </Text>
+                              </View>
+                            )}
+                            <Text style={{ fontSize: 32, marginBottom: spacing(1) }}>
+                              {mood.title === 'Tropical Escape' ? '🌴' :
+                               mood.title === 'Playful & Fun' ? '🎉' :
+                               mood.title === 'Bold & Serious' ? '🥃' :
+                               mood.title === 'Romantic & Elegant' ? '🥂' :
+                               mood.title === 'Cozy & Comforting' ? '🔥' : '🍹'}
+                            </Text>
+                            <Text style={{
+                              color: colors.text,
+                              fontSize: 18,
+                              fontWeight: '700',
+                              marginBottom: spacing(0.5),
                             }}>
-                              <Ionicons name="star" size={14} color={colors.accent} style={{ marginRight: spacing(0.5) }} />
-                              <Text style={{
-                                color: colors.accent,
-                                fontSize: 12,
-                                fontWeight: '600',
+                              {mood.title}
+                            </Text>
+                            <Text style={{
+                              color: colors.muted,
+                              fontSize: 13,
+                              marginBottom: spacing(1.5),
+                            }}>
+                              {mood.subtitle}
+                            </Text>
+                            {isTop2 && (
+                              <View style={{
+                                flexDirection: 'row',
+                                alignItems: 'center',
                               }}>
-                                Perfect for tequila lovers
-                              </Text>
-                            </View>
-                          )}
-                        </TouchableOpacity>
+                                <Ionicons name="star" size={14} color={colors.accent} style={{ marginRight: spacing(0.5) }} />
+                                <Text style={{
+                                  color: colors.accent,
+                                  fontSize: 12,
+                                  fontWeight: '600',
+                                }}>
+                                  Perfect for tequila lovers
+                                </Text>
+                              </View>
+                            )}
+                          </TouchableOpacity>
+                        </Animated.View>
                       );
                     })}
                   </ScrollView>

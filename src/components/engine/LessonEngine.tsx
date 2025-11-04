@@ -18,7 +18,7 @@ import {
 import { useNavigation } from '@react-navigation/native';
 import { useSession } from '../../store/useSession';
 import { useUser } from '../../store/useUser';
-import { MemoryContentRepository } from '../../repos/memory/contentRepository';
+import { SupabaseContentRepository } from '../../repos/supabase/contentRepository';
 import { MCQExercise } from './MCQExercise';
 import OrderExercise from './OrderExercise';
 import ShortAnswerExercise from './ShortAnswerExercise';
@@ -41,7 +41,7 @@ interface LessonEngineProps {
   onExit?: () => void;
 }
 
-const contentRepo = new MemoryContentRepository();
+const contentRepo = new SupabaseContentRepository();
 
 export const LessonEngine: React.FC<LessonEngineProps> = ({ lessonId, onComplete, onExit }) => {
   const navigation = useNavigation();
@@ -86,19 +86,19 @@ export const LessonEngine: React.FC<LessonEngineProps> = ({ lessonId, onComplete
   }, [lessonId]);
 
 
-  // Animate progress bar when currentItemIndex changes
+  // Animate progress bar when currentItemIndex changes (ultra-fast)
   useEffect(() => {
     if (items.length > 0) {
       const targetProgress = (currentItemIndex + 1) / items.length;
       Animated.timing(progressAnim, {
         toValue: targetProgress,
-        duration: 800,
+        duration: 250, // Reduced to 250ms for instant progress updates
         useNativeDriver: false,
       }).start();
     }
   }, [currentItemIndex, items.length]);
 
-  // Initial entrance animation
+  // Initial entrance animation (ultra-fast)
   useEffect(() => {
     if (!loading && !error && currentItem) {
       console.log('🎬 Starting entrance animation for item:', currentItem.id);
@@ -107,12 +107,12 @@ export const LessonEngine: React.FC<LessonEngineProps> = ({ lessonId, onComplete
       Animated.parallel([
         Animated.timing(fadeAnim, {
           toValue: 1,
-          duration: 800,
+          duration: 200, // Reduced to 200ms for instant appearance
           useNativeDriver: true,
         }),
         Animated.spring(slideAnim, {
           toValue: 1,
-          tension: 80,
+          tension: 120, // Higher tension for snappier feel
           friction: 8,
           useNativeDriver: true,
         }),
@@ -234,47 +234,65 @@ export const LessonEngine: React.FC<LessonEngineProps> = ({ lessonId, onComplete
       audio.playIncorrectAnswer();
     }
     
-    // Hide quick feedback after delay
+    // Hide quick feedback after delay (reduced to 400ms for very fast transitions)
     setTimeout(() => {
       setShowQuickFeedback(false);
-    }, 1200);
+    }, 400);
 
-    // Animate feedback
+    // Ultra-fast feedback animation
     Animated.sequence([
       Animated.spring(feedbackAnim, {
         toValue: 1,
-        tension: 100,
-        friction: 8,
+        tension: 140,
+        friction: 7,
         useNativeDriver: true,
       }),
       Animated.timing(feedbackAnim, {
         toValue: 0,
-        duration: 300,
-        delay: 1200,
+        duration: 150,
+        delay: 350, // Reduced to 350ms for ultra-fast transitions
         useNativeDriver: true,
       }),
     ]).start(() => {
       setShowFeedback(false);
       setLastResult(null);
-      
-      // Smooth transition to next item
-      Animated.timing(slideAnim, {
-        toValue: 0,
-        duration: 200,
-        useNativeDriver: true,
-      }).start(() => {
+
+      // Ultra-fast transition with parallel fade + slide
+      Animated.parallel([
+        Animated.timing(fadeAnim, {
+          toValue: 0,
+          duration: 100, // Very quick fade out
+          useNativeDriver: true,
+        }),
+        Animated.timing(slideAnim, {
+          toValue: 0,
+          duration: 100, // Very quick slide out
+          useNativeDriver: true,
+        })
+      ]).start(() => {
         if (isLastItem) {
           completeLesson();
         } else {
           nextItem();
-          
-          // Animate in new item
-          Animated.spring(slideAnim, {
-            toValue: 1,
-            tension: 80,
-            friction: 8,
-            useNativeDriver: true,
-          }).start();
+
+          // Reset values for incoming animation
+          fadeAnim.setValue(0);
+          slideAnim.setValue(0);
+
+          // Instant entrance with parallel fade + slide
+          Animated.parallel([
+            Animated.timing(fadeAnim, {
+              toValue: 1,
+              duration: 200, // Reduced from 250ms
+              useNativeDriver: true,
+            }),
+            Animated.spring(slideAnim, {
+              toValue: 1,
+              tension: 120,
+              friction: 8,
+              useNativeDriver: true,
+            }),
+          ]).start();
         }
       });
     });
