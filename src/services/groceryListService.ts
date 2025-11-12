@@ -157,8 +157,8 @@ export class GroceryListService {
   private static categorizeIngredient(ingredient: string): GroceryItem['category'] {
     const lowerCase = ingredient.toLowerCase();
 
-    // Spirits & Liquors (including vermouths)
-    if (lowerCase.match(/(vodka|gin|rum|whiskey|bourbon|rye|tequila|brandy|cognac|mezcal|absinthe|scotch|vermouth)/)) {
+    // Spirits & Liquors (including vermouths and liqueurs)
+    if (lowerCase.match(/(vodka|gin|rum|whiskey|bourbon|rye|tequila|brandy|cognac|mezcal|absinthe|scotch|vermouth|liqueur|cointreau|triple sec|grand marnier|maraschino|amaretto|kahlua|chambord|campari|st[.\s-]*germain|baileys|irish cream|drambuie|chartreuse|benedictine|frangelico|midori|pernod|sambuca|limoncello|creme de)/)) {
       return 'spirits_liquors';
     }
 
@@ -167,14 +167,14 @@ export class GroceryListService {
       return 'bitters';
     }
 
-    // Syrups
-    if (lowerCase.match(/(syrup|simple syrup|grenadine|orgeat|falernum|honey|agave)/)) {
-      return 'syrup';
+    // Mixers (includes simple syrup as shown in reference design)
+    if (lowerCase.match(/(juice|soda|tonic|ginger beer|club soda|cola|wine|champagne|prosecco|beer|simple syrup)/)) {
+      return 'mixers';
     }
 
-    // Mixers (removed vermouth from here)
-    if (lowerCase.match(/(juice|soda|tonic|ginger beer|club soda|cola|wine|champagne|prosecco|beer)/)) {
-      return 'mixers';
+    // Syrups (excluding simple syrup which is a mixer)
+    if (lowerCase.match(/(grenadine|orgeat|falernum|honey syrup|agave)/)) {
+      return 'syrup';
     }
 
     // Garnishes
@@ -186,31 +186,87 @@ export class GroceryListService {
   }
 
   /**
-   * Get specific subcategory for spirits
+   * Get specific subcategory for all ingredient types
    */
   private static getSubcategory(ingredient: string): string | undefined {
     const lowerCase = ingredient.toLowerCase();
 
     // Spirits - return specific type
-    if (lowerCase.match(/vodka/)) return 'vodka';
-    if (lowerCase.match(/gin/)) return 'gin';
-    if (lowerCase.match(/rum/)) return 'rum';
-    if (lowerCase.match(/(whiskey|bourbon|rye|scotch)/)) return 'whiskey';
-    if (lowerCase.match(/tequila/)) return 'tequila';
-    if (lowerCase.match(/(brandy|cognac)/)) return 'brandy';
-    if (lowerCase.match(/mezcal/)) return 'mezcal';
-    if (lowerCase.match(/absinthe/)) return 'absinthe';
+    if (lowerCase.match(/vodka/)) return 'Vodka';
+    if (lowerCase.match(/gin/)) return 'Gin';
+    if (lowerCase.match(/\brum\b/)) return 'Rum';
+    if (lowerCase.match(/bourbon/)) return 'Bourbon';
+    if (lowerCase.match(/\brye\b/)) return 'Rye Whiskey';
+    if (lowerCase.match(/scotch/)) return 'Scotch';
+    if (lowerCase.match(/whiskey/)) return 'Whiskey';
+    if (lowerCase.match(/tequila/)) return 'Tequila';
+    if (lowerCase.match(/cognac/)) return 'Cognac';
+    if (lowerCase.match(/brandy/)) return 'Brandy';
+    if (lowerCase.match(/mezcal/)) return 'Mezcal';
+    if (lowerCase.match(/absinthe/)) return 'Absinthe';
     if (lowerCase.match(/vermouth/)) {
-      if (lowerCase.match(/dry/)) return 'dry vermouth';
-      if (lowerCase.match(/sweet/)) return 'sweet vermouth';
-      return 'vermouth';
+      if (lowerCase.match(/dry/)) return 'Dry Vermouth';
+      if (lowerCase.match(/sweet/)) return 'Sweet Vermouth';
+      return 'Vermouth';
     }
 
     // Liqueurs
-    if (lowerCase.match(/cointreau|triple sec|grand marnier/)) return 'orange liqueur';
-    if (lowerCase.match(/kahlua|coffee liqueur/)) return 'coffee liqueur';
-    if (lowerCase.match(/amaretto/)) return 'amaretto';
-    if (lowerCase.match(/chambord/)) return 'raspberry liqueur';
+    if (lowerCase.match(/cointreau/)) return 'Orange Liqueur';
+    if (lowerCase.match(/triple sec/)) return 'Orange Liqueur';
+    if (lowerCase.match(/grand marnier/)) return 'Orange Liqueur';
+    if (lowerCase.match(/kahlua|coffee liqueur/)) return 'Coffee Liqueur';
+    if (lowerCase.match(/amaretto/)) return 'Amaretto';
+    if (lowerCase.match(/chambord/)) return 'Raspberry Liqueur';
+    if (lowerCase.match(/maraschino/)) return 'Maraschino';
+    if (lowerCase.match(/campari/)) return 'Bitter Liqueur';
+    if (lowerCase.match(/st[\.\s-]*germain/)) return 'Elderflower Liqueur';
+    if (lowerCase.match(/baileys|irish cream/)) return 'Cream Liqueur';
+    if (lowerCase.match(/drambuie/)) return 'Honey Liqueur';
+
+    // Mixers & Juices
+    if (lowerCase.match(/lemon juice/)) return 'Lemon Juice';
+    if (lowerCase.match(/lime juice/)) return 'Lime Juice';
+    if (lowerCase.match(/orange juice/)) return 'Orange Juice';
+    if (lowerCase.match(/grapefruit juice/)) return 'Grapefruit Juice';
+    if (lowerCase.match(/pineapple juice/)) return 'Pineapple Juice';
+    if (lowerCase.match(/cranberry juice/)) return 'Cranberry Juice';
+    if (lowerCase.match(/tomato juice/)) return 'Tomato Juice';
+    if (lowerCase.match(/tonic water|tonic/)) return 'Tonic Water';
+    if (lowerCase.match(/club soda|soda water/)) return 'Club Soda';
+    if (lowerCase.match(/ginger beer/)) return 'Ginger Beer';
+    if (lowerCase.match(/ginger ale/)) return 'Ginger Ale';
+    if (lowerCase.match(/cola/)) return 'Cola';
+    if (lowerCase.match(/sprite|7-up|lemon-lime soda/)) return 'Lemon-Lime Soda';
+
+    // Syrups
+    if (lowerCase.match(/simple syrup/)) return 'Simple Syrup';
+    if (lowerCase.match(/grenadine/)) return 'Grenadine';
+    if (lowerCase.match(/orgeat/)) return 'Orgeat';
+    if (lowerCase.match(/falernum/)) return 'Falernum';
+    if (lowerCase.match(/honey syrup|honey/)) return 'Honey';
+    if (lowerCase.match(/agave/)) return 'Agave Nectar';
+    if (lowerCase.match(/maple syrup/)) return 'Maple Syrup';
+
+    // Bitters
+    if (lowerCase.match(/angostura/)) return 'Angostura Bitters';
+    if (lowerCase.match(/peychaud/)) return 'Peychaud\'s Bitters';
+    if (lowerCase.match(/orange bitters/)) return 'Orange Bitters';
+
+    // Garnishes
+    if (lowerCase.match(/lemon (peel|twist|zest)/)) return 'Lemon Twist';
+    if (lowerCase.match(/lime (peel|twist|zest)/)) return 'Lime Twist';
+    if (lowerCase.match(/orange (peel|twist|zest)/)) return 'Orange Twist';
+    if (lowerCase.match(/\blemon\b/) && !lowerCase.match(/juice/)) return 'Lemon';
+    if (lowerCase.match(/\blime\b/) && !lowerCase.match(/juice/)) return 'Lime';
+    if (lowerCase.match(/\borange\b/) && !lowerCase.match(/juice/)) return 'Orange';
+    if (lowerCase.match(/cherry|cherries/)) return 'Cocktail Cherry';
+    if (lowerCase.match(/olive/)) return 'Olive';
+    if (lowerCase.match(/mint/)) return 'Fresh Mint';
+    if (lowerCase.match(/basil/)) return 'Fresh Basil';
+    if (lowerCase.match(/cucumber/)) return 'Cucumber';
+    if (lowerCase.match(/celery/)) return 'Celery';
+    if (lowerCase.match(/salt/)) return 'Salt';
+    if (lowerCase.match(/sugar/)) return 'Sugar';
 
     return undefined;
   }

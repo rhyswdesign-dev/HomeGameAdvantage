@@ -1,0 +1,1128 @@
+{
+  "recipes": [
+    {
+      "id": "casino",
+      "name": "Casino",
+      "category": "classics",
+      "difficulty": "medium",
+      "prepTime": 3,
+      "spirits": ["gin"],
+      "glass": "coupe",
+      "garnish": "lemon twist, cherry",
+      "ingredients": [
+        { "item": "Old Tom Gin", "amount": "2 oz", "type": "spirit" },
+        { "item": "Maraschino Liqueur", "amount": "0.25 oz", "type": "liqueur" },
+        { "item": "Fresh Lemon Juice", "amount": "0.25 oz", "type": "citrus" },
+        { "item": "Orange Bitters", "amount": "2 dashes", "type": "bitters" }
+      ],
+      "instructions": [
+        "Add all ingredients to shaker with ice",
+        "Shake well until chilled",
+        "Strain into chilled coupe",
+        "Garnish with lemon twist and cherry"
+      ],
+      "tips": [
+        "Old Tom Gin is sweeter than London Dry",
+        "Classic pre-Prohibition cocktail",
+        "Balance is key with the maraschino"
+      ],
+      "tags": ["gin", "classic", "sophisticated", "pre-prohibition"],
+      "image": "casino"
+    },
+    {
+      "id": "champagne-cocktail",
+      "name": "Champagne Cocktail",
+      "category": "classics",
+      "difficulty": "easy",
+      "prepTime": 2,
+      "spirits": [],
+      "glass": "champagne-flute",
+      "garnish": "lemon twist",
+      "ingredients": [
+        { "item": "Champagne", "amount": "5 oz", "type": "wine" },
+        { "item": "Cognac", "amount": "0.5 oz", "type": "spirit" },
+        { "item": "Angostura Bitters", "amount": "2 dashes", "type": "bitters" },
+        { "item": "Sugar Cube", "amount": "1", "type": "sugar" }
+      ],
+      "instructions": [
+        "Place sugar cube in champagne flute",
+        "Saturate with angostura bitters",
+        "Add cognac",
+        "Top with champagne",
+        "Garnish with lemon twist"
+      ],
+      "tips": [
+        "Classic celebratory cocktail",
+        "Don't skip the sugar cube",
+        "Elegant and timeless"
+      ],
+      "tags": ["champagne", "elegant", "celebration", "classic"],
+      "image": "champagne-cocktail"
+    },
+    {
+      "id": "gibson",
+      "name": "Gibson",
+      "category": "classics",
+      "difficulty": "easy",
+      "prepTime": 3,
+      "spirits": ["gin"],
+      "glass": "martini",
+      "garnish": "cocktail onions",
+      "ingredients": [
+        { "item": "Gin", "amount": "2.5 oz", "type": "spirit" },
+        { "item": "Dry Vermouth", "amount": "0.5 oz", "type": "vermouth" }
+      ],
+      "instructions": [
+        "Add gin and vermouth to mixing glass with ice",
+        "Stir until well chilled",
+        "Strain into chilled martini glass",
+        "Garnish with cocktail onions"
+      ],
+      "tips": [
+        "Essentially a martini with onions instead of olives",
+        "Use quality cocktail onions",
+        "Adjust vermouth to taste"
+      ],
+      "tags": ["gin", "dry", "classic", "stirred"],
+      "image": "gibson"
+    },
+    {
+      "id": "gin-fizz",
+      "name": "Gin Fizz",
+      "category": "classics",
+      "difficulty": "medium",
+      "prepTime": 4,
+      "spirits": ["gin"],
+      "glass": "highball",
+      "garnish": "lemon wheel",
+      "ingredients": [
+        { "item": "Gin", "amount": "2 oz", "type": "spirit" },
+        { "item": "Fresh Lemon Juice", "amount": "1 oz", "type": "citrus" },
+        { "item": "Simple Syrup", "amount": "0.5 oz", "type": "syrup" },
+        { "item": "Soda Water", "amount": "3 oz", "type": "mixer" }
+      ],
+      "instructions": [
+        "Add gin, lemon juice, and syrup to shaker with ice",
+        "Shake vigorously",
+        "Strain into highball glass without ice",
+        "Top with soda water",
+        "Garnish with lemon wheel"
+      ],
+      "tips": [
+        "Shake hard to create froth",
+        "Refreshing and light",
+        "Silver Fizz adds egg white"
+      ],
+      "tags": ["gin", "fizz", "refreshing", "citrus"],
+      "image": "gin-fizz"
+    },
+    {
+      "id": "irish-coffee",
+      "name": "Irish Coffee",
+      "category": "classics",
+      "difficulty": "easy",
+      "prepTime": 5,
+      "spirits": ["whiskey"],
+      "glass": "irish-coffee",
+      "garnish": "none",
+      "ingredients": [
+        { "item": "Irish Whiskey", "amount": "1.5 oz", "type": "spirit" },
+        { "item": "Hot Coffee", "amount": "6 oz", "type": "coffee" },
+        { "item": "Brown Sugar", "amount": "2 tsp", "type": "sugar" },
+        { "item": "Heavy Cream", "amount": "1 oz", "type": "dairy" }
+      ],
+      "instructions": [
+        "Warm Irish coffee glass",
+        "Add brown sugar and hot coffee, stir to dissolve",
+        "Add Irish whiskey and stir",
+        "Float lightly whipped cream on top",
+        "Do not stir after adding cream"
+      ],
+      "tips": [
+        "Cream should float on top",
+        "Don't over-whip the cream",
+        "Perfect after-dinner drink"
+      ],
+      "tags": ["whiskey", "hot", "coffee", "dessert"],
+      "image": "irish-coffee"
+    },
+    {
+      "id": "lemon-drop",
+      "name": "Lemon Drop",
+      "category": "modern",
+      "difficulty": "easy",
+      "prepTime": 3,
+      "spirits": ["vodka"],
+      "glass": "martini",
+      "garnish": "lemon wheel, sugar rim",
+      "ingredients": [
+        { "item": "Vodka", "amount": "2 oz", "type": "spirit" },
+        { "item": "Fresh Lemon Juice", "amount": "1 oz", "type": "citrus" },
+        { "item": "Simple Syrup", "amount": "0.75 oz", "type": "syrup" },
+        { "item": "Triple Sec", "amount": "0.5 oz", "type": "liqueur" }
+      ],
+      "instructions": [
+        "Sugar rim martini glass",
+        "Add all ingredients to shaker with ice",
+        "Shake well",
+        "Strain into prepared glass",
+        "Garnish with lemon wheel"
+      ],
+      "tips": [
+        "Sweet and sour balance",
+        "Popular party drink",
+        "Fresh lemon essential"
+      ],
+      "tags": ["vodka", "citrus", "sweet", "party"],
+      "image": "lemon-drop"
+    },
+    {
+      "id": "long-island",
+      "name": "Long Island Iced Tea",
+      "category": "modern",
+      "difficulty": "medium",
+      "prepTime": 4,
+      "spirits": ["vodka", "rum", "gin", "tequila"],
+      "glass": "collins",
+      "garnish": "lemon wedge",
+      "ingredients": [
+        { "item": "Vodka", "amount": "0.5 oz", "type": "spirit" },
+        { "item": "White Rum", "amount": "0.5 oz", "type": "spirit" },
+        { "item": "Gin", "amount": "0.5 oz", "type": "spirit" },
+        { "item": "Tequila", "amount": "0.5 oz", "type": "spirit" },
+        { "item": "Triple Sec", "amount": "0.5 oz", "type": "liqueur" },
+        { "item": "Fresh Lemon Juice", "amount": "1 oz", "type": "citrus" },
+        { "item": "Simple Syrup", "amount": "0.75 oz", "type": "syrup" },
+        { "item": "Cola", "amount": "splash", "type": "mixer" }
+      ],
+      "instructions": [
+        "Add all ingredients except cola to shaker with ice",
+        "Shake well",
+        "Strain into glass over fresh ice",
+        "Top with cola",
+        "Garnish with lemon wedge"
+      ],
+      "tips": [
+        "Deceptively strong",
+        "Cola is just for color",
+        "Easy to overdo it"
+      ],
+      "tags": ["vodka", "rum", "gin", "tequila", "strong"],
+      "image": "long-island"
+    },
+    {
+      "id": "white-lady",
+      "name": "White Lady",
+      "category": "classics",
+      "difficulty": "easy",
+      "prepTime": 3,
+      "spirits": ["gin"],
+      "glass": "coupe",
+      "garnish": "none",
+      "ingredients": [
+        { "item": "Gin", "amount": "2 oz", "type": "spirit" },
+        { "item": "Cointreau", "amount": "0.75 oz", "type": "liqueur" },
+        { "item": "Fresh Lemon Juice", "amount": "0.75 oz", "type": "citrus" }
+      ],
+      "instructions": [
+        "Add all ingredients to shaker with ice",
+        "Shake vigorously",
+        "Strain into chilled coupe",
+        "No garnish"
+      ],
+      "tips": [
+        "Harry's New York Bar creation",
+        "Perfectly balanced sour",
+        "Can add egg white for silky texture"
+      ],
+      "tags": ["gin", "sour", "classic", "elegant"],
+      "image": "white-lady"
+    },
+    {
+      "id": "tequila-sunrise",
+      "name": "Tequila Sunrise",
+      "category": "modern",
+      "difficulty": "easy",
+      "prepTime": 2,
+      "spirits": ["tequila"],
+      "glass": "collins",
+      "garnish": "orange slice, cherry",
+      "ingredients": [
+        { "item": "Tequila", "amount": "2 oz", "type": "spirit" },
+        { "item": "Orange Juice", "amount": "4 oz", "type": "juice" },
+        { "item": "Grenadine", "amount": "0.5 oz", "type": "syrup" }
+      ],
+      "instructions": [
+        "Fill glass with ice",
+        "Add tequila and orange juice, stir",
+        "Slowly pour grenadine down side of glass",
+        "Let settle to create sunrise effect",
+        "Garnish with orange and cherry"
+      ],
+      "tips": [
+        "Don't stir after adding grenadine",
+        "Layered sunrise effect is signature",
+        "Popular brunch cocktail"
+      ],
+      "tags": ["tequila", "orange", "brunch", "easy"],
+      "image": "tequila-sunrise"
+    },
+    {
+      "id": "french-connection",
+      "name": "French Connection",
+      "category": "classics",
+      "difficulty": "easy",
+      "prepTime": 2,
+      "spirits": ["cognac"],
+      "glass": "rocks",
+      "garnish": "none",
+      "ingredients": [
+        { "item": "Cognac", "amount": "1.5 oz", "type": "spirit" },
+        { "item": "Amaretto", "amount": "1.5 oz", "type": "liqueur" }
+      ],
+      "instructions": [
+        "Add ingredients to rocks glass with ice",
+        "Stir gently",
+        "No garnish needed"
+      ],
+      "tips": [
+        "Simple two-ingredient classic",
+        "Rich and smooth",
+        "Perfect digestif"
+      ],
+      "tags": ["cognac", "amaretto", "simple", "digestif"],
+      "image": "french-connection"
+    },
+    {
+      "id": "godfather",
+      "name": "Godfather",
+      "category": "classics",
+      "difficulty": "easy",
+      "prepTime": 2,
+      "spirits": ["whiskey"],
+      "glass": "rocks",
+      "garnish": "none",
+      "ingredients": [
+        { "item": "Scotch Whisky", "amount": "1.5 oz", "type": "spirit" },
+        { "item": "Amaretto", "amount": "0.75 oz", "type": "liqueur" }
+      ],
+      "instructions": [
+        "Add ingredients to rocks glass with ice",
+        "Stir gently",
+        "No garnish"
+      ],
+      "tips": [
+        "Named after the famous film",
+        "Godmother uses vodka instead",
+        "Simple and sophisticated"
+      ],
+      "tags": ["whiskey", "amaretto", "simple", "classic"],
+      "image": "godfather"
+    },
+    {
+      "id": "godmother",
+      "name": "Godmother",
+      "category": "classics",
+      "difficulty": "easy",
+      "prepTime": 2,
+      "spirits": ["vodka"],
+      "glass": "rocks",
+      "garnish": "none",
+      "ingredients": [
+        { "item": "Vodka", "amount": "1.5 oz", "type": "spirit" },
+        { "item": "Amaretto", "amount": "0.75 oz", "type": "liqueur" }
+      ],
+      "instructions": [
+        "Add ingredients to rocks glass with ice",
+        "Stir gently",
+        "No garnish"
+      ],
+      "tips": [
+        "Vodka version of Godfather",
+        "Smooth and easy drinking",
+        "Perfect after-dinner drink"
+      ],
+      "tags": ["vodka", "amaretto", "simple", "smooth"],
+      "image": "godmother"
+    },
+    {
+      "id": "screwdriver",
+      "name": "Screwdriver",
+      "category": "modern",
+      "difficulty": "easy",
+      "prepTime": 1,
+      "spirits": ["vodka"],
+      "glass": "highball",
+      "garnish": "orange slice",
+      "ingredients": [
+        { "item": "Vodka", "amount": "2 oz", "type": "spirit" },
+        { "item": "Orange Juice", "amount": "4 oz", "type": "juice" }
+      ],
+      "instructions": [
+        "Fill highball glass with ice",
+        "Add vodka",
+        "Top with orange juice",
+        "Stir well",
+        "Garnish with orange slice"
+      ],
+      "tips": [
+        "One of the simplest cocktails",
+        "Use fresh orange juice for best taste",
+        "Popular brunch drink"
+      ],
+      "tags": ["vodka", "orange", "easy", "brunch"],
+      "image": "screwdriver"
+    },
+    {
+      "id": "sea-breeze",
+      "name": "Sea Breeze",
+      "category": "modern",
+      "difficulty": "easy",
+      "prepTime": 2,
+      "spirits": ["vodka"],
+      "glass": "highball",
+      "garnish": "lime wedge",
+      "ingredients": [
+        { "item": "Vodka", "amount": "1.5 oz", "type": "spirit" },
+        { "item": "Cranberry Juice", "amount": "3 oz", "type": "juice" },
+        { "item": "Grapefruit Juice", "amount": "1.5 oz", "type": "juice" }
+      ],
+      "instructions": [
+        "Fill highball glass with ice",
+        "Add vodka",
+        "Add cranberry and grapefruit juice",
+        "Stir well",
+        "Garnish with lime wedge"
+      ],
+      "tips": [
+        "Refreshing summer cocktail",
+        "Related to Cape Codder and Bay Breeze",
+        "Fresh juices recommended"
+      ],
+      "tags": ["vodka", "fruity", "refreshing", "summer"],
+      "image": "sea-breeze"
+    },
+    {
+      "id": "sex-on-the-beach",
+      "name": "Sex on the Beach",
+      "category": "modern",
+      "difficulty": "easy",
+      "prepTime": 3,
+      "spirits": ["vodka"],
+      "glass": "highball",
+      "garnish": "orange slice, cherry",
+      "ingredients": [
+        { "item": "Vodka", "amount": "1.5 oz", "type": "spirit" },
+        { "item": "Peach Schnapps", "amount": "0.5 oz", "type": "liqueur" },
+        { "item": "Orange Juice", "amount": "2 oz", "type": "juice" },
+        { "item": "Cranberry Juice", "amount": "2 oz", "type": "juice" }
+      ],
+      "instructions": [
+        "Fill highball glass with ice",
+        "Add vodka and peach schnapps",
+        "Add orange and cranberry juice",
+        "Stir well",
+        "Garnish with orange and cherry"
+      ],
+      "tips": [
+        "Popular party drink",
+        "Fruity and easy drinking",
+        "Many variations exist"
+      ],
+      "tags": ["vodka", "fruity", "party", "sweet"],
+      "image": "sex-on-beach"
+    },
+    {
+      "id": "hot-toddy",
+      "name": "Hot Toddy",
+      "category": "classics",
+      "difficulty": "easy",
+      "prepTime": 3,
+      "spirits": ["whiskey"],
+      "glass": "irish-coffee",
+      "garnish": "lemon wheel, cinnamon stick",
+      "ingredients": [
+        { "item": "Whiskey", "amount": "2 oz", "type": "spirit" },
+        { "item": "Hot Water", "amount": "6 oz", "type": "water" },
+        { "item": "Honey", "amount": "1 tbsp", "type": "syrup" },
+        { "item": "Fresh Lemon Juice", "amount": "0.5 oz", "type": "citrus" }
+      ],
+      "instructions": [
+        "Add honey and lemon juice to warmed mug",
+        "Add whiskey",
+        "Top with hot water",
+        "Stir to dissolve honey",
+        "Garnish with lemon and cinnamon stick"
+      ],
+      "tips": [
+        "Classic cold remedy",
+        "Adjust sweetness to taste",
+        "Perfect winter warmer"
+      ],
+      "tags": ["whiskey", "hot", "winter", "comforting"],
+      "image": "hot-toddy"
+    },
+    {
+      "id": "rusty-nail",
+      "name": "Rusty Nail",
+      "category": "classics",
+      "difficulty": "easy",
+      "prepTime": 2,
+      "spirits": ["whiskey"],
+      "glass": "rocks",
+      "garnish": "lemon twist",
+      "ingredients": [
+        { "item": "Scotch Whisky", "amount": "1.5 oz", "type": "spirit" },
+        { "item": "Drambuie", "amount": "0.75 oz", "type": "liqueur" }
+      ],
+      "instructions": [
+        "Add ingredients to rocks glass with ice",
+        "Stir gently",
+        "Garnish with lemon twist"
+      ],
+      "tips": [
+        "Perfect digestif",
+        "Drambuie is honey and herb liqueur",
+        "Simple but sophisticated"
+      ],
+      "tags": ["whiskey", "sweet", "digestif", "classic"],
+      "image": "rusty-nail"
+    },
+    {
+      "id": "rob-roy",
+      "name": "Rob Roy",
+      "category": "classics",
+      "difficulty": "easy",
+      "prepTime": 3,
+      "spirits": ["whiskey"],
+      "glass": "coupe",
+      "garnish": "cherry",
+      "ingredients": [
+        { "item": "Scotch Whisky", "amount": "2 oz", "type": "spirit" },
+        { "item": "Sweet Vermouth", "amount": "1 oz", "type": "vermouth" },
+        { "item": "Angostura Bitters", "amount": "2 dashes", "type": "bitters" }
+      ],
+      "instructions": [
+        "Add all ingredients to mixing glass with ice",
+        "Stir until well chilled",
+        "Strain into chilled coupe",
+        "Garnish with cherry"
+      ],
+      "tips": [
+        "Scottish version of Manhattan",
+        "Named after Scottish folk hero",
+        "Use quality Scotch"
+      ],
+      "tags": ["whiskey", "stirred", "classic", "strong"],
+      "image": "rob-roy"
+    },
+    {
+      "id": "kir",
+      "name": "Kir",
+      "category": "classics",
+      "difficulty": "easy",
+      "prepTime": 1,
+      "spirits": [],
+      "glass": "wine",
+      "garnish": "none",
+      "ingredients": [
+        { "item": "Dry White Wine", "amount": "5 oz", "type": "wine" },
+        { "item": "Crème de Cassis", "amount": "0.5 oz", "type": "liqueur" }
+      ],
+      "instructions": [
+        "Add crème de cassis to wine glass",
+        "Top with chilled white wine",
+        "Stir gently"
+      ],
+      "tips": [
+        "Classic French aperitif",
+        "Kir Royale uses champagne",
+        "Named after mayor of Dijon"
+      ],
+      "tags": ["wine", "aperitif", "french", "simple"],
+      "image": "kir"
+    },
+    {
+      "id": "kir-royale",
+      "name": "Kir Royale",
+      "category": "classics",
+      "difficulty": "easy",
+      "prepTime": 1,
+      "spirits": [],
+      "glass": "champagne-flute",
+      "garnish": "none",
+      "ingredients": [
+        { "item": "Champagne", "amount": "5 oz", "type": "wine" },
+        { "item": "Crème de Cassis", "amount": "0.5 oz", "type": "liqueur" }
+      ],
+      "instructions": [
+        "Add crème de cassis to champagne flute",
+        "Top with chilled champagne",
+        "Stir gently"
+      ],
+      "tips": [
+        "Elegant aperitif",
+        "Champagne version of Kir",
+        "Perfect for celebrations"
+      ],
+      "tags": ["champagne", "elegant", "aperitif", "celebration"],
+      "image": "kir-royale"
+    },
+    {
+      "id": "kamikaze",
+      "name": "Kamikaze",
+      "category": "modern",
+      "difficulty": "easy",
+      "prepTime": 3,
+      "spirits": ["vodka"],
+      "glass": "martini",
+      "garnish": "lime wheel",
+      "ingredients": [
+        { "item": "Vodka", "amount": "1.5 oz", "type": "spirit" },
+        { "item": "Triple Sec", "amount": "1 oz", "type": "liqueur" },
+        { "item": "Fresh Lime Juice", "amount": "1 oz", "type": "citrus" }
+      ],
+      "instructions": [
+        "Add all ingredients to shaker with ice",
+        "Shake well",
+        "Strain into chilled martini glass",
+        "Garnish with lime wheel"
+      ],
+      "tips": [
+        "Also popular as a shot",
+        "Balance sweet and sour",
+        "Simple party drink"
+      ],
+      "tags": ["vodka", "citrus", "party", "shot"],
+      "image": "kamikaze"
+    },
+    {
+      "id": "gold-rush",
+      "name": "Gold Rush",
+      "category": "modern",
+      "difficulty": "easy",
+      "prepTime": 3,
+      "spirits": ["whiskey"],
+      "glass": "rocks",
+      "garnish": "lemon wheel",
+      "ingredients": [
+        { "item": "Bourbon", "amount": "2 oz", "type": "spirit" },
+        { "item": "Fresh Lemon Juice", "amount": "0.75 oz", "type": "citrus" },
+        { "item": "Honey Syrup", "amount": "0.75 oz", "type": "syrup" }
+      ],
+      "instructions": [
+        "Add all ingredients to shaker with ice",
+        "Shake vigorously",
+        "Strain over fresh ice",
+        "Garnish with lemon wheel"
+      ],
+      "tips": [
+        "Modern classic from Milk & Honey",
+        "Whiskey sour with honey",
+        "Make honey syrup 1:1 with water"
+      ],
+      "tags": ["whiskey", "sour", "modern", "honey"],
+      "image": "gold-rush"
+    },
+    {
+      "id": "new-york-sour",
+      "name": "New York Sour",
+      "category": "classics",
+      "difficulty": "medium",
+      "prepTime": 4,
+      "spirits": ["whiskey"],
+      "glass": "rocks",
+      "garnish": "lemon wheel",
+      "ingredients": [
+        { "item": "Bourbon", "amount": "2 oz", "type": "spirit" },
+        { "item": "Fresh Lemon Juice", "amount": "1 oz", "type": "citrus" },
+        { "item": "Simple Syrup", "amount": "0.75 oz", "type": "syrup" },
+        { "item": "Red Wine", "amount": "0.5 oz", "type": "wine" }
+      ],
+      "instructions": [
+        "Add bourbon, lemon juice, and syrup to shaker with ice",
+        "Shake well",
+        "Strain into glass over fresh ice",
+        "Slowly float red wine on top",
+        "Garnish with lemon wheel"
+      ],
+      "tips": [
+        "Whiskey sour with red wine float",
+        "Beautiful layered presentation",
+        "Use fruity red wine"
+      ],
+      "tags": ["whiskey", "sour", "wine", "layered"],
+      "image": "new-york-sour"
+    },
+    {
+      "id": "french-martini",
+      "name": "French Martini",
+      "category": "modern",
+      "difficulty": "easy",
+      "prepTime": 3,
+      "spirits": ["vodka"],
+      "glass": "martini",
+      "garnish": "none",
+      "ingredients": [
+        { "item": "Vodka", "amount": "2 oz", "type": "spirit" },
+        { "item": "Chambord", "amount": "0.5 oz", "type": "liqueur" },
+        { "item": "Pineapple Juice", "amount": "1.5 oz", "type": "juice" }
+      ],
+      "instructions": [
+        "Add all ingredients to shaker with ice",
+        "Shake vigorously",
+        "Strain into chilled martini glass",
+        "No garnish needed"
+      ],
+      "tips": [
+        "Not actually from France",
+        "Chambord gives raspberry flavor",
+        "Shake well for froth"
+      ],
+      "tags": ["vodka", "fruity", "elegant", "sweet"],
+      "image": "french-martini"
+    },
+    {
+      "id": "pornstar-martini",
+      "name": "Pornstar Martini",
+      "category": "modern",
+      "difficulty": "medium",
+      "prepTime": 4,
+      "spirits": ["vodka"],
+      "glass": "martini",
+      "garnish": "passion fruit half, prosecco shot",
+      "ingredients": [
+        { "item": "Vanilla Vodka", "amount": "2 oz", "type": "spirit" },
+        { "item": "Passion Fruit Liqueur", "amount": "0.5 oz", "type": "liqueur" },
+        { "item": "Passion Fruit Puree", "amount": "1 oz", "type": "fruit" },
+        { "item": "Fresh Lime Juice", "amount": "0.5 oz", "type": "citrus" },
+        { "item": "Simple Syrup", "amount": "0.5 oz", "type": "syrup" }
+      ],
+      "instructions": [
+        "Add all ingredients to shaker with ice",
+        "Shake vigorously",
+        "Strain into chilled martini glass",
+        "Garnish with passion fruit half",
+        "Serve with prosecco shot on side"
+      ],
+      "tips": [
+        "Created by Douglas Ankrah",
+        "Sip alternately with prosecco",
+        "Passion fruit is key"
+      ],
+      "tags": ["vodka", "tropical", "modern", "sweet"],
+      "image": "pornstar-martini"
+    },
+    {
+      "id": "vodka-martini",
+      "name": "Vodka Martini",
+      "category": "classics",
+      "difficulty": "easy",
+      "prepTime": 3,
+      "spirits": ["vodka"],
+      "glass": "martini",
+      "garnish": "lemon twist or olives",
+      "ingredients": [
+        { "item": "Vodka", "amount": "2.5 oz", "type": "spirit" },
+        { "item": "Dry Vermouth", "amount": "0.5 oz", "type": "vermouth" }
+      ],
+      "instructions": [
+        "Add vodka and vermouth to mixing glass with ice",
+        "Stir until well chilled",
+        "Strain into chilled martini glass",
+        "Garnish with lemon twist or olives"
+      ],
+      "tips": [
+        "James Bond's preferred martini",
+        "Can be shaken if preferred",
+        "Adjust vermouth to taste"
+      ],
+      "tags": ["vodka", "dry", "classic", "elegant"],
+      "image": "vodka-martini"
+    },
+    {
+      "id": "naked-and-famous",
+      "name": "Naked and Famous",
+      "category": "modern",
+      "difficulty": "medium",
+      "prepTime": 3,
+      "spirits": ["mezcal"],
+      "glass": "coupe",
+      "garnish": "none",
+      "ingredients": [
+        { "item": "Mezcal", "amount": "0.75 oz", "type": "spirit" },
+        { "item": "Yellow Chartreuse", "amount": "0.75 oz", "type": "liqueur" },
+        { "item": "Aperol", "amount": "0.75 oz", "type": "liqueur" },
+        { "item": "Fresh Lime Juice", "amount": "0.75 oz", "type": "citrus" }
+      ],
+      "instructions": [
+        "Add all ingredients to shaker with ice",
+        "Shake well",
+        "Strain into chilled coupe",
+        "No garnish"
+      ],
+      "tips": [
+        "Modern classic from New York",
+        "Equal parts cocktail",
+        "Complex and balanced"
+      ],
+      "tags": ["mezcal", "equal-parts", "modern", "smoky"],
+      "image": "naked-famous"
+    },
+    {
+      "id": "mezcal-mule",
+      "name": "Mezcal Mule",
+      "category": "modern",
+      "difficulty": "easy",
+      "prepTime": 2,
+      "spirits": ["mezcal"],
+      "glass": "copper-mug",
+      "garnish": "lime wedge",
+      "ingredients": [
+        { "item": "Mezcal", "amount": "2 oz", "type": "spirit" },
+        { "item": "Fresh Lime Juice", "amount": "0.75 oz", "type": "citrus" },
+        { "item": "Ginger Beer", "amount": "4 oz", "type": "mixer" }
+      ],
+      "instructions": [
+        "Fill copper mug with ice",
+        "Add mezcal and lime juice",
+        "Top with ginger beer",
+        "Stir gently",
+        "Garnish with lime wedge"
+      ],
+      "tips": [
+        "Smoky twist on Moscow Mule",
+        "Use quality ginger beer",
+        "Copper mug keeps it cold"
+      ],
+      "tags": ["mezcal", "ginger", "refreshing", "smoky"],
+      "image": "mezcal-mule"
+    },
+    {
+      "id": "oaxaca-old-fashioned",
+      "name": "Oaxaca Old Fashioned",
+      "category": "modern",
+      "difficulty": "easy",
+      "prepTime": 3,
+      "spirits": ["tequila", "mezcal"],
+      "glass": "rocks",
+      "garnish": "orange peel",
+      "ingredients": [
+        { "item": "Reposado Tequila", "amount": "1.5 oz", "type": "spirit" },
+        { "item": "Mezcal", "amount": "0.5 oz", "type": "spirit" },
+        { "item": "Agave Syrup", "amount": "0.25 oz", "type": "syrup" },
+        { "item": "Angostura Bitters", "amount": "2 dashes", "type": "bitters" }
+      ],
+      "instructions": [
+        "Add all ingredients to mixing glass with ice",
+        "Stir until well chilled",
+        "Strain into rocks glass over large ice cube",
+        "Express orange peel over drink",
+        "Garnish with orange peel"
+      ],
+      "tips": [
+        "Created by Phil Ward",
+        "Mexican twist on Old Fashioned",
+        "Smoky and complex"
+      ],
+      "tags": ["tequila", "mezcal", "modern", "smoky"],
+      "image": "oaxaca-old-fashioned"
+    },
+    {
+      "id": "planters-punch",
+      "name": "Planter's Punch",
+      "category": "tiki",
+      "difficulty": "medium",
+      "prepTime": 4,
+      "spirits": ["rum"],
+      "glass": "collins",
+      "garnish": "pineapple, cherry, mint",
+      "ingredients": [
+        { "item": "Dark Rum", "amount": "2 oz", "type": "spirit" },
+        { "item": "Fresh Lime Juice", "amount": "1 oz", "type": "citrus" },
+        { "item": "Simple Syrup", "amount": "0.75 oz", "type": "syrup" },
+        { "item": "Water", "amount": "1 oz", "type": "mixer" },
+        { "item": "Angostura Bitters", "amount": "3 dashes", "type": "bitters" }
+      ],
+      "instructions": [
+        "Add all ingredients to shaker with ice",
+        "Shake well",
+        "Strain into glass over crushed ice",
+        "Garnish elaborately with fruit and mint"
+      ],
+      "tips": [
+        "Classic Jamaican punch",
+        "\"One of sour, two of sweet, three of strong, four of weak\"",
+        "Adjust ratios to taste"
+      ],
+      "tags": ["rum", "tropical", "punch", "classic"],
+      "image": "planters-punch"
+    },
+    {
+      "id": "mary-pickford",
+      "name": "Mary Pickford",
+      "category": "classics",
+      "difficulty": "easy",
+      "prepTime": 3,
+      "spirits": ["rum"],
+      "glass": "coupe",
+      "garnish": "cherry",
+      "ingredients": [
+        { "item": "White Rum", "amount": "2 oz", "type": "spirit" },
+        { "item": "Pineapple Juice", "amount": "2 oz", "type": "juice" },
+        { "item": "Grenadine", "amount": "0.25 oz", "type": "syrup" },
+        { "item": "Maraschino Liqueur", "amount": "0.25 oz", "type": "liqueur" }
+      ],
+      "instructions": [
+        "Add all ingredients to shaker with ice",
+        "Shake well",
+        "Strain into chilled coupe",
+        "Garnish with cherry"
+      ],
+      "tips": [
+        "Named after silent film star",
+        "Light and tropical",
+        "From Prohibition era"
+      ],
+      "tags": ["rum", "tropical", "classic", "elegant"],
+      "image": "mary-pickford"
+    },
+    {
+      "id": "old-cuban",
+      "name": "Old Cuban",
+      "category": "modern",
+      "difficulty": "medium",
+      "prepTime": 4,
+      "spirits": ["rum"],
+      "glass": "coupe",
+      "garnish": "mint sprig",
+      "ingredients": [
+        { "item": "Aged Rum", "amount": "1.5 oz", "type": "spirit" },
+        { "item": "Fresh Lime Juice", "amount": "0.75 oz", "type": "citrus" },
+        { "item": "Simple Syrup", "amount": "1 oz", "type": "syrup" },
+        { "item": "Angostura Bitters", "amount": "2 dashes", "type": "bitters" },
+        { "item": "Fresh Mint", "amount": "6 leaves", "type": "herb" },
+        { "item": "Champagne", "amount": "2 oz", "type": "wine" }
+      ],
+      "instructions": [
+        "Muddle mint with syrup in shaker",
+        "Add rum, lime juice, and bitters",
+        "Shake with ice",
+        "Strain into chilled coupe",
+        "Top with champagne",
+        "Garnish with mint sprig"
+      ],
+      "tips": [
+        "Created by Audrey Saunders",
+        "Mojito meets French 75",
+        "Champagne adds elegance"
+      ],
+      "tags": ["rum", "champagne", "modern", "mint"],
+      "image": "old-cuban"
+    },
+    {
+      "id": "trinidad-sour",
+      "name": "Trinidad Sour",
+      "category": "modern",
+      "difficulty": "hard",
+      "prepTime": 3,
+      "spirits": ["whiskey"],
+      "glass": "coupe",
+      "garnish": "none",
+      "ingredients": [
+        { "item": "Angostura Bitters", "amount": "1.5 oz", "type": "bitters" },
+        { "item": "Rye Whiskey", "amount": "0.5 oz", "type": "spirit" },
+        { "item": "Orgeat", "amount": "1 oz", "type": "syrup" },
+        { "item": "Fresh Lemon Juice", "amount": "0.75 oz", "type": "citrus" }
+      ],
+      "instructions": [
+        "Add all ingredients to shaker with ice",
+        "Shake vigorously",
+        "Strain into chilled coupe",
+        "No garnish"
+      ],
+      "tips": [
+        "Created by Giuseppe González",
+        "Unusual use of bitters as base",
+        "Complex and challenging"
+      ],
+      "tags": ["bitters", "whiskey", "modern", "complex"],
+      "image": "trinidad-sour"
+    },
+    {
+      "id": "russian-spring-punch",
+      "name": "Russian Spring Punch",
+      "category": "modern",
+      "difficulty": "medium",
+      "prepTime": 4,
+      "spirits": ["vodka"],
+      "glass": "collins",
+      "garnish": "lemon wheel, berries",
+      "ingredients": [
+        { "item": "Vodka", "amount": "1 oz", "type": "spirit" },
+        { "item": "Crème de Cassis", "amount": "0.5 oz", "type": "liqueur" },
+        { "item": "Fresh Lemon Juice", "amount": "0.75 oz", "type": "citrus" },
+        { "item": "Simple Syrup", "amount": "0.5 oz", "type": "syrup" },
+        { "item": "Champagne", "amount": "3 oz", "type": "wine" }
+      ],
+      "instructions": [
+        "Add vodka, cassis, lemon juice, and syrup to shaker with ice",
+        "Shake well",
+        "Strain into glass over ice",
+        "Top with champagne",
+        "Garnish with lemon and berries"
+      ],
+      "tips": [
+        "Created by Dick Bradsell",
+        "Fruity and sparkling",
+        "Perfect spring cocktail"
+      ],
+      "tags": ["vodka", "champagne", "fruity", "spring"],
+      "image": "russian-spring-punch"
+    },
+    {
+      "id": "derby",
+      "name": "Derby",
+      "category": "classics",
+      "difficulty": "easy",
+      "prepTime": 3,
+      "spirits": ["gin"],
+      "glass": "coupe",
+      "garnish": "mint leaf",
+      "ingredients": [
+        { "item": "Gin", "amount": "2 oz", "type": "spirit" },
+        { "item": "Peach Bitters", "amount": "2 dashes", "type": "bitters" },
+        { "item": "Fresh Mint", "amount": "2 leaves", "type": "herb" }
+      ],
+      "instructions": [
+        "Muddle mint leaves gently in mixing glass",
+        "Add gin and bitters with ice",
+        "Stir until well chilled",
+        "Strain into chilled coupe",
+        "Garnish with mint leaf"
+      ],
+      "tips": [
+        "Pre-Prohibition classic",
+        "Simple and aromatic",
+        "Don't over-muddle mint"
+      ],
+      "tags": ["gin", "mint", "classic", "stirred"],
+      "image": "derby"
+    },
+    {
+      "id": "fernandito",
+      "name": "Fernandito",
+      "category": "modern",
+      "difficulty": "easy",
+      "prepTime": 1,
+      "spirits": [],
+      "glass": "highball",
+      "garnish": "none",
+      "ingredients": [
+        { "item": "Fernet-Branca", "amount": "2 oz", "type": "liqueur" },
+        { "item": "Coca-Cola", "amount": "4 oz", "type": "mixer" }
+      ],
+      "instructions": [
+        "Fill highball glass with ice",
+        "Add Fernet-Branca",
+        "Top with Coca-Cola",
+        "Stir gently"
+      ],
+      "tips": [
+        "Popular in Argentina",
+        "Bitter and refreshing",
+        "Fernet is an acquired taste"
+      ],
+      "tags": ["fernet", "bitter", "simple", "argentine"],
+      "image": "fernandito"
+    },
+    {
+      "id": "lynchburg-lemonade",
+      "name": "Lynchburg Lemonade",
+      "category": "modern",
+      "difficulty": "easy",
+      "prepTime": 3,
+      "spirits": ["whiskey"],
+      "glass": "collins",
+      "garnish": "lemon wedge",
+      "ingredients": [
+        { "item": "Jack Daniel's", "amount": "1.5 oz", "type": "spirit" },
+        { "item": "Triple Sec", "amount": "0.5 oz", "type": "liqueur" },
+        { "item": "Fresh Lemon Juice", "amount": "1 oz", "type": "citrus" },
+        { "item": "Lemon-Lime Soda", "amount": "3 oz", "type": "mixer" }
+      ],
+      "instructions": [
+        "Add whiskey, triple sec, and lemon juice to shaker with ice",
+        "Shake well",
+        "Strain into glass over ice",
+        "Top with lemon-lime soda",
+        "Garnish with lemon wedge"
+      ],
+      "tips": [
+        "Named after Jack Daniel's hometown",
+        "Refreshing summer drink",
+        "Sweet and citrusy"
+      ],
+      "tags": ["whiskey", "lemonade", "refreshing", "summer"],
+      "image": "lynchburg-lemonade"
+    },
+    {
+      "id": "hemingway-special",
+      "name": "Hemingway Special",
+      "category": "classics",
+      "difficulty": "medium",
+      "prepTime": 3,
+      "spirits": ["rum"],
+      "glass": "coupe",
+      "garnish": "lime wheel",
+      "ingredients": [
+        { "item": "White Rum", "amount": "2 oz", "type": "spirit" },
+        { "item": "Maraschino Liqueur", "amount": "0.5 oz", "type": "liqueur" },
+        { "item": "Fresh Grapefruit Juice", "amount": "1 oz", "type": "citrus" },
+        { "item": "Fresh Lime Juice", "amount": "0.75 oz", "type": "citrus" }
+      ],
+      "instructions": [
+        "Add all ingredients to shaker with ice",
+        "Shake vigorously",
+        "Strain into chilled coupe",
+        "Garnish with lime wheel"
+      ],
+      "tips": [
+        "Ernest Hemingway's favorite",
+        "Originally with no sugar (he was diabetic)",
+        "Tart and refreshing"
+      ],
+      "tags": ["rum", "citrus", "tart", "classic"],
+      "image": "hemingway-special"
+    },
+    {
+      "id": "horses-neck",
+      "name": "Horse's Neck",
+      "category": "classics",
+      "difficulty": "easy",
+      "prepTime": 2,
+      "spirits": ["whiskey"],
+      "glass": "highball",
+      "garnish": "lemon spiral",
+      "ingredients": [
+        { "item": "Bourbon", "amount": "2 oz", "type": "spirit" },
+        { "item": "Ginger Ale", "amount": "4 oz", "type": "mixer" },
+        { "item": "Angostura Bitters", "amount": "2 dashes", "type": "bitters" }
+      ],
+      "instructions": [
+        "Place long lemon spiral in highball glass",
+        "Fill with ice",
+        "Add bourbon and bitters",
+        "Top with ginger ale",
+        "Stir gently"
+      ],
+      "tips": [
+        "Named for the lemon peel garnish",
+        "Simple and refreshing",
+        "Non-alcoholic version called Horse's Neck"
+      ],
+      "tags": ["whiskey", "ginger", "simple", "refreshing"],
+      "image": "horses-neck"
+    }
+  ]
+}

@@ -652,19 +652,20 @@ export default function RecipesScreen() {
   // Preferences modal
   const [preferencesModalVisible, setPreferencesModalVisible] = useState(false);
 
-  // Load recipes from Supabase on mount
+  // Load recipes from cache/network (instant with cache)
   useEffect(() => {
-    async function loadAllRecipes() {
+    async function loadRecipes() {
       try {
-        const recipes = await RecipesRepository.getAllRecipes();
+        // This will return instantly if cache exists, or fetch if not
+        const recipes = await RecipesRepository.getInitialRecipes(150);
         setAllRecipes(recipes);
+        setRecipesLoading(false);
       } catch (error) {
-        console.error('Error loading recipes from Supabase:', error);
-      } finally {
+        console.error('Error loading recipes:', error);
         setRecipesLoading(false);
       }
     }
-    loadAllRecipes();
+    loadRecipes();
   }, []);
 
   // Separate syrups and cocktails

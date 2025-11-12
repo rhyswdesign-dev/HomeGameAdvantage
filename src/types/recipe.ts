@@ -8,6 +8,7 @@ export interface Recipe {
   // Core Identity
   id: string;
   title: string;
+  name?: string; // Alias for title (for compatibility with RecipeCard)
   description: string;
   createdAt: Date;
   updatedAt: Date;
@@ -21,6 +22,7 @@ export interface Recipe {
   // Categorization
   category: RecipeCategory;
   difficulty: Difficulty;
+  time?: string; // Formatted time string for display (e.g., "5 min")
   recipeType: 'cocktail' | 'mocktail' | 'spirit-forward' | 'highball' | 'sour' | 'other';
 
   // Personalization Metadata
@@ -36,6 +38,7 @@ export interface Recipe {
   tools: BarTool[];
 
   // Media & Sources
+  image?: string; // Alias for imageUrl (for compatibility with RecipeCard)
   imageUrl?: string;
   sourceUrl?: string;
   videoUrl?: string;

@@ -1,14 +1,15 @@
 /**
  * Multiple Choice Question Exercise
- * Clean modern design with grid layout
+ * Clean modern design with grid layout and images
  */
 
 import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, StyleSheet, Pressable, Animated } from 'react-native';
+import { View, Text, StyleSheet, Pressable, Animated, Image } from 'react-native';
 import { Item } from '../../types/domain';
 import { ExerciseCommonProps } from './OrderExercise';
 import { colors, spacing, radii } from '../../theme/tokens';
 import { LinearGradient } from 'expo-linear-gradient';
+import { getImageForText, shouldShowImages } from '../../utils/questionImageMapper';
 
 export const MCQExercise: React.FC<ExerciseCommonProps> = ({ item, onResult }) => {
   const [selectedOption, setSelectedOption] = useState<number | null>(null);
@@ -71,6 +72,9 @@ export const MCQExercise: React.FC<ExerciseCommonProps> = ({ item, onResult }) =
     return [styles.option, styles.unselectedOption];
   };
 
+  // Check if we should show images for this question
+  const showImages = shouldShowImages(item.prompt, item.options, item.tags);
+
   return (
     <Animated.View
       style={[
@@ -83,45 +87,59 @@ export const MCQExercise: React.FC<ExerciseCommonProps> = ({ item, onResult }) =
       <Text style={styles.prompt}>{item.prompt}</Text>
 
       <View style={styles.optionsGrid}>
-        {item.options?.map((option, index) => (
-          <Animated.View
-            key={index}
-            style={[
-              styles.optionWrapper,
-              {
-                opacity: optionAnims[index],
-                transform: [{
-                  scale: optionAnims[index],
-                }],
-              },
-            ]}
-          >
-            <Pressable
-              style={({ pressed }) => [
-                getOptionStyle(index),
-                pressed && selectedOption === null && styles.optionPressed,
+        {item.options?.map((option, index) => {
+          const optionImage = showImages ? getImageForText(option) : null;
+
+          return (
+            <Animated.View
+              key={index}
+              style={[
+                styles.optionWrapper,
+                {
+                  opacity: optionAnims[index],
+                  transform: [{
+                    scale: optionAnims[index],
+                  }],
+                },
               ]}
-              onPress={() => handleOptionPress(index)}
-              disabled={selectedOption !== null}
             >
-              <LinearGradient
-                colors={
-                  selectedOption === index
-                    ? ['rgba(215, 161, 94, 0.2)', 'rgba(228, 147, 62, 0.1)']
-                    : ['rgba(255, 255, 255, 0.08)', 'rgba(255, 255, 255, 0.02)']
-                }
-                style={styles.optionGradient}
+              <Pressable
+                style={({ pressed }) => [
+                  getOptionStyle(index),
+                  pressed && selectedOption === null && styles.optionPressed,
+                ]}
+                onPress={() => handleOptionPress(index)}
+                disabled={selectedOption !== null}
               >
-                <Text style={[
-                  styles.optionText,
-                  selectedOption === index && styles.selectedOptionText
-                ]}>
-                  {option}
-                </Text>
-              </LinearGradient>
-            </Pressable>
-          </Animated.View>
-        ))}
+                <LinearGradient
+                  colors={
+                    selectedOption === index
+                      ? ['rgba(215, 161, 94, 0.2)', 'rgba(228, 147, 62, 0.1)']
+                      : ['rgba(255, 255, 255, 0.08)', 'rgba(255, 255, 255, 0.02)']
+                  }
+                  style={styles.optionGradient}
+                >
+                  {optionImage && (
+                    <View style={styles.imageContainer}>
+                      <Image
+                        source={optionImage}
+                        style={styles.optionImage}
+                        resizeMode="cover"
+                      />
+                    </View>
+                  )}
+                  <Text style={[
+                    styles.optionText,
+                    selectedOption === index && styles.selectedOptionText,
+                    optionImage && styles.optionTextWithImage
+                  ]}>
+                    {option}
+                  </Text>
+                </LinearGradient>
+              </Pressable>
+            </Animated.View>
+          );
+        })}
       </View>
     </Animated.View>
   );
@@ -178,12 +196,28 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     minHeight: 100,
   },
+  imageContainer: {
+    width: '100%',
+    height: 140,
+    borderRadius: radii.md,
+    overflow: 'hidden',
+    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+    marginBottom: spacing(2),
+  },
+  optionImage: {
+    width: '100%',
+    height: '100%',
+  },
   optionText: {
-    fontSize: 16,
+    fontSize: 14,
     textAlign: 'center',
     fontWeight: '600',
     color: colors.text,
-    lineHeight: 22,
+    lineHeight: 20,
+  },
+  optionTextWithImage: {
+    fontSize: 13,
+    marginTop: spacing(0.5),
   },
   selectedOptionText: {
     color: colors.gold,

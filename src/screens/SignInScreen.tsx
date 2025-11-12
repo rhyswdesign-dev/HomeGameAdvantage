@@ -13,9 +13,10 @@ interface SignInScreenProps {
   onComplete?: () => void;
   onSignUp?: () => void;
   onForgotPassword?: () => void;
+  onSkip?: () => void;
 }
 
-export default function SignInScreen({ onComplete, onSignUp, onForgotPassword }: SignInScreenProps) {
+export default function SignInScreen({ onComplete, onSignUp, onForgotPassword, onSkip }: SignInScreenProps) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -103,8 +104,20 @@ export default function SignInScreen({ onComplete, onSignUp, onForgotPassword }:
 
   return (
     <SafeAreaView style={styles.container} edges={['top', 'left', 'right', 'bottom']}>
-      <KeyboardAvoidingView 
-        style={styles.keyboardView} 
+      {/* Skip Button */}
+      {onSkip && (
+        <TouchableOpacity
+          style={styles.skipButton}
+          onPress={onSkip}
+          activeOpacity={0.7}
+        >
+          <Text style={styles.skipButtonText}>Skip</Text>
+          <Ionicons name="arrow-forward" size={18} color={colors.accent} />
+        </TouchableOpacity>
+      )}
+
+      <KeyboardAvoidingView
+        style={styles.keyboardView}
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       >
         <ScrollView contentContainerStyle={styles.scrollContent} keyboardShouldPersistTaps="handled">
@@ -225,6 +238,22 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: colors.bg,
+  },
+  skipButton: {
+    position: 'absolute',
+    top: spacing(2),
+    right: spacing(3),
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing(0.5),
+    paddingHorizontal: spacing(2),
+    paddingVertical: spacing(1),
+    zIndex: 10,
+  },
+  skipButtonText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: colors.accent,
   },
   keyboardView: {
     flex: 1,

@@ -9,7 +9,6 @@ import {
   Alert,
   Share,
 } from 'react-native';
-import { colors, spacing, radii, fonts } from '../theme/tokens';
 import { Ionicons } from '@expo/vector-icons';
 import { GroceryListService, GroceryList, GroceryItem } from '../services/groceryListService';
 import { ShoppingListStore } from '../services/shoppingListStore';
@@ -139,39 +138,31 @@ export default function GroceryListModal({
   const progress = totalItems > 0 ? checkedCount / totalItems : 0;
 
   return (
-    <Modal visible={visible} animationType="slide" presentationStyle="pageSheet">
+    <Modal visible={visible} animationType="slide" presentationStyle="fullScreen">
       <View style={styles.container}>
         {/* Header */}
         <View style={styles.header}>
-          <TouchableOpacity onPress={onClose} style={styles.closeButton}>
-            <Ionicons name="close" size={24} color={colors.text} />
-          </TouchableOpacity>
-          <View style={styles.headerTextContainer}>
-            <Text style={styles.headerTitle}>Add Ingredients to Cart</Text>
-            <Text style={styles.headerSubtitle}>{groceryList.name}</Text>
-          </View>
+          <Text style={styles.headerTitle}>Add Ingredients to Cart</Text>
           <TouchableOpacity onPress={handleShare} style={styles.shareButton}>
-            <Ionicons name="share-outline" size={24} color={colors.accent} />
+            <Ionicons name="share-outline" size={24} color="#D4A574" />
           </TouchableOpacity>
         </View>
 
-        {/* Progress Bar */}
-        <View style={styles.progressContainer}>
-          <View style={styles.progressBar}>
-            <View style={[styles.progressFill, { width: `${progress * 100}%` }]} />
-          </View>
+        {/* Subtitle */}
+        <Text style={styles.subtitle}>{recipeName} — Shopping List</Text>
+
+        {/* Progress Section */}
+        <View style={styles.progressSection}>
           <Text style={styles.progressText}>
             {checkedCount} of {totalItems} items ({Math.round(progress * 100)}%)
           </Text>
+          <View style={styles.progressBar}>
+            <View style={[styles.progressFill, { width: `${progress * 100}%` }]} />
+          </View>
         </View>
 
         {/* Cost Summary */}
-        {totalCost > 0 && (
-          <View style={styles.costSummary}>
-            <Text style={styles.costText}>Estimated Total: ${totalCost}</Text>
-            <Text style={styles.costNote}>Prices may vary by location</Text>
-          </View>
-        )}
+        <Text style={styles.costText}>Estimated Total: ${totalCost}</Text>
 
         {/* Grocery Items */}
         <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
@@ -181,58 +172,115 @@ export default function GroceryListModal({
                 {GroceryListService.getCategoryDisplayName(category as GroceryItem['category'])} ({items.length})
               </Text>
 
-              {items.map((item) => {
+              {items.map((item, index) => {
                 const isChecked = checkedItems.has(item.id);
+                const isLastItem = index === items.length - 1;
+
+                // Get category label based on item.category and subcategory
+                const getCategoryLabel = (category: string, subcategory?: string): string => {
+                  switch (category) {
+                    case 'spirits_liquors':
+                      if (subcategory?.toLowerCase().includes('liqueur') ||
+                          ['Maraschino', 'Amaretto', 'Campari'].includes(subcategory || '')) {
+                        return 'Liqueur';
+                      }
+                      return 'Spirit';
+                    case 'mixers':
+                      return 'Mixer';
+                    case 'garnish':
+                      return 'Garnish';
+                    case 'bitters':
+                      return 'Bitters';
+                    case 'syrup':
+                      return 'Syrup';
+                    default:
+                      return 'Item';
+                  }
+                };
+
+                const subcategoryDisplay = item.subcategory
+                  ? `${getCategoryLabel(item.category, item.subcategory)} • ${item.subcategory}`
+                  : getCategoryLabel(item.category, item.subcategory);
+
                 return (
                   <TouchableOpacity
                     key={item.id}
-                    style={[styles.itemContainer, isChecked && styles.itemContainerChecked]}
+                    style={[
+                      styles.itemContainer,
+                      isChecked && styles.itemContainerChecked,
+                      !isLastItem && styles.itemBorder
+                    ]}
                     onPress={() => toggleItem(item.id)}
                     activeOpacity={0.7}
                   >
                     <View style={styles.itemLeft}>
                       <View style={[styles.checkbox, isChecked && styles.checkboxChecked]}>
-                        {isChecked && <Ionicons name="checkmark" size={16} color={colors.bg} />}
+                        {isChecked && <Ionicons name="checkmark" size={16} color="#2C2416" />}
                       </View>
 
                       <View style={styles.itemDetails}>
                         <Text style={[styles.itemName, isChecked && styles.itemNameChecked]}>
                           {item.name}
                         </Text>
-                        {item.brand && (
-                          <Text style={styles.itemBrand}>{item.brand}</Text>
-                        )}
-                        {item.size && (
-                          <Text style={styles.itemSize}>{item.size}</Text>
-                        )}
-                        {item.notes && (
-                          <Text style={styles.itemNotes}>💡 {item.notes}</Text>
-                        )}
-                        {item.whereToFind && (
-                          <Text style={styles.whereToFind}>📍 {item.whereToFind}</Text>
-                        )}
+                        <Text style={styles.itemSubcategory}>{subcategoryDisplay}</Text>
                       </View>
                     </View>
 
                     {item.estimatedPrice && (
-                      <View style={styles.itemRight}>
-                        <Text style={[styles.itemPrice, isChecked && styles.itemPriceChecked]}>
-                          ${item.estimatedPrice}
-                        </Text>
-                      </View>
+                      <Text style={[styles.itemPrice, isChecked && styles.itemPriceChecked]}>
+                        ${item.estimatedPrice}
+                      </Text>
                     )}
                   </TouchableOpacity>
                 );
               })}
             </View>
           ))}
+
+          {/* Bottom spacing for button */}
+          <View style={{ height: 180 }} />
         </ScrollView>
 
-        {/* Actions */}
+        {/* Actions - Fixed at bottom */}
         <View style={styles.actions}>
           <TouchableOpacity style={styles.saveButton} onPress={handleSaveToList}>
-            <Ionicons name="cart" size={20} color={colors.bg} />
-            <Text style={styles.saveButtonText}>Add to Cart ({checkedItems.size})</Text>
+            <Text style={styles.saveButtonText}>Add All to Cart →</Text>
+          </TouchableOpacity>
+
+          {checkedItems.size > 0 && (
+            <View style={styles.cartSummary}>
+              <Ionicons name="cart" size={16} color="#888888" />
+              <Text style={styles.cartSummaryText}>
+                {checkedItems.size} Items Selected | ${groceryList.items
+                  .filter(item => checkedItems.has(item.id))
+                  .reduce((sum, item) => sum + (item.estimatedPrice || 0), 0)
+                  .toFixed(2)}
+              </Text>
+            </View>
+          )}
+        </View>
+
+        {/* Bottom Navigation */}
+        <View style={styles.bottomNav}>
+          <TouchableOpacity style={styles.navItem}>
+            <Ionicons name="book-outline" size={24} color="#888" />
+            <Text style={styles.navText}>Lessons</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.navItem}>
+            <Ionicons name="list" size={24} color="#888" />
+            <Text style={styles.navText}>Recipes</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.navItem}>
+            <Ionicons name="home-outline" size={24} color="#888" />
+            <Text style={styles.navText}>Featured</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.navItem}>
+            <Ionicons name="briefcase-outline" size={24} color="#888" />
+            <Text style={styles.navText}>Vault</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.navItem}>
+            <Ionicons name="person-outline" size={24} color="#888" />
+            <Text style={styles.navText}>Profile</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -243,187 +291,182 @@ export default function GroceryListModal({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.bg,
+    backgroundColor: '#2C2416',
   },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: spacing(3),
-    paddingVertical: spacing(2),
-    borderBottomWidth: 1,
-    borderBottomColor: colors.line,
-  },
-  closeButton: {
-    padding: spacing(1),
-  },
-  headerTextContainer: {
-    flex: 1,
-    alignItems: 'center',
+    paddingHorizontal: 20,
+    paddingTop: 60,
+    paddingBottom: 16,
   },
   headerTitle: {
-    fontSize: fonts.h3,
-    fontWeight: '700',
-    color: colors.text,
-  },
-  headerSubtitle: {
-    fontSize: 12,
-    color: colors.subtext,
-    marginTop: 2,
+    fontSize: 20,
+    fontWeight: '600',
+    color: '#ffffff',
   },
   shareButton: {
-    padding: spacing(1),
+    padding: 4,
   },
-  progressContainer: {
-    paddingHorizontal: spacing(3),
-    paddingVertical: spacing(2),
+  subtitle: {
+    fontSize: 14,
+    color: '#999',
+    textAlign: 'center',
+    marginBottom: 20,
+  },
+  progressSection: {
+    paddingHorizontal: 20,
+    marginBottom: 16,
+  },
+  progressText: {
+    fontSize: 13,
+    color: '#ccc',
+    marginBottom: 8,
   },
   progressBar: {
-    height: 8,
-    backgroundColor: colors.line,
-    borderRadius: 4,
+    height: 6,
+    backgroundColor: '#3a3225',
+    borderRadius: 3,
     overflow: 'hidden',
-    marginBottom: spacing(1),
   },
   progressFill: {
     height: '100%',
-    backgroundColor: colors.accent,
-  },
-  progressText: {
-    fontSize: 12,
-    color: colors.subtext,
-    textAlign: 'center',
-  },
-  costSummary: {
-    paddingHorizontal: spacing(3),
-    paddingBottom: spacing(2),
-    alignItems: 'center',
+    backgroundColor: '#D4A574',
   },
   costText: {
-    fontSize: fonts.body,
-    fontWeight: '600',
-    color: colors.text,
-  },
-  costNote: {
-    fontSize: 12,
-    color: colors.muted,
-    marginTop: 2,
+    fontSize: 14,
+    color: '#ccc',
+    textAlign: 'left',
+    paddingHorizontal: 20,
+    marginBottom: 20,
   },
   content: {
     flex: 1,
-    paddingHorizontal: spacing(3),
+    paddingHorizontal: 20,
   },
   categorySection: {
-    marginBottom: spacing(3),
+    marginBottom: 20,
+    backgroundColor: '#1a1a1a',
+    borderRadius: 8,
+    padding: 16,
   },
   categoryTitle: {
-    fontSize: fonts.body,
+    fontSize: 16,
     fontWeight: '700',
-    color: colors.text,
-    marginBottom: spacing(2),
-    paddingHorizontal: spacing(1),
+    color: '#ffffff',
+    marginBottom: 16,
   },
   itemContainer: {
     flexDirection: 'row',
-    alignItems: 'flex-start',
+    alignItems: 'center',
     justifyContent: 'space-between',
-    backgroundColor: colors.card,
-    padding: spacing(2),
-    borderRadius: radii.md,
-    marginBottom: spacing(1),
-    borderWidth: 1,
-    borderColor: colors.line,
+    paddingVertical: 12,
+  },
+  itemBorder: {
+    borderBottomWidth: 1,
+    borderBottomColor: '#2a2a2a',
   },
   itemContainerChecked: {
-    backgroundColor: colors.accent + '10',
-    borderColor: colors.accent + '30',
+    opacity: 0.5,
   },
   itemLeft: {
     flex: 1,
     flexDirection: 'row',
-    alignItems: 'flex-start',
+    alignItems: 'center',
   },
   checkbox: {
-    width: 24,
-    height: 24,
-    borderRadius: 12,
+    width: 20,
+    height: 20,
+    borderRadius: 4,
     borderWidth: 2,
-    borderColor: colors.line,
-    marginRight: spacing(2),
+    borderColor: '#555',
+    marginRight: 12,
     alignItems: 'center',
     justifyContent: 'center',
-    marginTop: 2,
+    backgroundColor: 'transparent',
   },
   checkboxChecked: {
-    backgroundColor: colors.accent,
-    borderColor: colors.accent,
+    backgroundColor: '#D4A574',
+    borderColor: '#D4A574',
   },
   itemDetails: {
     flex: 1,
   },
   itemName: {
-    fontSize: fonts.body,
-    fontWeight: '600',
-    color: colors.text,
-    marginBottom: 2,
+    fontSize: 15,
+    fontWeight: '500',
+    color: '#ffffff',
+    marginBottom: 4,
   },
   itemNameChecked: {
-    color: colors.muted,
     textDecorationLine: 'line-through',
   },
-  itemBrand: {
-    fontSize: 12,
-    color: colors.accent,
-    fontWeight: '500',
-    marginBottom: 2,
-  },
-  itemSize: {
-    fontSize: 12,
-    color: colors.subtext,
-    marginBottom: 2,
-  },
-  itemNotes: {
-    fontSize: 12,
-    color: colors.muted,
-    fontStyle: 'italic',
-    marginTop: spacing(0.5),
-  },
-  whereToFind: {
-    fontSize: 12,
-    color: colors.subtext,
-    marginTop: spacing(0.5),
-  },
-  itemRight: {
-    alignItems: 'flex-end',
-    marginLeft: spacing(2),
+  itemSubcategory: {
+    fontSize: 13,
+    color: '#888',
   },
   itemPrice: {
-    fontSize: fonts.body,
+    fontSize: 15,
     fontWeight: '600',
-    color: colors.text,
+    color: '#ffffff',
+    marginLeft: 12,
   },
   itemPriceChecked: {
-    color: colors.muted,
     textDecorationLine: 'line-through',
   },
   actions: {
-    paddingHorizontal: spacing(3),
-    paddingVertical: spacing(2),
-    borderTopWidth: 1,
-    borderTopColor: colors.line,
+    position: 'absolute',
+    bottom: 80,
+    left: 0,
+    right: 0,
+    paddingHorizontal: 20,
+    paddingVertical: 12,
+    backgroundColor: '#2C2416',
   },
   saveButton: {
-    backgroundColor: colors.accent,
+    backgroundColor: '#D4A574',
+    paddingVertical: 16,
+    borderRadius: 8,
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  saveButtonText: {
+    color: '#1a1a1a',
+    fontSize: 16,
+    fontWeight: '700',
+  },
+  cartSummary: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: spacing(2.5),
-    borderRadius: radii.md,
-    gap: spacing(1),
+    backgroundColor: '#3a3225',
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderRadius: 8,
+    gap: 8,
   },
-  saveButtonText: {
-    color: colors.bg,
-    fontSize: fonts.body,
-    fontWeight: '600',
+  cartSummaryText: {
+    color: '#ccc',
+    fontSize: 13,
+    fontWeight: '500',
+  },
+  bottomNav: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    alignItems: 'center',
+    paddingVertical: 12,
+    paddingBottom: 24,
+    backgroundColor: '#1a1a1a',
+    borderTopWidth: 1,
+    borderTopColor: '#333',
+  },
+  navItem: {
+    alignItems: 'center',
+    gap: 4,
+  },
+  navText: {
+    fontSize: 11,
+    color: '#888',
   },
 });

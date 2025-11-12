@@ -126,6 +126,18 @@ export default function AuthScreen({ onComplete, onSkip }: AuthScreenProps = {})
       >
         <View style={styles.overlay} />
 
+        {/* Skip Button */}
+        {onSkip && (
+          <TouchableOpacity
+            style={styles.skipButton}
+            onPress={onSkip}
+            activeOpacity={0.7}
+          >
+            <Text style={styles.skipButtonText}>Skip</Text>
+            <Ionicons name="arrow-forward" size={18} color={colors.gold} />
+          </TouchableOpacity>
+        )}
+
         <KeyboardAvoidingView
           style={styles.keyboardView}
           behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
@@ -260,6 +272,22 @@ const styles = StyleSheet.create({
   overlay: {
     ...StyleSheet.absoluteFillObject,
     backgroundColor: 'rgba(32, 21, 15, 0.75)', // colors.bg with transparency
+  },
+  skipButton: {
+    position: 'absolute',
+    top: spacing(6),
+    right: spacing(4),
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing(0.5),
+    paddingHorizontal: spacing(2),
+    paddingVertical: spacing(1),
+    zIndex: 10,
+  },
+  skipButtonText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: colors.gold,
   },
   keyboardView: {
     flex: 1,

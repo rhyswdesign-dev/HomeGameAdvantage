@@ -1,0 +1,99 @@
+/**
+ * Upload Recipes to Supabase
+ * Run: npx tsx scripts/upload-recipes.ts
+ */
+
+import { createClient } from '@supabase/supabase-js';
+import * as fs from 'fs';
+import * as path from 'path';
+import * as dotenv from 'dotenv';
+
+// Load environment variables
+dotenv.config();
+
+const supabaseUrl = process.env.EXPO_PUBLIC_SUPABASE_URL;
+const supabaseKey = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY;
+
+if (!supabaseUrl || !supabaseKey) {
+  console.error('❌ Missing Supabase credentials in .env file');
+  process.exit(1);
+}
+
+const supabase = createClient(supabaseUrl, supabaseKey);
+
+async function uploadRecipes() {
+  console.log('📚 Starting recipe upload...\n');
+
+  // Read recipes data
+  const recipesPath = path.join(process.cwd(), 'recipes-data.json');
+  const recipesData = JSON.parse(fs.readFileSync(recipesPath, 'utf-8'));
+
+  console.log(`Found ${recipesData.recipes.length} recipes to upload\n`);
+
+  // Map difficulty values to match database constraints
+  const difficultyMap: Record<string, string> = {
+    'easy': 'beginner',
+    'medium': 'intermediate',
+    'hard': 'advanced'
+  };
+
+  // Transform recipes for Supabase (matching existing table schema)
+  const recipesToUpload = recipesData.recipes.map((recipe: any) => ({
+    id: recipe.id,
+    title: recipe.name,  // name -> title
+    category: recipe.category,
+    difficulty: difficultyMap[recipe.difficulty] || recipe.difficulty,  // Map difficulty
+    preparation_time: recipe.prepTime,  // prep_time -> preparation_time
+    spirits_used: recipe.spirits,  // spirits -> spirits_used
+    base_spirit: recipe.spirits?.[0] || null,  // first spirit as base_spirit
+    glassware: recipe.glass,  // glass -> glassware
+    garnish: recipe.garnish,
+    ingredients: recipe.ingredients,
+    instructions: recipe.instructions,
+    tags: recipe.tags,
+    image_url: recipe.image,
+    description: recipe.ingredients.map((i: any) => `${i.amount} ${i.item}`).join(', '),
+    recipe_type: 'cocktail',
+    is_public: true,
+    created_by: 'system'
+  }));
+
+  // Upload recipes one by one to see progress
+  let successCount = 0;
+  let errorCount = 0;
+
+  for (const recipe of recipesToUpload) {
+    try {
+      const { error } = await supabase
+        .from('recipes')
+        .upsert(recipe, { onConflict: 'id' });
+
+      if (error) {
+        console.error(`❌ Failed to upload ${recipe.title}:`, error.message);
+        errorCount++;
+      } else {
+        console.log(`✅ Uploaded: ${recipe.title}`);
+        successCount++;
+      }
+    } catch (err) {
+      console.error(`❌ Error uploading ${recipe.title}:`, err);
+      errorCount++;
+    }
+  }
+
+  console.log('\n📊 Upload Summary:');
+  console.log(`✅ Success: ${successCount}`);
+  console.log(`❌ Failed: ${errorCount}`);
+  console.log(`📚 Total: ${recipesToUpload.length}`);
+
+  if (errorCount === 0) {
+    console.log('\n🎉 All recipes uploaded successfully!');
+  } else {
+    console.log('\n⚠️ Some recipes failed to upload. Check errors above.');
+  }
+}
+
+uploadRecipes().catch((error) => {
+  console.error('Fatal error:', error);
+  process.exit(1);
+});

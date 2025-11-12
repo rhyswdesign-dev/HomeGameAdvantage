@@ -401,7 +401,7 @@ export default function RootNavigator() {
     <Stack.Screen name="URLRecipeInput" component={URLRecipeInputScreen} options={{ headerShown: true, title: '🔗 Add from URL' }} />
     <Stack.Screen name="VoiceRecipe" component={VoiceRecipeScreen} options={{ headerShown: true, title: '🎤 Voice Recipe Input' }} />
     <Stack.Screen name="PersonalizedHome" component={PersonalizedHomeScreen} options={{ headerShown: true, title: '🧠 Personalized Feed' }} />
-    <Stack.Screen name="HomeBar" component={HomeBarScreen} options={{ headerShown: true, title: '🏠 My Home Bar' }} />
+    <Stack.Screen name="HomeBar" component={HomeBarScreen} options={{ headerShown: false }} />
     <Stack.Screen name="SpiritRecognition" component={SpiritRecognitionScreen} options={{ headerShown: true, title: '📱 Scan Spirit' }} />
     <Stack.Screen name="ShoppingCart" component={ShoppingCartScreen} options={{ headerShown: true, title: '🛒 Shopping Cart' }} />
 </Stack.Navigator>

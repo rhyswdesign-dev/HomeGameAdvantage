@@ -1,17 +1,11 @@
 /**
  * Order Exercise Component
- * Drag-to-reorder interface with clean design
+ * Slot-based drag-and-drop interface with clear visual structure
  */
 
-import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, StyleSheet, Pressable, Animated as RNAnimated } from 'react-native';
-import { GestureHandlerRootView, PanGestureHandler, PanGestureHandlerGestureEvent } from 'react-native-gesture-handler';
-import Animated, {
-  useAnimatedStyle,
-  useSharedValue,
-  withSpring,
-  runOnJS,
-} from 'react-native-reanimated';
+import React, { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, Pressable, TouchableOpacity } from 'react-native';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { Item } from '../../types/domain';
 import { Ionicons } from '@expo/vector-icons';
 import { colors, spacing, radii } from '../../theme/tokens';
@@ -23,143 +17,75 @@ export type ExerciseCommonProps = {
   disabled?: boolean;
 };
 
-const ITEM_HEIGHT = 70;
-
-type DraggableItemProps = {
-  item: string;
-  index: number;
-  currentOrder: string[];
-  onReorder: (fromIndex: number, toIndex: number) => void;
-  submitted: boolean;
-  disabled: boolean;
-  animValue: RNAnimated.Value;
-};
-
-function DraggableItem({ item: itemText, index, currentOrder, onReorder, submitted, disabled, animValue }: DraggableItemProps) {
-  const translateY = useSharedValue(0);
-  const isDragging = useSharedValue(false);
-  const startY = useSharedValue(0);
-
-  const onGestureEvent = (event: PanGestureHandlerGestureEvent) => {
-    'worklet';
-    if (submitted || disabled) return;
-
-    const { translationY, state } = event.nativeEvent;
-
-    // BEGAN
-    if (state === 2) {
-      isDragging.value = true;
-      startY.value = translateY.value;
-    }
-
-    // ACTIVE
-    if (state === 4) {
-      translateY.value = startY.value + translationY;
-    }
-
-    // END
-    if (state === 5) {
-      const dragDistance = translationY;
-      const itemsMoved = Math.round(dragDistance / ITEM_HEIGHT);
-      const newIndex = Math.max(0, Math.min(currentOrder.length - 1, index + itemsMoved));
-
-      if (newIndex !== index) {
-        runOnJS(onReorder)(index, newIndex);
-      }
-
-      translateY.value = withSpring(0);
-      isDragging.value = false;
-    }
-  };
-
-  const animatedStyle = useAnimatedStyle(() => {
-    return {
-      transform: [{ translateY: translateY.value }],
-      zIndex: isDragging.value ? 100 : 0,
-      opacity: isDragging.value ? 0.9 : 1,
-      elevation: isDragging.value ? 8 : 0,
-    };
-  });
-
-  return (
-    <PanGestureHandler onGestureEvent={onGestureEvent} enabled={!submitted && !disabled}>
-      <Animated.View style={[styles.itemContainer, animatedStyle]}>
-        <RNAnimated.View
-          style={{
-            opacity: animValue,
-            transform: [{
-              scale: animValue,
-            }],
-          }}
-        >
-          <View style={styles.orderItem}>
-            <LinearGradient
-              colors={['rgba(255, 255, 255, 0.08)', 'rgba(255, 255, 255, 0.02)']}
-              style={styles.itemGradient}
-            >
-              <View style={styles.itemContent}>
-                <View style={styles.dragHandle}>
-                  <Ionicons
-                    name="reorder-three"
-                    size={24}
-                    color={submitted || disabled ? colors.subtext : colors.gold}
-                  />
-                </View>
-                <Text style={styles.itemText}>{itemText}</Text>
-              </View>
-            </LinearGradient>
-          </View>
-        </RNAnimated.View>
-      </Animated.View>
-    </PanGestureHandler>
-  );
-}
-
 export default function OrderExercise({ item, onResult, disabled = false }: ExerciseCommonProps): React.JSX.Element {
-  const [currentOrder, setCurrentOrder] = useState<string[]>([]);
+  // slots[0] = item in first position, slots[1] = item in second position, etc.
+  const [slots, setSlots] = useState<(string | null)[]>([]);
+  const [availableItems, setAvailableItems] = useState<string[]>([]);
   const [submitted, setSubmitted] = useState(false);
   const [startTime] = useState(Date.now());
 
-  const fadeAnim = useRef(new RNAnimated.Value(1)).current;
-  const itemAnims = useRef((item.orderTarget || []).map(() => new RNAnimated.Value(1))).current;
-
-  // Reset state when item changes
+  // Initialize items when component loads
   useEffect(() => {
     setSubmitted(false);
 
-    if (item.orderTarget) {
+    if (item.orderTarget && item.orderTarget.length > 0) {
+      // Shuffle available items
       const shuffled = [...item.orderTarget].sort(() => Math.random() - 0.5);
-      setCurrentOrder(shuffled);
+      setAvailableItems(shuffled);
+
+      // Create empty slots
+      setSlots(new Array(item.orderTarget.length).fill(null));
     }
-
-    // Reset and start animations
-    fadeAnim.setValue(0);
-    itemAnims.forEach(anim => anim.setValue(0));
-
-    RNAnimated.parallel([
-      RNAnimated.timing(fadeAnim, {
-        toValue: 1,
-        duration: 400,
-        useNativeDriver: true,
-      }),
-      RNAnimated.stagger(60,
-        itemAnims.map(anim =>
-          RNAnimated.spring(anim, {
-            toValue: 1,
-            tension: 80,
-            friction: 8,
-            useNativeDriver: true,
-          })
-        )
-      ),
-    ]).start();
   }, [item.id]);
+
+  const handleItemClick = (itemText: string, fromAvailable: boolean, fromSlotIndex?: number) => {
+    if (submitted || disabled) return;
+
+    if (fromAvailable) {
+      // Item clicked from available pool - try to place in first empty slot
+      const emptySlotIndex = slots.findIndex(slot => slot === null);
+      if (emptySlotIndex !== -1) {
+        const newSlots = [...slots];
+        newSlots[emptySlotIndex] = itemText;
+        setSlots(newSlots);
+        setAvailableItems(availableItems.filter(i => i !== itemText));
+      }
+    } else if (fromSlotIndex !== undefined) {
+      // Item clicked from a slot - return it to available pool
+      const newSlots = [...slots];
+      newSlots[fromSlotIndex] = null;
+      setSlots(newSlots);
+      setAvailableItems([...availableItems, itemText]);
+    }
+  };
 
   const handleSubmit = () => {
     if (submitted || disabled) return;
 
-    const isCorrect = arraysEqual(currentOrder, item.orderTarget || []);
+    // Get ordered items from slots (filter out nulls)
+    const orderedItems = slots.filter((item): item is string => item !== null);
+    const targetOrder = item.orderTarget || [];
+
+    console.log('🔍 ORDER VALIDATION DEBUG:');
+    console.log('Slots:', JSON.stringify(slots));
+    console.log('Ordered items:', JSON.stringify(orderedItems));
+    console.log('Target order:', JSON.stringify(targetOrder));
+
+    // Check if all slots are filled
+    if (orderedItems.length !== targetOrder.length) {
+      console.log('❌ Not all slots filled');
+      return;
+    }
+
+    const isCorrect = arraysEqual(orderedItems, targetOrder);
     const timeToAnswer = Date.now() - startTime;
+
+    console.log('Is correct?', isCorrect);
+    console.log('Comparison details:');
+    orderedItems.forEach((itemText, idx) => {
+      const expected = targetOrder[idx];
+      console.log(`  Slot ${idx + 1}: "${itemText}" vs "${expected}" - ${itemText === expected ? '✓' : '✗'}`);
+    });
 
     setSubmitted(true);
 
@@ -168,47 +94,92 @@ export default function OrderExercise({ item, onResult, disabled = false }: Exer
     }, 800);
   };
 
-  const handleReorder = (fromIndex: number, toIndex: number) => {
-    if (submitted || disabled) return;
-
-    const newOrder = [...currentOrder];
-    const [movedItem] = newOrder.splice(fromIndex, 1);
-    newOrder.splice(toIndex, 0, movedItem);
-    setCurrentOrder(newOrder);
-  };
-
   const arraysEqual = (a: string[], b: string[]): boolean => {
     return a.length === b.length && a.every((val, index) => val === b[index]);
   };
 
+  if (!item.orderTarget || item.orderTarget.length === 0) {
+    return (
+      <View style={styles.container}>
+        <Text style={styles.errorText}>No order items available</Text>
+      </View>
+    );
+  }
+
+  const allSlotsFilled = slots.every(slot => slot !== null);
+
   return (
-    <GestureHandlerRootView style={{ flex: 1 }}>
-      <RNAnimated.View
-        style={[
-          styles.container,
-          {
-            opacity: fadeAnim,
-          },
-        ]}
-      >
+    <GestureHandlerRootView style={styles.gestureRoot}>
+      <View style={styles.container}>
         <Text style={styles.prompt}>{item.prompt}</Text>
 
-        <View style={styles.orderContainer}>
-          {currentOrder.map((step, index) => (
-            <DraggableItem
-              key={`${step}-${index}`}
-              item={step}
-              index={index}
-              currentOrder={currentOrder}
-              onReorder={handleReorder}
-              submitted={submitted}
-              disabled={disabled}
-              animValue={itemAnims[index]}
-            />
-          ))}
+        {/* Ordered Slots */}
+        <View style={styles.slotsSection}>
+          <Text style={styles.sectionLabel}>Your Order:</Text>
+          <View style={styles.slotsContainer}>
+            {slots.map((slotItem, index) => (
+              <View key={index} style={styles.slotWrapper}>
+                <View style={styles.slotNumber}>
+                  <Text style={styles.slotNumberText}>{index + 1}</Text>
+                </View>
+                <TouchableOpacity
+                  style={[
+                    styles.slot,
+                    slotItem ? styles.slotFilled : styles.slotEmpty,
+                  ]}
+                  onPress={() => slotItem && handleItemClick(slotItem, false, index)}
+                  disabled={submitted || disabled || !slotItem}
+                  activeOpacity={0.7}
+                >
+                  {slotItem ? (
+                    <LinearGradient
+                      colors={['rgba(255, 255, 255, 0.08)', 'rgba(255, 255, 255, 0.02)']}
+                      style={styles.slotContent}
+                    >
+                      <Text style={styles.slotText}>{slotItem}</Text>
+                      {!submitted && (
+                        <Ionicons name="close-circle" size={20} color={colors.gold} />
+                      )}
+                    </LinearGradient>
+                  ) : (
+                    <View style={styles.slotContent}>
+                      <Text style={styles.emptySlotText}>Tap item below</Text>
+                    </View>
+                  )}
+                </TouchableOpacity>
+              </View>
+            ))}
+          </View>
         </View>
 
-        {!submitted && (
+        {/* Available Items Pool */}
+        {availableItems.length > 0 && (
+          <View style={styles.availableSection}>
+            <Text style={styles.sectionLabel}>Available Items:</Text>
+            <View style={styles.availableContainer}>
+              {availableItems.map((itemText, index) => (
+                <TouchableOpacity
+                  key={index}
+                  style={styles.availableItem}
+                  onPress={() => handleItemClick(itemText, true)}
+                  disabled={submitted || disabled}
+                  activeOpacity={0.7}
+                >
+                  <LinearGradient
+                    colors={[colors.gold, colors.accent]}
+                    style={styles.availableGradient}
+                  >
+                    <Text style={styles.availableText}>{itemText}</Text>
+                    <Ionicons name="arrow-up" size={18} color={colors.goldText} />
+                  </LinearGradient>
+                </TouchableOpacity>
+              ))}
+            </View>
+          </View>
+        )}
+
+        {/* Submit Button */}
+        {!submitted && allSlotsFilled && (
           <Pressable
             style={[styles.submitButton, disabled && styles.submitButtonDisabled]}
             onPress={handleSubmit}
@@ -232,12 +203,15 @@ export default function OrderExercise({ item, onResult, disabled = false }: Exer
             </LinearGradient>
           </Pressable>
         )}
-      </RNAnimated.View>
+      </View>
     </GestureHandlerRootView>
   );
 }
 
 const styles = StyleSheet.create({
+  gestureRoot: {
+    width: '100%',
+  },
   container: {
     width: '100%',
   },
@@ -250,42 +224,105 @@ const styles = StyleSheet.create({
     color: colors.text,
     letterSpacing: -0.3,
   },
-  orderContainer: {
-    gap: spacing(1.5),
+  sectionLabel: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: colors.gold,
+    marginBottom: spacing(2),
+    textTransform: 'uppercase',
+    letterSpacing: 1,
+  },
+  slotsSection: {
     marginBottom: spacing(4),
   },
-  itemContainer: {
-    marginBottom: spacing(0.5),
+  slotsContainer: {
+    gap: spacing(2),
   },
-  orderItem: {
-    borderRadius: radii.lg,
-    overflow: 'hidden',
-    borderWidth: 2,
-    borderColor: 'rgba(255, 255, 255, 0.1)',
-    shadowColor: colors.shadow,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 3,
-  },
-  itemGradient: {
-    paddingVertical: spacing(2.5),
-    paddingHorizontal: spacing(3),
-  },
-  itemContent: {
+  slotWrapper: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing(2),
   },
-  dragHandle: {
-    marginRight: spacing(1),
+  slotNumber: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.2)',
   },
-  itemText: {
+  slotNumberText: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: colors.gold,
+  },
+  slot: {
+    flex: 1,
+    minHeight: 60,
+    borderRadius: radii.lg,
+    overflow: 'hidden',
+  },
+  slotEmpty: {
+    borderWidth: 2,
+    borderColor: 'rgba(255, 255, 255, 0.2)',
+    borderStyle: 'dashed',
+  },
+  slotFilled: {
+    borderWidth: 2,
+    borderColor: 'rgba(255, 255, 255, 0.1)',
+  },
+  slotContent: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingVertical: spacing(2),
+    paddingHorizontal: spacing(3),
+  },
+  slotText: {
     flex: 1,
     fontSize: 16,
     fontWeight: '600',
-    lineHeight: 22,
     color: colors.text,
+    lineHeight: 22,
+  },
+  emptySlotText: {
+    fontSize: 14,
+    fontWeight: '500',
+    color: colors.subtext,
+    fontStyle: 'italic',
+    opacity: 0.5,
+  },
+  availableSection: {
+    marginBottom: spacing(4),
+  },
+  availableContainer: {
+    gap: spacing(2),
+  },
+  availableItem: {
+    borderRadius: radii.lg,
+    overflow: 'hidden',
+    shadowColor: colors.gold,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 4,
+  },
+  availableGradient: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingVertical: spacing(2.5),
+    paddingHorizontal: spacing(3),
+  },
+  availableText: {
+    flex: 1,
+    fontSize: 16,
+    fontWeight: '700',
+    color: colors.goldText,
+    lineHeight: 22,
   },
   submitButton: {
     borderRadius: radii.lg,
@@ -313,5 +350,11 @@ const styles = StyleSheet.create({
   },
   submitTextDisabled: {
     color: colors.subtext,
+  },
+  errorText: {
+    fontSize: 16,
+    color: colors.error,
+    textAlign: 'center',
+    padding: spacing(4),
   },
 });

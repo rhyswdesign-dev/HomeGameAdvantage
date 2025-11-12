@@ -9,7 +9,8 @@ import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { colors, spacing, radii } from '../theme/tokens';
 import { useSavedItems } from '../hooks/useSavedItems';
 import type { RootStackParamList } from '../navigation/RootNavigator';
-import { getRecipeById, type Recipe } from '../lib/firestore';
+import { RecipesRepository } from '../repos/supabase';
+import type { Recipe } from '../types/recipe';
 import { ShoppingListStore } from '../services/shoppingListStore';
 import { GroceryListService } from '../services/groceryListService';
 import { getDetailedCocktail } from '../utils/cocktailDataTransformer';
@@ -835,20 +836,20 @@ export default function CocktailDetailScreen() {
   const [loading, setLoading] = useState(true);
   const [groceryListVisible, setGroceryListVisible] = useState(false);
 
-  // Load recipe from Firebase first
+  // Load recipe from Supabase first
   useEffect(() => {
-    const loadFirebaseRecipe = async () => {
+    const loadRecipe = async () => {
       try {
-        const recipe = await getRecipeById(route.params.cocktailId);
+        const recipe = await RecipesRepository.getRecipeById(route.params.cocktailId);
         setFirebaseRecipe(recipe);
       } catch (error) {
-        console.error('Error loading Firebase recipe:', error);
+        console.error('Error loading recipe:', error);
       } finally {
         setLoading(false);
       }
     };
 
-    loadFirebaseRecipe();
+    loadRecipe();
   }, [route.params.cocktailId]);
 
   // Check data sources in priority order:
