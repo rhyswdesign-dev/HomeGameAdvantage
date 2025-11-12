@@ -30,7 +30,11 @@ import { LocationMap } from '../../components/ui';
 
 const { width } = Dimensions.get('window');
 
-const TheHiddenFlaskScreen: React.FC = () => {
+interface TheHiddenFlaskScreenProps {
+  onComplete?: () => void;
+}
+
+const TheHiddenFlaskScreen: React.FC<TheHiddenFlaskScreenProps> = ({ onComplete }) => {
   const navigation = useNavigation<any>();
   const [isStoryExpanded, setIsStoryExpanded] = useState(false);
   const { toggleSavedBar, isBarSaved } = useSavedItems();
@@ -271,18 +275,29 @@ const TheHiddenFlaskScreen: React.FC = () => {
 
       <SafeAreaView style={styles.stickyBar}>
         <View style={styles.ctaContainer}>
-          <PillButton 
-            title="Buy Now"
-            onPress={() => {}}
-            variant="primary"
-            style={styles.ctaButton}
-          />
-          <PillButton 
-            title="Find Near You"
-            onPress={() => {}}
-            variant="outline"
-            style={styles.ctaButton}
-          />
+          {onComplete ? (
+            <PillButton
+              title="Enter The Hidden Flask →"
+              onPress={onComplete}
+              variant="primary"
+              style={styles.fullWidthButton}
+            />
+          ) : (
+            <>
+              <PillButton
+                title="Buy Now"
+                onPress={() => {}}
+                variant="primary"
+                style={styles.ctaButton}
+              />
+              <PillButton
+                title="Find Near You"
+                onPress={() => {}}
+                variant="outline"
+                style={styles.ctaButton}
+              />
+            </>
+          )}
         </View>
       </SafeAreaView>
     </View>
@@ -324,6 +339,7 @@ const styles = StyleSheet.create({
   stickyBar: { position: 'absolute', bottom: 0, left: 0, right: 0, backgroundColor: colors.bg, borderTopWidth: 1, borderTopColor: colors.line },
   ctaContainer: { flexDirection: 'row', paddingHorizontal: 16, paddingVertical: 12, gap: 12 },
   ctaButton: { flex: 1 },
+  fullWidthButton: { flex: 1 },
 });
 
 export default TheHiddenFlaskScreen;

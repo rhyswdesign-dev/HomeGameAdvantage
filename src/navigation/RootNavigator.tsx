@@ -176,10 +176,16 @@ export type RootStackParamList = {
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
-export default function RootNavigator() {
+interface RootNavigatorProps {
+  initialRouteName?: keyof RootStackParamList;
+  onHiddenFlaskComplete?: () => void;
+}
+
+export default function RootNavigator({ initialRouteName = 'Main', onHiddenFlaskComplete }: RootNavigatorProps = {}) {
   return (
-    <Stack.Navigator 
-      screenOptions={{ 
+    <Stack.Navigator
+      initialRouteName={initialRouteName}
+      screenOptions={{
         headerShown: false,
         headerStyle: components.header,
         headerTintColor: colors.headerText,
@@ -281,7 +287,7 @@ export default function RootNavigator() {
         headerShadowVisible: false,
         headerLeft: () => null,
       })} />
-      <Stack.Screen name="TheHiddenFlask" component={TheHiddenFlaskScreen} options={({ navigation }) => ({
+      <Stack.Screen name="TheHiddenFlask" options={({ navigation }) => ({
         headerShown: true,
         title: 'The Hidden Flask',
         headerStyle: components.header,
@@ -289,7 +295,9 @@ export default function RootNavigator() {
         headerTitleStyle: components.headerText,
         headerShadowVisible: false,
         headerLeft: () => null,
-      })} />
+      })}>
+        {(props) => <TheHiddenFlaskScreen {...props} onComplete={onHiddenFlaskComplete} />}
+      </Stack.Screen>
       <Stack.Screen name="CopperMoon" component={CopperMoonScreen} options={{ headerShown: false }} />
       <Stack.Screen name="NeonNights" component={NeonNightsScreen} options={{ headerShown: false }} />
       <Stack.Screen name="WhiskeyDen" component={WhiskeyDenScreen} options={{ headerShown: false }} />
