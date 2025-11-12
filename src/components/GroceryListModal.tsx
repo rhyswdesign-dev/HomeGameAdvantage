@@ -144,7 +144,7 @@ export default function GroceryListModal({
         <View style={styles.header}>
           <Text style={styles.headerTitle}>Add Ingredients to Cart</Text>
           <TouchableOpacity onPress={handleShare} style={styles.shareButton}>
-            <Ionicons name="share-outline" size={24} color="#D4A574" />
+            <Ionicons name="share-outline" size={24} color="#D7A15E" />
           </TouchableOpacity>
         </View>
 
@@ -237,8 +237,8 @@ export default function GroceryListModal({
             </View>
           ))}
 
-          {/* Bottom spacing for button */}
-          <View style={{ height: 180 }} />
+          {/* Bottom spacing for fixed actions + bottom nav */}
+          <View style={{ height: 220 }} />
         </ScrollView>
 
         {/* Actions - Fixed at bottom */}
@@ -291,7 +291,7 @@ export default function GroceryListModal({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#2C2416',
+    backgroundColor: '#20150F', // App background color
   },
   header: {
     flexDirection: 'row',
@@ -304,14 +304,14 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 20,
     fontWeight: '600',
-    color: '#ffffff',
+    color: '#F5ECDF', // App text color
   },
   shareButton: {
     padding: 4,
   },
   subtitle: {
     fontSize: 14,
-    color: '#999',
+    color: '#C9BEB3', // Subtle text
     textAlign: 'center',
     marginBottom: 20,
   },
@@ -321,22 +321,22 @@ const styles = StyleSheet.create({
   },
   progressText: {
     fontSize: 13,
-    color: '#ccc',
+    color: '#D6C2A8', // Subtext
     marginBottom: 8,
   },
   progressBar: {
     height: 6,
-    backgroundColor: '#3a3225',
+    backgroundColor: '#3A2A1F', // Chip background
     borderRadius: 3,
     overflow: 'hidden',
   },
   progressFill: {
     height: '100%',
-    backgroundColor: '#D4A574',
+    backgroundColor: '#D7A15E', // Gold accent
   },
   costText: {
     fontSize: 14,
-    color: '#ccc',
+    color: '#D6C2A8', // Subtext
     textAlign: 'left',
     paddingHorizontal: 20,
     marginBottom: 20,
@@ -347,14 +347,16 @@ const styles = StyleSheet.create({
   },
   categorySection: {
     marginBottom: 20,
-    backgroundColor: '#1a1a1a',
-    borderRadius: 8,
+    backgroundColor: '#2B1B12', // Card background
+    borderRadius: 14,
     padding: 16,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.08)', // Border
   },
   categoryTitle: {
     fontSize: 16,
     fontWeight: '700',
-    color: '#ffffff',
+    color: '#F5ECDF', // Text color
     marginBottom: 16,
   },
   itemContainer: {
@@ -365,7 +367,7 @@ const styles = StyleSheet.create({
   },
   itemBorder: {
     borderBottomWidth: 1,
-    borderBottomColor: '#2a2a2a',
+    borderBottomColor: 'rgba(255,255,255,0.08)', // Border
   },
   itemContainerChecked: {
     opacity: 0.5,
@@ -380,15 +382,15 @@ const styles = StyleSheet.create({
     height: 20,
     borderRadius: 4,
     borderWidth: 2,
-    borderColor: '#555',
+    borderColor: '#5A3F2A', // Chip active
     marginRight: 12,
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: 'transparent',
   },
   checkboxChecked: {
-    backgroundColor: '#D4A574',
-    borderColor: '#D4A574',
+    backgroundColor: '#D7A15E', // Gold accent
+    borderColor: '#D7A15E',
   },
   itemDetails: {
     flex: 1,
@@ -396,7 +398,7 @@ const styles = StyleSheet.create({
   itemName: {
     fontSize: 15,
     fontWeight: '500',
-    color: '#ffffff',
+    color: '#F5ECDF', // Text color
     marginBottom: 4,
   },
   itemNameChecked: {
@@ -404,12 +406,12 @@ const styles = StyleSheet.create({
   },
   itemSubcategory: {
     fontSize: 13,
-    color: '#888',
+    color: '#C9BEB3', // Subtle text
   },
   itemPrice: {
     fontSize: 15,
     fontWeight: '600',
-    color: '#ffffff',
+    color: '#F4ECE4', // Light text
     marginLeft: 12,
   },
   itemPriceChecked: {
@@ -422,17 +424,17 @@ const styles = StyleSheet.create({
     right: 0,
     paddingHorizontal: 20,
     paddingVertical: 12,
-    backgroundColor: '#2C2416',
+    backgroundColor: '#20150F', // Match container background
   },
   saveButton: {
-    backgroundColor: '#D4A574',
+    backgroundColor: '#E4933E', // Accent color
     paddingVertical: 16,
-    borderRadius: 8,
+    borderRadius: 24,
     alignItems: 'center',
     marginBottom: 12,
   },
   saveButtonText: {
-    color: '#1a1a1a',
+    color: '#0D0906', // Gold text
     fontSize: 16,
     fontWeight: '700',
   },
@@ -440,33 +442,38 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#3a3225',
+    backgroundColor: '#3A2A1F', // Chip background
     paddingVertical: 12,
     paddingHorizontal: 16,
     borderRadius: 8,
     gap: 8,
   },
   cartSummaryText: {
-    color: '#ccc',
+    color: '#D6C2A8', // Subtext
     fontSize: 13,
     fontWeight: '500',
   },
   bottomNav: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
     flexDirection: 'row',
     justifyContent: 'space-around',
     alignItems: 'center',
     paddingVertical: 12,
-    paddingBottom: 24,
-    backgroundColor: '#1a1a1a',
+    paddingBottom: 34, // Extra padding for safe area
+    backgroundColor: '#2A211C', // Header background
     borderTopWidth: 1,
-    borderTopColor: '#333',
+    borderTopColor: 'rgba(255,255,255,0.08)', // Border
   },
   navItem: {
     alignItems: 'center',
     gap: 4,
+    paddingVertical: 8,
   },
   navText: {
     fontSize: 11,
-    color: '#888',
+    color: '#C9BEB3', // Subtle text
   },
 });
