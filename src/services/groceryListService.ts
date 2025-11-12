@@ -272,6 +272,25 @@ export class GroceryListService {
   }
 
   /**
+   * Get detailed description for liqueurs (before brand partnerships)
+   */
+  public static getLiqueurDescription(subcategory: string): string | undefined {
+    const descriptions: { [key: string]: string } = {
+      'Orange Liqueur': 'A sweet, orange-flavored liqueur made from dried orange peels. Essential for margaritas and cosmopolitans.',
+      'Coffee Liqueur': 'A sweet, coffee-flavored liqueur. Rich and aromatic, perfect for espresso martinis and white Russians.',
+      'Amaretto': 'An almond-flavored Italian liqueur with a sweet, marzipan-like taste. Great for amaretto sours.',
+      'Raspberry Liqueur': 'A sweet, fruity liqueur made from raspberries. Adds vibrant berry flavor to cocktails.',
+      'Maraschino': 'A clear, cherry liqueur made from Marasca cherries. Provides subtle cherry and almond notes.',
+      'Bitter Liqueur': 'A bold, bitter-sweet Italian liqueur with herbal and citrus notes. Essential for negronis.',
+      'Elderflower Liqueur': 'A delicate, floral liqueur made from elderflower blossoms. Adds elegant, fragrant notes.',
+      'Cream Liqueur': 'A smooth, creamy liqueur blending Irish whiskey with cream. Perfect for Irish coffee.',
+      'Honey Liqueur': 'A sweet, honey and herb liqueur from Scotland. Adds warmth and complexity to cocktails.',
+    };
+
+    return descriptions[subcategory];
+  }
+
+  /**
    * Estimate price for ingredient
    */
   private static estimatePrice(ingredient: string, size?: string): number | undefined {

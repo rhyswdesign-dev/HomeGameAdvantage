@@ -142,6 +142,9 @@ export default function GroceryListModal({
       <View style={styles.container}>
         {/* Header */}
         <View style={styles.header}>
+          <TouchableOpacity onPress={onClose} style={styles.closeButton}>
+            <Ionicons name="close" size={28} color="#F5ECDF" />
+          </TouchableOpacity>
           <Text style={styles.headerTitle}>Add Ingredients to Cart</Text>
           <TouchableOpacity onPress={handleShare} style={styles.shareButton}>
             <Ionicons name="share-outline" size={24} color="#D7A15E" />
@@ -202,6 +205,13 @@ export default function GroceryListModal({
                   ? `${getCategoryLabel(item.category, item.subcategory)} • ${item.subcategory}`
                   : getCategoryLabel(item.category, item.subcategory);
 
+                // Get liqueur description if applicable
+                const liqueurDescription = (item.category === 'spirits_liquors' &&
+                  item.subcategory?.toLowerCase().includes('liqueur')) ||
+                  ['Maraschino', 'Amaretto', 'Campari'].includes(item.subcategory || '')
+                  ? GroceryListService.getLiqueurDescription(item.subcategory || '')
+                  : undefined;
+
                 return (
                   <TouchableOpacity
                     key={item.id}
@@ -223,6 +233,9 @@ export default function GroceryListModal({
                           {item.name}
                         </Text>
                         <Text style={styles.itemSubcategory}>{subcategoryDisplay}</Text>
+                        {liqueurDescription && (
+                          <Text style={styles.itemDescription}>{liqueurDescription}</Text>
+                        )}
                       </View>
                     </View>
 
@@ -301,13 +314,22 @@ const styles = StyleSheet.create({
     paddingTop: 60,
     paddingBottom: 16,
   },
+  closeButton: {
+    padding: 4,
+    width: 36,
+  },
   headerTitle: {
     fontSize: 20,
     fontWeight: '600',
     color: '#F5ECDF', // App text color
+    flex: 1,
+    textAlign: 'center',
+    marginHorizontal: -36, // Offset the close button width to center title
   },
   shareButton: {
     padding: 4,
+    width: 36,
+    alignItems: 'flex-end',
   },
   subtitle: {
     fontSize: 14,
@@ -407,6 +429,13 @@ const styles = StyleSheet.create({
   itemSubcategory: {
     fontSize: 13,
     color: '#C9BEB3', // Subtle text
+  },
+  itemDescription: {
+    fontSize: 12,
+    color: '#A89889', // Even more subtle
+    marginTop: 4,
+    lineHeight: 16,
+    fontStyle: 'italic',
   },
   itemPrice: {
     fontSize: 15,
