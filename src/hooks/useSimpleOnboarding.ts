@@ -19,7 +19,7 @@
 import { useState, useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-type AppState = 'loading' | 'splash' | 'bartending_welcome' | 'welcome' | 'onboarding' | 'survey' | 'xp_reminder' | 'main';
+type AppState = 'loading' | 'splash' | 'hidden_flask' | 'bartending_welcome' | 'welcome' | 'onboarding' | 'survey' | 'xp_reminder' | 'main';
 
 const ONBOARDING_COMPLETED_KEY = '@HomeGameAdvantage:onboarding_completed';
 
@@ -54,6 +54,12 @@ export function useSimpleOnboarding() {
   };
 
   const handleSplashFinish = async () => {
+    // After video splash, always show hidden flask screen
+    console.log('🍸 Video splash finished, transitioning to Hidden Flask');
+    setAppState('hidden_flask');
+  };
+
+  const completeHiddenFlask = async () => {
     try {
       // Check if user has completed onboarding before
       const onboardingCompleted = await AsyncStorage.getItem(ONBOARDING_COMPLETED_KEY);
@@ -134,6 +140,7 @@ export function useSimpleOnboarding() {
   return {
     appState,
     handleSplashFinish,
+    completeHiddenFlask,
     completeBartendingWelcome,
     completeWelcome,
     completeOnboarding,
