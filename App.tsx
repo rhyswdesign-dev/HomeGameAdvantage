@@ -45,7 +45,7 @@ console.error = (...args: any[]) => {
 };
 
 export default function App() {
-  const { appState, handleSplashFinish, completeHiddenFlask, completeBartendingWelcome, completeWelcome, completeOnboarding, completeSurvey, skipToXPReminder, completeXPReminder, goBackToOnboarding } = useOnboarding();
+  const { appState, handleSplashFinish, completeBartendingWelcome, completeWelcome, completeOnboarding, completeSurvey, skipToXPReminder, completeXPReminder, goBackToOnboarding } = useOnboarding();
 
   // Initialize user recipes store on app startup
   React.useEffect(() => {
@@ -57,15 +57,6 @@ export default function App() {
   // Show splash screen
   if (appState === 'loading' || appState === 'splash') {
     return <SplashScreen onFinish={handleSplashFinish} />;
-  }
-
-  // Show hidden flask screen after video splash
-  if (appState === 'hidden_flask') {
-    return (
-      <NavigationContainer>
-        <RootNavigator initialRouteName="TheHiddenFlask" onHiddenFlaskComplete={completeHiddenFlask} />
-      </NavigationContainer>
-    );
   }
 
   // Show bartending welcome (first step)
